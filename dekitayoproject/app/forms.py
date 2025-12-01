@@ -1,6 +1,8 @@
 from django import forms
 from .models import Users
 from .models import Family_members
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 class UsersModelForm(forms.ModelForm):
     
@@ -27,6 +29,23 @@ class UsersModelForm(forms.ModelForm):
         help_texts = {
             "username": "",
         }
+
+        def clean(self):
+            clean_date =super().clean()
+            password = clean_date.get['password']
+            try:
+                validate_password(password, self.instance)
+            except ValidationError as e:
+                self.add_error('password', e)
+            return clean_date
+        
+        def save(self,commit=False):
+            user = super().save(commit=False)
+            user.set_password(self.cleaned_date['password'])
+            if commit:
+                user.save()
+            return user
+
 
 class Family_membersModelForm(forms.ModelForm):
 

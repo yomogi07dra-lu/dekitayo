@@ -17,10 +17,10 @@ class Users(AbstractUser):
         on_delete=models.CASCADE,
         )
     
-    #icon_id = models.ForeignKey(
-        #'Icons',
-        #on_delete=models.CASECADE,
-        #)
+    icon_id = models.ForeignKey(
+        'Icons',
+        on_delete=models.CASCADE,
+        )
 
     class Meta:
         db_table = 'users'
@@ -67,3 +67,15 @@ class Children(models.Model):
         db_table = 'children'
 
 
+class Icons(models.Model):
+    image_url = models.FileField()
+
+    class Meta:
+        db_table = 'icons'
+
+
+class invitations(models.Model):
+    code = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = 'invitations'
