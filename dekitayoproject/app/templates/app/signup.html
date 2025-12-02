@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>signup</title>
-    できたよ！
+    <p>できたよ！</p>
 </head>
 
 <body>
+
     <form method="POST">
         {% csrf_token %}
-        {{ signup }}
-        {{ role }}
-        <input type="submit" value="登録">
+        {{ signup.as_p }}
+        {{ role.as_p }}
+        <p>保護者の方は招待コードなしでも登録できます</p><div>
+        <input type="submit" value="登録"><div>
     </form>
+
+    <a href="{% url 'login' %}">ログイン</a>
 
 </body>
 </html>

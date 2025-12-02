@@ -12,15 +12,15 @@ class BaseMeta(models.Model):
 
 
 class Users(AbstractUser):
-    family_member_id = models.ForeignKey(
+    family_member = models.ForeignKey(
         'Family_members',
         on_delete=models.CASCADE,
         )
     
-    icon_id = models.ForeignKey(
-        'Icons',
-        on_delete=models.CASCADE,
-        )
+    # icon = models.ForeignKey(
+    #     'Icons',
+    #     on_delete=models.CASCADE,
+    #     )
 
     class Meta:
         db_table = 'users'
@@ -33,7 +33,7 @@ class Families(models.Model):
 
 
 class Family_members(models.Model):
-    family_id = models.ForeignKey(
+    family = models.ForeignKey(
         'Families',
         on_delete=models.CASCADE,
     )
@@ -53,12 +53,12 @@ class Family_members(models.Model):
 
 
 class Children(models.Model):
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         'Users',
         on_delete=models.CASCADE,
         )
     
-    family_member_id = models.ForeignKey(
+    family_member = models.ForeignKey(
         'Family_members',
         on_delete=models.CASCADE,
     )
@@ -67,11 +67,11 @@ class Children(models.Model):
         db_table = 'children'
 
 
-class Icons(models.Model):
-    image_url = models.FileField()
+# class Icons(models.Model):
+#     image_url = models.FileField()
 
-    class Meta:
-        db_table = 'icons'
+#     class Meta:
+#         db_table = 'icons'
 
 
 class invitations(models.Model):

@@ -30,21 +30,21 @@ class UsersModelForm(forms.ModelForm):
             "username": "",
         }
 
-        def clean(self):
-            clean_date =super().clean()
-            password = clean_date.get['password']
-            try:
-                validate_password(password, self.instance)
-            except ValidationError as e:
-                self.add_error('password', e)
-            return clean_date
+    def clean(self):
+        clean_data =super().clean()
+        password = clean_data.get('password')
+        try:
+            validate_password(password, self.instance)
+        except ValidationError as e:
+            self.add_error('password', e)
+        return clean_data
         
-        def save(self,commit=False):
-            user = super().save(commit=False)
-            user.set_password(self.cleaned_date['password'])
-            if commit:
-                user.save()
-            return user
+    def save(self,commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user
 
 
 class Family_membersModelForm(forms.ModelForm):
@@ -52,5 +52,12 @@ class Family_membersModelForm(forms.ModelForm):
     class Meta:
         model = Family_members
         fields = ('role',)
+        labels = {
+            'role': '',
+        }
         widgets = { 'role': forms.RadioSelect }
 
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(label="メールアドレス")
+    password = forms.CharField(label="パスワード")
