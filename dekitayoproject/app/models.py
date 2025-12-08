@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import date, datetime
 from django.contrib.auth.models import (AbstractUser)
+import uuid
 
 
 class BaseMeta(models.Model): 
@@ -79,3 +80,12 @@ class invitations(models.Model):
 
     class Meta:
         db_table = 'invitations'
+
+class PasswordResetToken(models.Model):
+    user_PasswordReset = models.OneToOneField(
+        Users,
+        on_delete=models.CASCADE,
+        related_name='password_reset_token',
+    )
+    token = models.UUIDField(default=uuid.uuid4,db_index=True)
+    used = models.BooleanField(default=False)
