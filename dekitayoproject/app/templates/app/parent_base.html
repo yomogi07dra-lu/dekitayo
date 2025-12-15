@@ -1,9 +1,11 @@
+{# 保護者用　ベーステンプレート #}
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+{# 保護者用　ベースCSS #}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/parent_base.css' %}">
     {% block extra_css %}
@@ -11,12 +13,32 @@
 
     <title>parent_base</title>
 </head>
+
 <body>
+{# メッセージ用モーダル #}
+    {% if messages %}
+    <div class="modal-overlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{# メッセージ用モーダル　JavaScript (メッセージ用モーダルを閉じる)#}
+    <script>
+    function closeModal() {
+        document.querySelector('.modal-overlay').style.display = 'none';
+    }
+    </script>
+
     <div class="app">
         <header class="site-header">
             <div class="header-inner">
                 <a href="{% url 'parent_home' %}" class="header-title">できたよ！</a>
                 <div class="header-icons">
+                    <a href="{% url 'parent_mypage' %}">マイページ</a>
                 </div>
             </div>
         </header>
@@ -29,7 +51,14 @@
         </main>
 
         <footer class="site-footer">
+            <div class="footer-icons">
+                    <a href="{% url 'parent_home' %}">今日</a>
+            </div>
         </footer>
     </div>
+{# JavaScript用ブロック #}
+    {% block extra_js %}
+
+    {% endblock %}
 </body>
 </html>

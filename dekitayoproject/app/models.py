@@ -78,7 +78,12 @@ class Icons(models.Model):
 
 
 class Invitations(models.Model):
-    code = models.CharField(max_length=10)
+    family = models.OneToOneField(
+        'Families', 
+        on_delete=models.CASCADE,
+        related_name='invite')
+    code = models.CharField(max_length=10, unique=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'invitations'
@@ -101,8 +106,8 @@ class Daily_logs(models.Model):
     )
     date = models.DateField()
     comment = models.CharField(max_length=100, blank=True)
-    photo1_url1 = models.URLField(max_length=255,blank=True)
-    photo2_url2 = models.URLField(max_length=255,blank=True)
+    photo1_url1 = models.URLField(max_length=255,blank=True,null=True)
+    photo2_url2 = models.URLField(max_length=255,blank=True,null=True)
 
     class Meta:
          db_table = 'daily_logs'

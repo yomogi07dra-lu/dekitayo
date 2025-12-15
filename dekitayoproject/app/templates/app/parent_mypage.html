@@ -1,0 +1,51 @@
+{# 保護者用　マイページ画面 #}
+
+{# 保護者ベーステンプレート継承 #}
+{% extends 'app/parent_base.html' %}
+{% load static %}
+
+{# 保護者ベースCSS #}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/parent_mypage.css' %}">
+{% endblock %}
+
+{# ログアウト確認用モーダル　JavaScript#}
+{% block extra_js %}
+<script>
+    const modal = document.getElementById("logout-modal");
+    const openBtn = document.getElementById("open-logout");
+    const closeBtn = document.getElementById("close-logout");
+
+    if (openBtn && closeBtn && modal) {
+        openBtn.addEventListener("click", () => {
+            modal.classList.remove("hidden");
+        });
+
+        closeBtn.addEventListener("click", () => {
+            modal.classList.add("hidden");
+        });
+  }
+</script>
+{% endblock %}
+
+{# 保護者用　マイページ内容 #}
+{% block content %}
+<h2>マイページ</h2>
+
+<div class="mypage-menu">
+    <a href="{% url 'parent_item_manage' %}" class="menu-item">学習項目登録</a>  
+    <a href="{% url 'invitation' %}" class="menu-item">招待コード</a>
+    <button type="button" class="btn btn-danger menu-item logout-item" id="open-logout">ログアウト</button>
+
+</div>
+{# ログアウト確認用モーダル HTML#}
+<div id="logout-modal" class="hidden">
+    <div class="modal-box">
+        <p>ログアウトしますか？</p>
+        <div class="modal-actions">
+            <a href="{% url 'logout' %}" class="btn yes">はい</a>
+            <button type="button" class="btn no" id="close-logout">いいえ</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

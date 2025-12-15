@@ -1,64 +1,12 @@
+{# 保護者用　学習項目登録画面 #}
+
 {% extends 'app/parent_base.html' %}
 {% load index %}
 {% load static %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/parent_item_manage.css' %}">
-    <style>
-        .item-form {
-            align-self: center;  
-            text-align: center;
-            margin: 0 auto 24px;
-        }
-        .item-input {
-            width: 70%;
-            max-width: 240px;
-            margin: 0 auto 12px;
-            display: block;
-            padding: 8px;
-            font-size: 14px;
-        }
-        .items{
-            list-style: none;
-            padding: 0;
-            margin: 16px 0;
-        }
-        .item-row{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 4px;
-            border-bottom: 1px solid #ddd;
-        }
-        .color-box{
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            flex: 0 0 auto;
-        }
-        .item-label{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .item-name{
-            flex: 1;  
-            white-space: nowrap;
-        }
-        .item-check{
-            width: auto;
-            margin: 0;
-            padding: 0;
-        }
-        .btn-danger{
-            width: 100px;
-            margin: 12px auto 0;
-            display: block;
-        }
-    </style>
-    {% endblock %}
+{% endblock %}
 
 {% block content %}
 
@@ -66,14 +14,13 @@
 
 <form method="post" class="item-form">
     {% csrf_token %}
-    <input type="hidden" name="action" value="create">
     {{ item_form }}
-    <button type="submit" name="action" value="create">登録</button>
+    <button type="submit" name="action" value="create" class="btn">登録</button>
 </form>
 
 <hr>
 
-<form method="post">
+<form method="post" class="item-form">
     {% csrf_token %}
     <ul class="items">
         {% for color in colors %}
@@ -96,7 +43,7 @@
             {%endwith%}
         {% endfor %}
     </ul>
-    <button type="submit" name="action" value="delete" class="btn-danger">削除</button>
+    <button type="submit" name="action" value="delete" class="btn btn-danger">削除</button>
 </form>
 
 {% endblock %}

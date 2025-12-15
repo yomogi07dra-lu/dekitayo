@@ -1,10 +1,16 @@
 from django import forms
-from .models import Users,Family_members,Items
+from .models import Users,Family_members,Items,Invitations
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+#新規登録
 class UsersModelForm(forms.ModelForm):
-    
+    invitation_code = forms.CharField(
+        label='招待コード',
+        max_length=6,
+        required=False
+    )
+
     class Meta:
         model = Users
         fields = ["email", "password","username"]
@@ -32,20 +38,36 @@ class UsersModelForm(forms.ModelForm):
     def clean(self):
         clean_data =super().clean()
         password = clean_data.get('password')
-        try:
-            validate_password(password, self.instance)
-        except ValidationError as e:
-            self.add_error('password', e)
+        if password:
+            try:
+                validate_password(password, self.instance)
+            except ValidationError as e:
+                self.add_error('password', e)
         return clean_data
         
+    def clean_invitation_code(self):
+        code = self.cleaned_data.get('invitation_code')
+        
+        invite = Invitations.objects.filter(
+            code=code,
+            is_active=True
+        ).first()
+
+        if not invite:
+            raise forms.ValidationError('無効な招待コードです')
+
+        self.invite = invite
+        return code
+    
     def save(self,commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
         if commit:
             user.save()
         return user
+    
 
-
+#新規登録　子ども・保護者分け
 class Family_membersModelForm(forms.ModelForm):
 
     class Meta:
@@ -56,12 +78,12 @@ class Family_membersModelForm(forms.ModelForm):
         }
         widgets = { 'role': forms.RadioSelect }
 
-
+#ログイン
 class LoginForm(forms.Form):
     email = forms.EmailField(label="メールアドレス")
     password = forms.CharField(label="パスワード")
 
-
+#パスワード再設定　メールアドレス入力
 class RequestPasswordResetForm(forms.Form):
     email = forms.EmailField(
         label='メールアドレス',
@@ -74,7 +96,7 @@ class RequestPasswordResetForm(forms.Form):
             raise ValidationError('このメールアドレスのユーザーは存在しません')
         return email
     
-
+#パスワード再設定　新しいパスワード
 class SetNewPasswordForm(forms.Form):
     password1 = forms.CharField(
         label='新しいパスワード',
@@ -100,6 +122,7 @@ class SetNewPasswordForm(forms.Form):
             
         return cleaned_data
 
+#保護者用　学習項目登録
 class ItemForm(forms.ModelForm):
 
     class Meta:
@@ -107,4 +130,10 @@ class ItemForm(forms.ModelForm):
         fields = ['item_name']
         labels = {
             'item_name': '',}
+        widgets = {
+            "item_name": forms.TextInput(attrs={
+                "class": "item-input",
+            })
+        }
 
+# 子ども用　学習記録　項目登録 #
