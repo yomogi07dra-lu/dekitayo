@@ -13,11 +13,13 @@ class BaseMeta(models.Model):
 
 
 class Users(AbstractUser):
+    email = models.EmailField(unique=True)
     family_member = models.ForeignKey(
         'Family_members',
         on_delete=models.CASCADE,
         )
     
+
     # icon = models.ForeignKey(
     #     'Icons',
     #     on_delete=models.CASCADE,
@@ -68,24 +70,63 @@ class Children(models.Model):
         db_table = 'children'
 
 
-# class Icons(models.Model):
-#     image_url = models.FileField()
+class Icons(models.Model):
+     image_url = models.FileField()
 
-#     class Meta:
-#         db_table = 'icons'
+     class Meta:
+         db_table = 'icons'
 
 
-class invitations(models.Model):
+class Invitations(models.Model):
     code = models.CharField(max_length=10)
 
     class Meta:
         db_table = 'invitations'
 
+
 class PasswordResetToken(models.Model):
     user_PasswordReset = models.OneToOneField(
-        Users,
+        'Users',
         on_delete=models.CASCADE,
         related_name='password_reset_token',
     )
     token = models.UUIDField(default=uuid.uuid4,db_index=True)
     used = models.BooleanField(default=False)
+
+
+class Daily_logs(models.Model):
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+    )
+    date = models.DateField()
+    comment = models.CharField(max_length=100, blank=True)
+    photo1_url1 = models.URLField(max_length=255,blank=True)
+    photo2_url2 = models.URLField(max_length=255,blank=True)
+
+    class Meta:
+         db_table = 'daily_logs'
+
+
+class Items(models.Model):
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+    )
+    item_name = models.CharField(max_length=50)
+
+    class Meta:
+         db_table = 'items'
+
+
+class DailyLogItems(models.Model):
+    daily_log = models.ForeignKey(
+        'Daily_logs',
+        on_delete=models.CASCADE,
+    )
+    item = models.ForeignKey(
+        'Items',
+        on_delete=models.CASCADE
+    )
+    class Meta:
+         db_table = 'daily_log_items'

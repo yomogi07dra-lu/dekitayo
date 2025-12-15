@@ -1,6 +1,5 @@
 from django import forms
-from .models import Users
-from .models import Family_members
+from .models import Users,Family_members,Items
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -100,3 +99,12 @@ class SetNewPasswordForm(forms.Form):
                 raise ValidationError('パスワードを再設定できませんでした')
             
         return cleaned_data
+
+class ItemForm(forms.ModelForm):
+
+    class Meta:
+        model = Items
+        fields = ['item_name']
+        labels = {
+            'item_name': '',}
+
