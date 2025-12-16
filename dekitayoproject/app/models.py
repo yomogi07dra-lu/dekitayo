@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from datetime import date, datetime
 from django.contrib.auth.models import (AbstractUser)
 import uuid
@@ -12,14 +13,14 @@ class BaseMeta(models.Model):
         abstract = True
 
 
-class Users(AbstractUser):
+class User(AbstractUser):
     email = models.EmailField(unique=True)
     family_member = models.ForeignKey(
-        'Family_members',
+        'Family_member',
         on_delete=models.CASCADE,
+        null=True,#管理者権限画面のため
+        blank=True,
         )
-    
-
     # icon = models.ForeignKey(
     #     'Icons',
     #     on_delete=models.CASCADE,
@@ -29,15 +30,15 @@ class Users(AbstractUser):
         db_table = 'users'
 
 
-class Families(models.Model):
+class Family(models.Model):
     
     class Meta:
         db_table ='families'
 
 
-class Family_members(models.Model):
+class Family_member(models.Model):
     family = models.ForeignKey(
-        'Families',
+        'Family',
         on_delete=models.CASCADE,
     )
 
@@ -55,14 +56,14 @@ class Family_members(models.Model):
         db_table = 'family_members'
 
 
-class Children(models.Model):
+class Child(models.Model):
     user = models.ForeignKey(
-        'Users',
+        'User',
         on_delete=models.CASCADE,
         )
     
     family_member = models.ForeignKey(
-        'Family_members',
+        'Family_member',
         on_delete=models.CASCADE,
     )
 
@@ -70,16 +71,16 @@ class Children(models.Model):
         db_table = 'children'
 
 
-class Icons(models.Model):
+class Icon(models.Model):
      image_url = models.FileField()
 
      class Meta:
          db_table = 'icons'
 
 
-class Invitations(models.Model):
+class Invitation(models.Model):
     family = models.OneToOneField(
-        'Families', 
+        'Family', 
         on_delete=models.CASCADE,
         related_name='invite')
     code = models.CharField(max_length=10, unique=True)
@@ -91,7 +92,7 @@ class Invitations(models.Model):
 
 class PasswordResetToken(models.Model):
     user_PasswordReset = models.OneToOneField(
-        'Users',
+        'User',
         on_delete=models.CASCADE,
         related_name='password_reset_token',
     )
@@ -99,23 +100,27 @@ class PasswordResetToken(models.Model):
     used = models.BooleanField(default=False)
 
 
-class Daily_logs(models.Model):
+class Daily_log(models.Model):
     user = models.ForeignKey(
-        'Users',
+        'User',
         on_delete=models.CASCADE,
     )
-    date = models.DateField()
+    date = models.DateField(default=timezone.localdate)
     comment = models.CharField(max_length=100, blank=True)
-    photo1_url1 = models.URLField(max_length=255,blank=True,null=True)
-    photo2_url2 = models.URLField(max_length=255,blank=True,null=True)
+    photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
+    photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
 
     class Meta:
-         db_table = 'daily_logs'
+        db_table = 'daily_logs'
+        #重複禁止　指定した組み合わせが1つ
+        constraints = [
+            models.UniqueConstraint(fields=["user", "date"], name="uniq_dailylog_user_date")
+        ]
 
 
-class Items(models.Model):
+class Item(models.Model):
     user = models.ForeignKey(
-        'Users',
+        'User',
         on_delete=models.CASCADE,
     )
     item_name = models.CharField(max_length=50)
@@ -124,13 +129,13 @@ class Items(models.Model):
          db_table = 'items'
 
 
-class DailyLogItems(models.Model):
+class DailyLogItem(models.Model):
     daily_log = models.ForeignKey(
-        'Daily_logs',
+        'Daily_log',
         on_delete=models.CASCADE,
     )
     item = models.ForeignKey(
-        'Items',
+        'Item',
         on_delete=models.CASCADE
     )
     class Meta:

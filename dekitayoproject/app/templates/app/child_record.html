@@ -5,7 +5,6 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/child_item_manage.css' %}">
     <style>
         .item-form {
             align-self: center;  
@@ -60,41 +59,45 @@
             display: block;
         }
     </style>
-    {% endblock %}
+{% endblock %}
 
 {% block content %}
-
+<p class="today">{{ today|date:"n月j日(D)" }}</p>
 <h2>今日のできた！登録</h2>
 
-<ul>
-<form method="post">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    <ul class="items">
-        {% for color in colors %}
-            {% with i=forloop.counter0 %}
-                <li class="item-row">
-                    <span class="color-box" style="background-color: {{ color }};"></span>
-                    
-                    <label class="item-label">
-                        {% if i < items|length %}
-                            {% with item=items|index:i %}
-                                <span class="item-name">{{ item.item_name }}</span>
-                                <input class="item-check" type="checkbox" name="item_ids" value="{{ item.id }}">
-                            {% endwith %}
-                        {% else %}
-                            <span class="item-name">（未登録）</span>
-                            <input class="item-check" type="checkbox" disabled>
-                        {% endif %}
-                    </label>
-                </li>
-            {%endwith%}
-        {% endfor %}
-    </ul>
-</ul>
+{#項目#}
+<ul class="items">
+    {% for row in rows %}
+        <li class="item-row">
+            <span class="color-box" style="background-color: {{ row.color }}"></span>
 
+            {% if row.item %}
+                <label class="item-label">
+                    <span class="item-name">{{ row.item.item_name }}</span>
+                    <input type="checkbox" name="item_ids" value="{{ row.item.id }}">
+                </label>
+            {% else %}
+                <label class="item-label">
+                    <span class="item-name">（未登録）</span>
+                    <input type="checkbox" disabled>
+                </label>
+            {% endif %}
+        </li>
+    {% endfor %}
+  </ul>
 
+  <hr>
+  <div>
+    {{ form.photo1_url }}
+    {{ form.photo2_url }}
+  </div>
+  <div>
+    {{ form.comment }}
+  </div>
+  
 
-
-
-
+  <button type="submit" class="btn">登録</button>
+</form>
 {% endblock %}

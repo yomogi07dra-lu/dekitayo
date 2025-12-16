@@ -1,7 +1,6 @@
 {# 保護者用　学習項目登録画面 #}
 
 {% extends 'app/parent_base.html' %}
-{% load index %}
 {% load static %}
 
 {% block extra_css %}
@@ -22,25 +21,24 @@
 
 <form method="post" class="item-form">
     {% csrf_token %}
+
     <ul class="items">
-        {% for color in colors %}
-            {% with i=forloop.counter0 %}
-                <li class="item-row">
-                    <span class="color-box" style="background-color: {{ color }};"></span>
-                    
+        {% for row in rows %}
+            <li class="item-row">
+                <span class="color-box" style="background-color: {{ row.color }};"></span>
+                
+                {%if row.item %}
                     <label class="item-label">
-                        {% if i < items|length %}
-                            {% with item=items|index:i %}
-                                <span class="item-name">{{ item.item_name }}</span>
-                                <input class="item-check" type="checkbox" name="item_ids" value="{{ item.id }}">
-                            {% endwith %}
-                        {% else %}
+                        <span class="item-name">{{ row.item.item_name }}</span>
+                        <input class="item-check" type="checkbox" name="item_ids" value="{{ row.item.id }}">
+                    </label>
+                    {% else %}
+                        <label class="item-label">
                             <span class="item-name">（未登録）</span>
                             <input class="item-check" type="checkbox" disabled>
-                        {% endif %}
-                    </label>
+                        </label>
+                    {% endif %}
                 </li>
-            {%endwith%}
         {% endfor %}
     </ul>
     <button type="submit" name="action" value="delete" class="btn btn-danger">削除</button>
