@@ -1,5 +1,5 @@
 from django import forms
-from .models import Users,Family_members,Items,Invitations
+from .models import User,Family_member,Item,Invitation,Daily_log
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -12,7 +12,7 @@ class UsersModelForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Users
+        model = User
         fields = ["email", "password","username"]
         labels = {
             'email': 'メールアドレス',
@@ -47,8 +47,11 @@ class UsersModelForm(forms.ModelForm):
         
     def clean_invitation_code(self):
         code = self.cleaned_data.get('invitation_code')
+
+        if not code:
+            return code
         
-        invite = Invitations.objects.filter(
+        invite = Invitation.objects.filter(
             code=code,
             is_active=True
         ).first()
@@ -71,7 +74,7 @@ class UsersModelForm(forms.ModelForm):
 class Family_membersModelForm(forms.ModelForm):
 
     class Meta:
-        model = Family_members
+        model = Family_member
         fields = ('role',)
         labels = {
             'role': '',
@@ -92,7 +95,7 @@ class RequestPasswordResetForm(forms.Form):
 
     def clean_email(self):
         email =self.cleaned_data['email']
-        if not Users.objects.filter(email=email).exists():
+        if not User.objects.filter(email=email).exists():
             raise ValidationError('このメールアドレスのユーザーは存在しません')
         return email
     
@@ -126,7 +129,7 @@ class SetNewPasswordForm(forms.Form):
 class ItemForm(forms.ModelForm):
 
     class Meta:
-        model = Items
+        model = Item
         fields = ['item_name']
         labels = {
             'item_name': '',}
@@ -137,3 +140,20 @@ class ItemForm(forms.ModelForm):
         }
 
 # 子ども用　学習記録　項目登録 #
+class DailyLogForm(forms.ModelForm):
+    
+    class Meta:
+        model = Daily_log
+        fields = ["comment", "photo1_url", "photo2_url"]
+        labels = {
+            'photo1_url': '',
+            'photo2_url': '',
+            'comment': '',
+        }
+        widgets = {
+            "comment": forms.Textarea(attrs={
+            "placeholder": "コメント：学習時間や感想、絵文字OK（最大100文字）",
+            "maxlength": 100,
+            "rows": 3,
+            }),
+        }

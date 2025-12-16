@@ -1,50 +1,64 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
+from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from . models import Users,Families,Family_members,PasswordResetToken,Items,Invitations
+from . models import User,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log
 from .import forms
-from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm
+from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm
 import uuid
 from .utils import generate_invite_code
 
 #新規登録
 def signup(request):
-    User_form = UsersModelForm()
-    Family_members_form = Family_membersModelForm()
+    user_form = UsersModelForm()
+    family_member_form = Family_membersModelForm()
 
     if request.method == 'POST':
-        User_form = UsersModelForm(request.POST)
-        Family_members_form = Family_membersModelForm(request.POST)
+        user_form = UsersModelForm(request.POST)
+        family_member_form = Family_membersModelForm(request.POST)
         
-        if User_form.is_valid() and Family_members_form.is_valid():
+        if user_form.is_valid() and family_member_form.is_valid():
             with transaction.atomic():#すべて成功したらDB反映
                 
-                invite = getattr(User_form, 'invite', None)#招待コードがあれば使用
-                if invite:
+                role = family_member_form.cleaned_data.get("role")
+                invite = getattr(user_form, "invite", None)
+
+                if role == 1:  #子ども
+                    if not invite:#招待コード無
+                        user_form.add_error(
+                            "invitation_code",
+                            "子どもは招待コードが必要です"
+                        )
+                        return render(request,'app/signup.html', {
+                            'signup': user_form,
+                            'role': family_member_form
+                        })
                     family = invite.family
-                else:
-                    family = Families.objects.create()
+                
+                else: #保護者
+                    if invite:#招待コード有　既存家族
+                        family = invite.family
+                    else:#招待コード無　新規家族作成
+                        family = Family.objects.create()
 
-                family_member = Family_members_form.save(commit=False)
+
+                family_member = family_member_form.save(commit=False)
                 family_member.family = family
+                family_member.role = role
 
-                if invite:#代表は保護者
-                    family_member.role = 1 
-                    family_member.is_admin = False
-                else:
-                    family_member.role = 0
-                    family_member.is_admin = True
+                #保護者・招待コードなし＝保護者代表
+                family_member.is_admin = (role == 0 and not invite)
                 family_member.save()
 
-                user = User_form.save(commit=False)
+                user = user_form.save(commit=False)
                 user.family_member = family_member
                 user.save()
 
-                if invite:
+                if invite:#招待コード使い捨て
                     invite.is_active = False
                     invite.save()
             # default_icon = Icons.objects.get(id=1)
@@ -56,8 +70,8 @@ def signup(request):
         request, 
         'app/signup.html', 
         context={
-            'signup': User_form,
-            'role': Family_members_form,
+            'signup': user_form,
+            'role': family_member_form,
         }
     )
 
@@ -71,10 +85,10 @@ def invitation(request):
         return redirect('parent_mypage')
 
     family = member.family
-    invite = Invitations.objects.filter(family=family).first()
+    invite = Invitation.objects.filter(family=family).first()
 
     if invite is None:
-        invite = Invitations.objects.create(
+        invite = Invitation.objects.create(
             family=family,
             code=generate_invite_code(),
             is_active=True
@@ -99,8 +113,8 @@ def user_login(request):
         password = login_form.cleaned_data['password']
 
         try:
-            user_email = Users.objects.get(email=email)
-        except Users.DoesNotExist:
+            user_email = User.objects.get(email=email)
+        except User.DoesNotExist:
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
             return render(request,"app/login.html", {"login_form": login_form})
         
@@ -113,7 +127,7 @@ def user_login(request):
         login(request, user)
 
 #保護者と子ども　画面遷移分け
-        member = Family_members.objects.filter(users=user).first()
+        member = Family_member.objects.filter(user=user).first()
         if member and member.role == 0:
             return redirect('parent_home')
         else:
@@ -136,7 +150,7 @@ def request_password_reset(request):
     request_password_resetForm = RequestPasswordResetForm(request.POST or None)
     if request_password_resetForm.is_valid():
         email = request_password_resetForm.cleaned_data['email']
-        user = get_object_or_404(Users, email=email)
+        user = get_object_or_404(User, email=email)
 
         password_reset_token, created = PasswordResetToken.objects.get_or_create(user_PasswordReset=user)
         if not created:
@@ -191,7 +205,7 @@ def parent_item_manage(request):
         "#0000ff",
         "#9900ff",
     ]
-    items = Items.objects.filter(user=request.user).order_by('id')
+    items = Item.objects.filter(user=request.user).order_by('id')#DBの一覧　QuerySet
     form = ItemForm(request.POST or None)
 
     if request.method =='POST':
@@ -204,41 +218,105 @@ def parent_item_manage(request):
                 item = form.save(commit=False)
                 item.user = request.user
                 item.save()
-                form = ItemForm()
+                return redirect("parent_item_manage")
 
         if action == 'delete':
             ids = request.POST.getlist('item_ids')
-            Items.objects.filter(id__in=ids, user=request.user).delete()
-            form = ItemForm()
+            Item.objects.filter(id__in=ids, user=request.user).delete()
+            return redirect("parent_item_manage")
+    #表示用データ　List 色とペア
+    rows = []#行
+    item_count = items.count()#項目数
+
+    for i, color in enumerate(colors):
+        item = None
+
+        if i < item_count:
+            item = items[i]
+
+        rows.append({
+            "color": color,
+            "item": item,
+        })
     
 
     return render(request, 'app/parent_item_manage.html',{
         'item_form': form,
-        'items': items,
-        'colors': colors, 
+        'rows': rows,
     })
 # 子ども用　学習記録　項目登録 #
 @login_required
 def child_record(request):
-    family = request.user.family_member.family
-    parent_user = Users.objects.filter(
+    today = timezone.localdate()
+    family = request.user.family_member.family #子ども所属家族取得
+    
+    parent_user = User.objects.filter( #家族の代表取得
         family_member__family=family,
-        family_member__role=0
+        family_member__role=0,
+        family_member__is_admin=True,
     ).first()
 
-    if parent_user is None:
-        items = Items.objects.none()
+    if parent_user:#家族代表が登録した項目取得
+        items = list(Item.objects.filter(user=parent_user).order_by("id"))
     else:
-        items = Items.objects.filter(user=parent_user).order_by("id")
+        items = []    
+    
+    colors = [
+        "#ff0000",
+        "#ff9900",
+        "#ffff00",
+        "#00ff00",
+        "#00ffff",
+        "#0000ff",
+        "#9900ff",
+    ]
 
-    return render(request, "app/child_record.html", {
-        "items": items,
+    rows = [] #7行の項目作成
+    for i, color in enumerate(colors):
+        item = None
+
+        if i < len(items):
+            item = items[i]
+
+        rows.append({
+            "color": color,
+            "item": item,
+        })
+    
+    if request.method == "POST":
+        form = DailyLogForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            checked_item_ids = request.POST.getlist("item_ids")#チェックされた項目
+
+            with transaction.atomic():#同じ日なら更新、なければ新規作成
+                daily_log, created = Daily_log.objects.update_or_create(
+                    user=request.user,
+                    date=today,
+                    defaults={
+                        "comment": form.cleaned_data["comment"],
+                        "photo1_url": form.cleaned_data.get("photo1_url"),
+                        "photo2_url": form.cleaned_data.get("photo2_url"),
+                    }
+                )
+                #更新は全部消して作成しなおす
+                DailyLogItem.objects.filter(daily_log=daily_log).delete()
+                if checked_item_ids:
+                    DailyLogItem.objects.bulk_create([
+                        DailyLogItem(daily_log=daily_log, item_id=item_id)
+                        for item_id in checked_item_ids
+                    ])
+        return redirect("child_home")
+    
+    else:
+        form = DailyLogForm()
+    
+    
+    return render(request, "app/child_record.html",{
+        "today": today,        
+        "form": form,
+        "rows": rows,
     })
-
-        
-
-        
-
 
 
 def child_home(request):
