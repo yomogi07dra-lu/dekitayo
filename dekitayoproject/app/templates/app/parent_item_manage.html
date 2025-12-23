@@ -1,7 +1,10 @@
 {# 保護者用　学習項目登録画面 #}
 
 {% extends 'app/parent_base.html' %}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 {% load static %}
 
 {% block extra_css %}
@@ -28,7 +31,32 @@
 
 <form method="post" class="delete-box">
     {% csrf_token %}
+<<<<<<< HEAD
     <input type="hidden" name="action" value="delete">
+=======
+
+    <ul class="items">
+        {% for row in rows %}
+            <li class="item-row">
+                <span class="color-box" style="background-color: {{ row.color }};"></span>
+                
+                {%if row.item %}
+                    <label class="item-label">
+                        <span class="item-name">{{ row.item.item_name }}</span>
+                        <input class="item-check" type="checkbox" name="item_ids" value="{{ row.item.id }}">
+                    </label>
+                    {% else %}
+                        <label class="item-label">
+                            <span class="item-name">（未登録）</span>
+                            <input class="item-check" type="checkbox" disabled>
+                        </label>
+                    {% endif %}
+                </li>
+        {% endfor %}
+    </ul>
+    <button type="submit" name="action" value="delete" class="btn btn-danger">削除</button>
+</form>
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 
     {% for row in rows %}
     <div class="delete-row {{ row.class }}">

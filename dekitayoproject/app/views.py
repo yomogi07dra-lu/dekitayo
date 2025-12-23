@@ -1,15 +1,24 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
+<<<<<<< HEAD
 from django.http import HttpResponseForbidden
+=======
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from . models import User,Child,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log,ParentComment
 from .import forms
 from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm, ParentCommentForm
+=======
+from . models import User,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log
+from .import forms
+from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 import uuid
 from .utils import generate_invite_code
 
@@ -59,12 +68,15 @@ def signup(request):
                 user.family_member = family_member
                 user.save()
 
+<<<<<<< HEAD
                 if role == 1:
                     Child.objects.create(
                         user=user,
                         family_member=family_member,
                     )                
 
+=======
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
                 if invite:#招待コード使い捨て
                     invite.is_active = False
                     invite.save()
@@ -134,8 +146,13 @@ def user_login(request):
         login(request, user)
 
 #保護者と子ども　画面遷移分け
+<<<<<<< HEAD
         member = user.family_member
         if member and member.role == Family_member.PARENT:
+=======
+        member = Family_member.objects.filter(user=user).first()
+        if member and member.role == 0:
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
             return redirect('parent_home')
         else:
             return redirect('child_home')
@@ -201,6 +218,7 @@ def reset_password(request, token):
     })
 
 #保護者用学習項目登録
+<<<<<<< HEAD
 COLOR_SLOTS = [
     {"index":0, "class": "red"},
     {"index":1, "class": "orange"},
@@ -211,10 +229,26 @@ COLOR_SLOTS = [
     {"index":6, "class": "purple"},
 ]
 SLOT_INDEXES = [slot["index"] for slot in COLOR_SLOTS] 
+=======
+@login_required 
+def parent_item_manage(request):
+    colors = [
+        "#ff0000",
+        "#ff9900",
+        "#ffff00",
+        "#00ff00",
+        "#00ffff",
+        "#0000ff",
+        "#9900ff",
+    ]
+    items = Item.objects.filter(user=request.user).order_by('id')#DBの一覧　QuerySet
+    form = ItemForm(request.POST or None)
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 
 @login_required
 def parent_item_manage(request, child_id=None):
 
+<<<<<<< HEAD
     # ログインユーザーのfamily取得
     family = request.user.family_member.family
 
@@ -254,6 +288,35 @@ def parent_item_manage(request, child_id=None):
 
 
     form = ItemForm()
+=======
+        if action == 'create':
+            if items.count() >= 7:
+                form.add_error(None, "登録項目は最大7つまでです")
+            elif form.is_valid():
+                item = form.save(commit=False)
+                item.user = request.user
+                item.save()
+                return redirect("parent_item_manage")
+
+        if action == 'delete':
+            ids = request.POST.getlist('item_ids')
+            Item.objects.filter(id__in=ids, user=request.user).delete()
+            return redirect("parent_item_manage")
+    #表示用データ　List 色とペア
+    rows = []#行
+    item_count = items.count()#項目数
+
+    for i, color in enumerate(colors):
+        item = None
+
+        if i < item_count:
+            item = items[i]
+
+        rows.append({
+            "color": color,
+            "item": item,
+        })
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     
     if request.method == "POST":
         action = request.POST.get("action")
@@ -309,11 +372,19 @@ def parent_item_manage(request, child_id=None):
         },
     )
 
+<<<<<<< HEAD
+=======
+    return render(request, 'app/parent_item_manage.html',{
+        'item_form': form,
+        'rows': rows,
+    })
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 # 子ども用　学習記録　項目登録 #
 @login_required
 def child_record(request):
     today = timezone.localdate()
     family = request.user.family_member.family #子ども所属家族取得
+<<<<<<< HEAD
     family_member = request.user.family_member
     
     child = Child.objects.filter(
@@ -333,6 +404,13 @@ def child_record(request):
         user=request.user,
         child=child,
         date=today
+=======
+    
+    parent_user = User.objects.filter( #家族の代表取得
+        family_member__family=family,
+        family_member__role=0,
+        family_member__is_admin=True,
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     ).first()
     
     # 一度登録していた時の学習項目ID一覧
@@ -346,6 +424,7 @@ def child_record(request):
         )
         checked_item_ids = list(checked_item_ids_queryset)
 
+<<<<<<< HEAD
     # 画面表示用の7行データを作成
     rows = []
 
@@ -403,12 +482,69 @@ def child_record(request):
             form = DailyLogForm(instance=daily_log)
         else:
             form = DailyLogForm()
+=======
+    if parent_user:#家族代表が登録した項目取得
+        items = list(Item.objects.filter(user=parent_user).order_by("id"))
+    else:
+        items = []    
+    
+    colors = [
+        "#ff0000",
+        "#ff9900",
+        "#ffff00",
+        "#00ff00",
+        "#00ffff",
+        "#0000ff",
+        "#9900ff",
+    ]
+
+    rows = [] #7行の項目作成
+    for i, color in enumerate(colors):
+        item = None
+
+        if i < len(items):
+            item = items[i]
+
+        rows.append({
+            "color": color,
+            "item": item,
+        })
+    
+    if request.method == "POST":
+        form = DailyLogForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            checked_item_ids = request.POST.getlist("item_ids")#チェックされた項目
+
+            with transaction.atomic():#同じ日なら更新、なければ新規作成
+                daily_log, created = Daily_log.objects.update_or_create(
+                    user=request.user,
+                    date=today,
+                    defaults={
+                        "comment": form.cleaned_data["comment"],
+                        "photo1_url": form.cleaned_data.get("photo1_url"),
+                        "photo2_url": form.cleaned_data.get("photo2_url"),
+                    }
+                )
+                #更新は全部消して作成しなおす
+                DailyLogItem.objects.filter(daily_log=daily_log).delete()
+                if checked_item_ids:
+                    DailyLogItem.objects.bulk_create([
+                        DailyLogItem(daily_log=daily_log, item_id=item_id)
+                        for item_id in checked_item_ids
+                    ])
+        return redirect("child_home")
+    
+    else:
+        form = DailyLogForm()
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     
     
     return render(request, "app/child_record.html",{
         "today": today,        
         "form": form,
         "rows": rows,
+<<<<<<< HEAD
         "checked_item_ids": checked_item_ids,
     })
 
@@ -494,6 +630,10 @@ def parent_home(request,child_id=None):
 
 
 
+=======
+    })
+
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 
 def child_home(request):
 

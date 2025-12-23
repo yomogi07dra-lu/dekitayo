@@ -5,9 +5,67 @@
 {% load static %}
 
 {% block extra_css %}
+<<<<<<< HEAD
     <link rel="stylesheet" href="{% static 'css/child_record.css' %}">
 {% endblock %}
 
+=======
+    <style>
+        .item-form {
+            align-self: center;  
+            text-align: center;
+            margin: 0 auto 24px;
+        }
+        .item-input {
+            width: 70%;
+            max-width: 240px;
+            margin: 0 auto 12px;
+            display: block;
+            padding: 8px;
+            font-size: 14px;
+        }
+        .items{
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+        .item-row{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 4px;
+            border-bottom: 1px solid #ddd;
+        }
+        .color-box{
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            flex: 0 0 auto;
+        }
+        .item-label{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .item-name{
+            flex: 1;  
+            white-space: nowrap;
+        }
+        .item-check{
+            width: auto;
+            margin: 0;
+            padding: 0;
+        }
+        .btn-danger{
+            width: 100px;
+            margin: 12px auto 0;
+            display: block;
+        }
+    </style>
+{% endblock %}
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 
 {% block content %}
 <p class="today">{{ today|date:"n月j日(D)" }}</p>
@@ -16,6 +74,7 @@
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 {#項目#}
+<<<<<<< HEAD
 <div class="items">
     {% for row in rows %}
         {% if row.item %}
@@ -45,5 +104,38 @@
     </div>
 
         <button type="submit" class="btn">登録</button>
+=======
+<ul class="items">
+    {% for row in rows %}
+        <li class="item-row">
+            <span class="color-box" style="background-color: {{ row.color }}"></span>
+
+            {% if row.item %}
+                <label class="item-label">
+                    <span class="item-name">{{ row.item.item_name }}</span>
+                    <input type="checkbox" name="item_ids" value="{{ row.item.id }}">
+                </label>
+            {% else %}
+                <label class="item-label">
+                    <span class="item-name">（未登録）</span>
+                    <input type="checkbox" disabled>
+                </label>
+            {% endif %}
+        </li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  <div>
+    {{ form.photo1_url }}
+    {{ form.photo2_url }}
+  </div>
+  <div>
+    {{ form.comment }}
+  </div>
+  
+
+  <button type="submit" class="btn">登録</button>
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 </form>
 {% endblock %}

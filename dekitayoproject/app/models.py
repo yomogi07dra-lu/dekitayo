@@ -18,6 +18,8 @@ class User(AbstractUser):
     family_member = models.ForeignKey(
         'Family_member',
         on_delete=models.CASCADE,
+        null=True,#管理者権限画面のため
+        blank=True,
         )
     # icon = models.ForeignKey(
     #     'Icons',
@@ -103,12 +105,17 @@ class Daily_log(models.Model):
         'User',
         on_delete=models.CASCADE,
     )
+<<<<<<< HEAD
     child = models.ForeignKey(
         'Child',
         on_delete=models.CASCADE,
     )  
     date = models.DateField(default=timezone.localdate)
     child_comment = models.CharField(max_length=100, blank=True)
+=======
+    date = models.DateField(default=timezone.localdate)
+    comment = models.CharField(max_length=100, blank=True)
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
     photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
 
@@ -116,13 +123,22 @@ class Daily_log(models.Model):
         db_table = 'daily_logs'
         #重複禁止　指定した組み合わせが1つ
         constraints = [
+<<<<<<< HEAD
             models.UniqueConstraint(fields=["child", "date"], name="uniq_dailylog_user_date")
+=======
+            models.UniqueConstraint(fields=["user", "date"], name="uniq_dailylog_user_date")
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
         ]
 
 
 class Item(models.Model):
+<<<<<<< HEAD
     family = models.ForeignKey(
         'Family',
+=======
+    user = models.ForeignKey(
+        'User',
+>>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
