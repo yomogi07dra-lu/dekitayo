@@ -4,10 +4,40 @@
 
 {% block content %}
 
+<p class="today">{{ today|date:"n月j日(D)" }}</p>
+
+{% if not child %}
+    <h2>お子様の登録を行ってください</h2>
+{% else %}    
+    <p>{{ child.user.username }}</p>
+    <h2>今日のできた！</h2>
+
+    {% if daily_log %}
+        {% if checked_items %}
+            <ul>
+                {% for di in checked_items %}
+                    <li>{{ di.item.item_name }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}    
+    {% else %}
+    <p>（まだ登録されていません）</p>
+    {% endif %}
 
 
+<p>{{ daily_log.child_comment|default:"（コメントなし）" }}</p>
 
+{% if daily_log.photo1_url %}<img src="{{ daily_log.photo1_url.url }}" width="160">{% endif %}
+{% if daily_log.photo2_url %}<img src="{{ daily_log.photo2_url.url }}" width="160">{% endif %}
 
+{% if not daily_log.photo1_url and not daily_log.photo2_url %}
+    <p>（写真なし）</p>
+{% endif %}
 
-
+<form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">送信</button>
+</form>
+{% endif %}
 {% endblock %}

@@ -16,19 +16,13 @@
 .items{
     list-style: none;
     padding: 0;
-    margin: 4px 0;
+    margin: 0;
 }
 .item-row{
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 7px 4px;
-}
-.color-box{
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    flex: 0 0 auto;
 }
 .item-label{
     display: flex;
@@ -46,3 +40,31 @@
     margin: 0;
     padding: 0;
 }
+
+.color-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: inline-block; 
+}
+.delete-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    margin-bottom: 2px;
+    border-radius: 6px;
+}
+
+
+.muted {
+    color: #888;
+}
+
+.delete-row.red .color-box    { background-color: #ff0000; }
+.delete-row.orange .color-box { background-color: #ff9900; }
+.delete-row.yellow .color-box { background-color: #ffff00; }
+.delete-row.green .color-box  { background-color: #00ff00; }
+.delete-row.cyan .color-box   { background-color: #00ffff; }
+.delete-row.blue .color-box   { background-color: #0000ff; }
+.delete-row.purple .color-box { background-color: #9900ff; }

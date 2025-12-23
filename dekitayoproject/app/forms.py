@@ -1,5 +1,5 @@
 from django import forms
-from .models import User,Family_member,Item,Invitation,Daily_log
+from .models import User,Family_member,Item,Invitation,Daily_log, ParentComment
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -144,16 +144,30 @@ class DailyLogForm(forms.ModelForm):
     
     class Meta:
         model = Daily_log
-        fields = ["comment", "photo1_url", "photo2_url"]
+        fields = ["child_comment", "photo1_url", "photo2_url"]
         labels = {
             'photo1_url': '',
             'photo2_url': '',
-            'comment': '',
+            'child_comment': '',
         }
         widgets = {
-            "comment": forms.Textarea(attrs={
+            "child_comment": forms.Textarea(attrs={
             "placeholder": "コメント：学習時間や感想、絵文字OK（最大100文字）",
             "maxlength": 100,
             "rows": 3,
             }),
+        }
+#保護者用コメント
+class ParentCommentForm(forms.ModelForm):
+    class Meta:
+        model = ParentComment        
+        fields = ["text"]
+        labels = {
+            'text': '',
+        }        
+        widgets = {
+            "parent_comment": forms.Textarea(attrs={
+            "rows": 3,
+            "placeholder": "コメント：最大100字",
+            })
         }

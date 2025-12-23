@@ -18,8 +18,6 @@ class User(AbstractUser):
     family_member = models.ForeignKey(
         'Family_member',
         on_delete=models.CASCADE,
-        null=True,#管理者権限画面のため
-        blank=True,
         )
     # icon = models.ForeignKey(
     #     'Icons',
@@ -60,7 +58,7 @@ class Child(models.Model):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
-        )
+    )
     
     family_member = models.ForeignKey(
         'Family_member',
@@ -105,8 +103,12 @@ class Daily_log(models.Model):
         'User',
         on_delete=models.CASCADE,
     )
+    child = models.ForeignKey(
+        'Child',
+        on_delete=models.CASCADE,
+    )  
     date = models.DateField(default=timezone.localdate)
-    comment = models.CharField(max_length=100, blank=True)
+    child_comment = models.CharField(max_length=100, blank=True)
     photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
     photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
 
@@ -114,16 +116,21 @@ class Daily_log(models.Model):
         db_table = 'daily_logs'
         #重複禁止　指定した組み合わせが1つ
         constraints = [
-            models.UniqueConstraint(fields=["user", "date"], name="uniq_dailylog_user_date")
+            models.UniqueConstraint(fields=["child", "date"], name="uniq_dailylog_user_date")
         ]
 
 
 class Item(models.Model):
-    user = models.ForeignKey(
-        'User',
+    family = models.ForeignKey(
+        'Family',
         on_delete=models.CASCADE,
     )
+    child = models.ForeignKey(
+        'Child',
+        on_delete=models.CASCADE,
+    )    
     item_name = models.CharField(max_length=50)
+    color_index = models.PositiveSmallIntegerField() #表示位置
 
     class Meta:
          db_table = 'items'
@@ -140,3 +147,19 @@ class DailyLogItem(models.Model):
     )
     class Meta:
          db_table = 'daily_log_items'
+
+class ParentComment(models.Model):
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+    )
+    daily_log = models.ForeignKey(
+        'Daily_log',
+        on_delete=models.CASCADE,
+        related_name='parent_comments',
+    )
+    text = models.CharField(max_length=100)
+    
+    class Meta:
+        db_table = 'parent_comments'
+

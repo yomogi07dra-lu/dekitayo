@@ -9,8 +9,10 @@ urlpatterns = [
     path('reset_password/<uuid:token>/', views.reset_password, name='reset_password'),
     path('child_home/', views.child_home, name='child_home'),
     path('parent_home/', views.parent_home, name='parent_home'),
+    path("parent/home/<int:child_id>/", views.parent_home, name="parent_home_with_child"),
     path('parent_mypage/', views.parent_mypage, name='parent_mypage'),
     path('parent_item_manage/', views.parent_item_manage, name='parent_item_manage'),
+    path("parent_item_manage/<int:child_id>/", views.parent_item_manage, name="parent_item_manage_with_child"),
     path('parent_invitation/', views.invitation, name='invitation'),
     path('child_record/', views.child_record, name='child_record'),
 ]

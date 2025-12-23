@@ -1,6 +1,7 @@
 {# 保護者用　学習項目登録画面 #}
 
 {% extends 'app/parent_base.html' %}
+
 {% load static %}
 
 {% block extra_css %}
@@ -13,35 +14,49 @@
 
 <form method="post" class="item-form">
     {% csrf_token %}
-    {{ item_form }}
-    <button type="submit" name="action" value="create" class="btn">登録</button>
+    <input type="hidden" name="action" value="create">
+
+    {{ item_form.non_field_errors }}
+    
+    <div class="form-row">
+    {{ item_form.item_name }}
+    <button type="submit" class="btn">登録</button>
+    </div>
 </form>
 
 <hr>
 
-<form method="post" class="item-form">
+<form method="post" class="delete-box">
     {% csrf_token %}
+    <input type="hidden" name="action" value="delete">
 
-    <ul class="items">
-        {% for row in rows %}
-            <li class="item-row">
-                <span class="color-box" style="background-color: {{ row.color }};"></span>
-                
-                {%if row.item %}
-                    <label class="item-label">
-                        <span class="item-name">{{ row.item.item_name }}</span>
-                        <input class="item-check" type="checkbox" name="item_ids" value="{{ row.item.id }}">
-                    </label>
-                    {% else %}
-                        <label class="item-label">
-                            <span class="item-name">（未登録）</span>
-                            <input class="item-check" type="checkbox" disabled>
-                        </label>
-                    {% endif %}
-                </li>
-        {% endfor %}
-    </ul>
-    <button type="submit" name="action" value="delete" class="btn btn-danger">削除</button>
+    {% for row in rows %}
+    <div class="delete-row {{ row.class }}">
+
+    {#色付き四角#}
+    <span class="color-box"></span>
+
+    {# チェックボックス #}
+    <input
+        type="checkbox"
+        name="item_ids"
+        {% if row.item %}
+        value="{{ row.item.id }}"
+        {% else %}
+        disabled
+        {% endif %}
+    >
+
+    {# 表示テキストだけ切り替える #}
+        {% if row.item %}
+            <span class="name">{{ row.item.item_name }}</span>
+        {% else %}
+            <span class="name muted">未登録</span>
+        {% endif %}
+
+    </div>
+  {% endfor %}
+
+    <button type="submit" class=" btn btn-danger ">削除</button>
 </form>
-
 {% endblock %}
