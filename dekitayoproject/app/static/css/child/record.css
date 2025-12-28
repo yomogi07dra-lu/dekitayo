@@ -1,0 +1,22 @@
+
+.form-center{
+    text-align: center;
+    margin: 8px auto;
+}
+.form-center textarea,
+.form-center input[type="file"]{
+    display: block;
+    margin: 0 auto;
+}
+
+.item-label{
+    display: flex;
+    align-items: center;
+    gap: 8px;  
+}
+
+.item-check{
+    width: auto;
+    margin: 0;
+    padding: 0;
+}

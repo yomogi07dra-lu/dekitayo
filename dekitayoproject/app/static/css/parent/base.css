@@ -1,0 +1,39 @@
+/* 色を一括 primary foreground,background*/
+
+:root{
+    --app-max: 390px;
+
+    --bg: #eee;
+    --surface: #fff;
+
+    --primary-bg: #b2caf3ff; 
+    --primary-fg: #1c4587;
+
+    --btn-border: #1c4587;
+    --btn-bg: #b2caf3ff;
+
+    --danger-bg: #ff9999ff;
+    --danger-border: #d40d0dff;
+
+    --muted: #888;
+}
+
+/* 日付などの上段 */
+.top-row{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.today{
+    transform:none;/* baseや他CSSの影響を確実に消す */
+    position: static;
+    transform: none;
+}
+.child-name{
+    font-size: 1.5em;   /* h2と同じサイズ */
+    font-weight: bold;
+    margin: 0;
+}
+
+

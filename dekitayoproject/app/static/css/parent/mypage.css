@@ -1,8 +1,4 @@
 
-.hidden {
-    display: none !important;
-}
-
 .mypage-menu{
     width: 100%;
     max-width: 200px;
@@ -16,10 +12,10 @@
     display: block;
     width: 100%;
     padding: 14px 12px;
-    border: 2px solid #b2caf3ff;
+    border: 2px solid var(--primary-bg);
     border-radius: 10px;
     background: #fff;
-    color: #1c4587;
+    color: (--primary-fg);
     font-weight: 700;
     text-align: center;
     text-decoration: none;
@@ -46,7 +42,7 @@
     width: 280px;
     max-width: calc(100% - 48px);
     background: #fff;
-    border: 2px solid #b2caf3ff;
+    border: 2px solid var(--primary-bg);
     border-radius: 12px;
     padding: 18px 16px;
     text-align: center;
@@ -76,6 +72,7 @@
     border: 1px solid #999;
     background: #fff;
     color: #333;
+    box-sizing: border-box;
 }
 
 .modal-actions .btn.yes {

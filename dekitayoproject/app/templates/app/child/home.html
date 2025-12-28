@@ -1,0 +1,49 @@
+{# 子ども用　ホーム画面 #}
+
+{# 継承 #}
+{% extends 'app/child/base.html' %}
+
+{# CSS #}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/child/home.css' %}">
+{% endblock %}
+
+{# ホーム画面内容 #}
+{% block content %}
+
+<div class="top-row">
+    <p class="today">{{ today|date:"n月j日(D)" }}</p>
+    <a href="{% url 'child_record' %}" class="add-button">＋</a>
+</div>
+<h2>今日のできた！</h2>
+
+    {% if daily_log %}
+  <div class="items">
+    {% for row in rows %}
+      {% if row.item and row.item.id in checked_item_ids %}
+        <div class="item-row">
+          <span class="color-box {{ row.class }}"></span>
+          <span class="item-name">{{ row.item.item_name }}</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+    {% else %}
+    <p>（まだ登録されていません）</p>
+    {% endif %}
+<p>{{ daily_log.child_comment|default:"（コメントなし）" }}</p>
+
+{% if daily_log.photo1_url %}<img src="{{ daily_log.photo1_url.url }}" width="160">{% endif %}
+{% if daily_log.photo2_url %}<img src="{{ daily_log.photo2_url.url }}" width="160">{% endif %}
+
+{% if not daily_log.photo1_url and not daily_log.photo2_url %}
+    <p>（写真なし）</p>
+{% endif %}
+
+<p>{{ daily_log.parent_comment|default:"（コメントなし）" }}</p>
+
+
+
+{% endblock %}

@@ -1,0 +1,32 @@
+
+/* 色一括 */
+:root{
+    --app-max: 390px;
+
+    --bg: #eee;
+    --surface: #fff;
+
+    --primary-bg: #98ee98ff;
+    --primary-fg: #38761d;
+
+    --btn-border: #38761d;
+    --btn-bg: #98ee98ff;
+
+    --danger-bg: #ff9999ff;
+    --danger-border: #d40d0dff;
+
+    --muted: #888;
+}
+
+/* 日付など上部 */
+.top-row{
+    position: relative;
+    height: 40px;
+}
+
+.today{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    line-height: 40px;
+}

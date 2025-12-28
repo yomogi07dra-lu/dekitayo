@@ -1,6 +1,12 @@
 {# 保護者用　ホーム画面 #}
 
-{% extends 'app/parent_base.html' %}
+{% extends 'app/parent/base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/home.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -9,17 +15,20 @@
 {% if not child %}
     <h2>お子様の登録を行ってください</h2>
 {% else %}    
-    <p>{{ child.user.username }}</p>
+    <p class="child-name">{{ child.user.username }}</p>
     <h2>今日のできた！</h2>
 
     {% if daily_log %}
-        {% if checked_items %}
-            <ul>
-                {% for di in checked_items %}
-                    <li>{{ di.item.item_name }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}    
+  <div class="items">
+    {% for row in rows %}
+      {% if row.item and row.item.id in checked_item_ids %}
+        <div class="item-row">
+          <span class="color-box {{ row.class }}"></span>
+          <span class="item-name">{{ row.item.item_name }}</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
     {% else %}
     <p>（まだ登録されていません）</p>
     {% endif %}

@@ -1,24 +1,15 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
-<<<<<<< HEAD
 from django.http import HttpResponseForbidden
-=======
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-<<<<<<< HEAD
-from . models import User,Child,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log,ParentComment
+from . models import User,Icon,Child,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log,ParentComment
 from .import forms
 from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm, ParentCommentForm
-=======
-from . models import User,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log
-from .import forms
-from .forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 import uuid
 from .utils import generate_invite_code
 
@@ -35,6 +26,7 @@ def signup(request):
             with transaction.atomic():#すべて成功したらDB反映
                 
                 role = family_member_form.cleaned_data.get("role")
+
                 invite = getattr(user_form, "invite", None)
 
                 if role == 1:  #子ども
@@ -66,24 +58,29 @@ def signup(request):
 
                 user = user_form.save(commit=False)
                 user.family_member = family_member
+
+                if role == 1:
+                    user.icon_id = 1
+                else:
+                    user.icon_id = 6
+
+
                 user.save()
 
-<<<<<<< HEAD
+
                 if role == 1:
                     Child.objects.create(
                         user=user,
                         family_member=family_member,
                     )                
 
-=======
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
                 if invite:#招待コード使い捨て
                     invite.is_active = False
                     invite.save()
-            # default_icon = Icons.objects.get(id=1)
-            # user.icon = default_icon
+
 
             return redirect('login')
+        
 
     return render(
         request, 
@@ -117,7 +114,7 @@ def invitation(request):
         invite.is_active = True
         invite.save()
 
-    return render(request, 'app/parent_invitation.html', {
+    return render(request, 'app/parent/invitation.html', {
         'invite': invite
     })
 
@@ -146,13 +143,8 @@ def user_login(request):
         login(request, user)
 
 #保護者と子ども　画面遷移分け
-<<<<<<< HEAD
         member = user.family_member
         if member and member.role == Family_member.PARENT:
-=======
-        member = Family_member.objects.filter(user=user).first()
-        if member and member.role == 0:
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
             return redirect('parent_home')
         else:
             return redirect('child_home')
@@ -181,7 +173,7 @@ def request_password_reset(request):
             password_reset_token.token = uuid.uuid4()
             password_reset_token.used = False
             password_reset_token.save()
-        user.is_avtive = False
+        user.is_active = False
         user.save
 
         token = password_reset_token.token
@@ -217,8 +209,7 @@ def reset_password(request, token):
         'confirm_form': form,
     })
 
-#保護者用学習項目登録
-<<<<<<< HEAD
+# 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
 COLOR_SLOTS = [
     {"index":0, "class": "red"},
     {"index":1, "class": "orange"},
@@ -229,26 +220,11 @@ COLOR_SLOTS = [
     {"index":6, "class": "purple"},
 ]
 SLOT_INDEXES = [slot["index"] for slot in COLOR_SLOTS] 
-=======
-@login_required 
-def parent_item_manage(request):
-    colors = [
-        "#ff0000",
-        "#ff9900",
-        "#ffff00",
-        "#00ff00",
-        "#00ffff",
-        "#0000ff",
-        "#9900ff",
-    ]
-    items = Item.objects.filter(user=request.user).order_by('id')#DBの一覧　QuerySet
-    form = ItemForm(request.POST or None)
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 
+#保護者用学習項目登録
 @login_required
 def parent_item_manage(request, child_id=None):
 
-<<<<<<< HEAD
     # ログインユーザーのfamily取得
     family = request.user.family_member.family
 
@@ -288,35 +264,6 @@ def parent_item_manage(request, child_id=None):
 
 
     form = ItemForm()
-=======
-        if action == 'create':
-            if items.count() >= 7:
-                form.add_error(None, "登録項目は最大7つまでです")
-            elif form.is_valid():
-                item = form.save(commit=False)
-                item.user = request.user
-                item.save()
-                return redirect("parent_item_manage")
-
-        if action == 'delete':
-            ids = request.POST.getlist('item_ids')
-            Item.objects.filter(id__in=ids, user=request.user).delete()
-            return redirect("parent_item_manage")
-    #表示用データ　List 色とペア
-    rows = []#行
-    item_count = items.count()#項目数
-
-    for i, color in enumerate(colors):
-        item = None
-
-        if i < item_count:
-            item = items[i]
-
-        rows.append({
-            "color": color,
-            "item": item,
-        })
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     
     if request.method == "POST":
         action = request.POST.get("action")
@@ -364,7 +311,7 @@ def parent_item_manage(request, child_id=None):
     ]
     return render(
         request,
-        "app/parent_item_manage.html",
+        "app/parent/item_manage.html",
         {
             "child": child,
             "item_form": form,
@@ -372,19 +319,11 @@ def parent_item_manage(request, child_id=None):
         },
     )
 
-<<<<<<< HEAD
-=======
-    return render(request, 'app/parent_item_manage.html',{
-        'item_form': form,
-        'rows': rows,
-    })
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
 # 子ども用　学習記録　項目登録 #
 @login_required
 def child_record(request):
     today = timezone.localdate()
     family = request.user.family_member.family #子ども所属家族取得
-<<<<<<< HEAD
     family_member = request.user.family_member
     
     child = Child.objects.filter(
@@ -392,9 +331,11 @@ def child_record(request):
         family_member__family=family,
         family_member__role=Family_member.CHILD,
     ).select_related("family_member").first()
-        
+
+    # ログインしているユーザーに紐づくChildレコードが存在しない場合(なくても動く)  
     if child is None:
-        return redirect("invitation")  
+        logout(request)
+        return redirect("login")  
     
     items = list(Item.objects.filter(family=family, child=child).order_by("color_index"))
 
@@ -404,13 +345,6 @@ def child_record(request):
         user=request.user,
         child=child,
         date=today
-=======
-    
-    parent_user = User.objects.filter( #家族の代表取得
-        family_member__family=family,
-        family_member__role=0,
-        family_member__is_admin=True,
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     ).first()
     
     # 一度登録していた時の学習項目ID一覧
@@ -424,7 +358,6 @@ def child_record(request):
         )
         checked_item_ids = list(checked_item_ids_queryset)
 
-<<<<<<< HEAD
     # 画面表示用の7行データを作成
     rows = []
 
@@ -482,69 +415,12 @@ def child_record(request):
             form = DailyLogForm(instance=daily_log)
         else:
             form = DailyLogForm()
-=======
-    if parent_user:#家族代表が登録した項目取得
-        items = list(Item.objects.filter(user=parent_user).order_by("id"))
-    else:
-        items = []    
-    
-    colors = [
-        "#ff0000",
-        "#ff9900",
-        "#ffff00",
-        "#00ff00",
-        "#00ffff",
-        "#0000ff",
-        "#9900ff",
-    ]
-
-    rows = [] #7行の項目作成
-    for i, color in enumerate(colors):
-        item = None
-
-        if i < len(items):
-            item = items[i]
-
-        rows.append({
-            "color": color,
-            "item": item,
-        })
-    
-    if request.method == "POST":
-        form = DailyLogForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            checked_item_ids = request.POST.getlist("item_ids")#チェックされた項目
-
-            with transaction.atomic():#同じ日なら更新、なければ新規作成
-                daily_log, created = Daily_log.objects.update_or_create(
-                    user=request.user,
-                    date=today,
-                    defaults={
-                        "comment": form.cleaned_data["comment"],
-                        "photo1_url": form.cleaned_data.get("photo1_url"),
-                        "photo2_url": form.cleaned_data.get("photo2_url"),
-                    }
-                )
-                #更新は全部消して作成しなおす
-                DailyLogItem.objects.filter(daily_log=daily_log).delete()
-                if checked_item_ids:
-                    DailyLogItem.objects.bulk_create([
-                        DailyLogItem(daily_log=daily_log, item_id=item_id)
-                        for item_id in checked_item_ids
-                    ])
-        return redirect("child_home")
-    
-    else:
-        form = DailyLogForm()
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
     
     
-    return render(request, "app/child_record.html",{
+    return render(request, "app/child/record.html",{
         "today": today,        
         "form": form,
         "rows": rows,
-<<<<<<< HEAD
         "checked_item_ids": checked_item_ids,
     })
 
@@ -582,27 +458,59 @@ def parent_home(request,child_id=None):
 
     if child is None:
         # 子どもが未登録なら何も表示していないホーム画面を表示　テンプレートにて子ども登録のコメント
-        return render(request, "app/parent_home.html", {
+        return render(request, "app/parent/home.html", {
             "today": today,
             "child": None,
         })
 
-    # 今日の学習記録
+    # 今日の学習記録　取得
     daily_log = Daily_log.objects.filter(
         user=child.user,
         child=child,
         date=today,
     ).first()
 
-    #今日の学習項目
-    checked_items = []
+    # 今日の学習項目　取得
+    items = list(
+        Item.objects
+        .filter(family=family, child=child)
+        .order_by("color_index")
+    )
+    # 空の箱　今日の記録がなかった場合エラーにならないように
+    checked_item_ids = []
+
+    # 今日のチェックされた学習項目　取得
     if daily_log is not None:
-        checked_items = (
+        checked_item_ids = list(
             DailyLogItem.objects
             .filter(daily_log=daily_log)
-            .select_related("item")
-            .order_by("id")
+            .values_list("item_id", flat=True) # idリストとして取得
         )
+    
+    # 表示 #
+    rows = []
+
+    for slot in COLOR_SLOTS:
+        index = slot["index"]
+        css_class = slot["class"]
+        item = None
+
+    # 登録されている学習項目を1つずつ確認する
+        for one_item in items:
+
+    # 学習項目の表示位置が、このスロット番号と同じか？
+            if one_item.color_index == index:
+                item = one_item
+                break
+
+        rows.append({
+            "class": css_class,
+            "item": item,
+        })
+
+    
+    # 子どものコメントは表示なのでテンプレートで
+
     # 保護者コメント
     if request.method == "POST":
         if daily_log is None:
@@ -619,27 +527,132 @@ def parent_home(request,child_id=None):
     else:
         form = ParentCommentForm()    
 
-    return render(request, "app/parent_home.html", {
+    return render(request, "app/parent/home.html", {
         "today": today,
         "child": child,
         "daily_log": daily_log,
-        "checked_items": checked_items,
+        "rows": rows,
+        "checked_item_ids": checked_item_ids,
         "comment_form": form,
     })
 
-
-
-
-=======
-    })
-
->>>>>>> 237ad0bef178cd18770abcb55bbe6b41d1800f3c
-
-def child_home(request):
-
-    return render (request, 'app/child_home.html')
-
+# 保護者用マイページ
 def parent_mypage(request):
 
-    return render (request, 'app/parent_mypage.html')
+    return render (request, 'app/parent/mypage.html')
+
+# 保護者用 兄弟姉妹切替
+def parent_child_switch(request):
+
+    return render (request, 'app/parent/child_switch.html')
+
+# 保護者用月間学習記録カレンダー
+def parent_monthly_calendar(request):
+
+    return render (request, 'app/parent/monthly_calendar.html')
+
+# 保護者用月間学習記録グラフ
+def parent_monthly_graph(request):
+
+    return render (request, 'app/parent/monthly_graph.html')
+
+# 保護者用週間学習記録グラフ
+def parent_weekly_graph(request):
+
+    return render (request, 'app/parent/weekly_graph.html')
+
+@login_required
+#子ども用ホーム画面
+def child_home(request):
+    today = timezone.localdate()
+    
+    family = request.user.family_member.family
+
+    #ログイン中のユーザーに紐づくchild取得
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
+
+    # 今日の学習記録
+    daily_log = Daily_log.objects.filter(
+        child=child,
+        date=today,
+    ).first()
+
+    # 今日の学習項目　取得
+    items = list(
+        Item.objects
+        .filter(family=family, child=child)
+        .order_by("color_index")
+    )
+
+    # 空の箱　今日の記録がなかった場合エラーにならないように
+    checked_item_ids = []
+
+    # 今日のチェックされた学習項目　取得
+    if daily_log is not None:
+        checked_item_ids = list(
+            DailyLogItem.objects
+            .filter(daily_log=daily_log)
+            .values_list("item_id", flat=True) # idリストとして取得
+        )
+    
+    # 表示 #
+    rows = []
+
+    for slot in COLOR_SLOTS:
+        index = slot["index"]
+        css_class = slot["class"]
+        item = None
+
+    # 登録されている学習項目を1つずつ確認する
+        for one_item in items:
+
+    # 学習項目の表示位置が、このスロット番号と同じか？
+            if one_item.color_index == index:
+                item = one_item
+                break
+
+        rows.append({
+            "class": css_class,
+            "item": item,
+        })
+
+
+    return render(request, "app/child/home.html", {
+        "today": today,
+        "daily_log": daily_log,
+        "rows": rows,
+        "checked_item_ids": checked_item_ids,
+    })
+
+    # 子ども・保護者のコメントは表示なのでテンプレート
+
+
+
+# 子ども用マイページ
+def child_mypage(request):
+
+    return render (request, 'app/child/mypage.html')
+
+# 子ども用月間学習記録カレンダー
+def child_monthly_calendar(request):
+
+    return render (request, 'app/child/monthly_calendar.html')
+
+# 子ども用月間学習記録グラフ
+def child_monthly_graph(request):
+
+    return render (request, 'app/child/monthly_graph.html')
+
+# 子ども用週間学習記録グラフ
+def child_weekly_graph(request):
+
+    return render (request, 'app/child/weekly_graph.html')
+
+
+
         

@@ -1,12 +1,12 @@
 {# 保護者用　マイページ画面 #}
 
 {# 保護者ベーステンプレート継承 #}
-{% extends 'app/parent_base.html' %}
+{% extends 'app/parent/base.html' %}
 {% load static %}
 
-{# 保護者ベースCSS #}
+{# CSS #}
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/parent_mypage.css' %}">
+    <link rel="stylesheet" href="{% static 'css/parent/mypage.css' %}">
 {% endblock %}
 
 {# ログアウト確認用モーダル　JavaScript#}

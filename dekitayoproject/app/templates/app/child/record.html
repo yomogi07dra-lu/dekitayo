@@ -1,0 +1,52 @@
+{# 子ども用学習登録画面 #}
+
+{% extends 'app/child/base.html' %}
+{% load index %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/child/record.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="top-row">
+  <p class="today">{{ today|date:"n月j日(D)" }}</p>
+</div>
+<h2>今日のできた！登録</h2>
+
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+{#項目#}
+<div class="items">
+    {% for row in rows %}
+        {% if row.item %}
+            <div class="item-row">
+                <span class="color-box {{ row.class }}"></span>
+
+                <label class="item-label">
+                        <input
+                            type="checkbox"
+                            name="item_ids"
+                            value="{{ row.item.id }}"
+                            {% if row.item.id in checked_item_ids %}
+                                checked
+                            {% endif %}
+                        >
+                        <span class="item-name">{{ row.item.item_name }}</span>
+                </label>
+            </div>
+        {% endif %}    
+    {% endfor %}
+    <div class="form-center">
+        {{ form.child_comment }}
+    </div>    
+    <div class="form-center">
+        {{ form.photo1_url }}
+        {{ form.photo2_url }}
+    </div>
+
+        <button type="submit" class="btn">登録</button>
+</form>
+{% endblock %}

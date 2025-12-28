@@ -13,17 +13,12 @@
     padding: 8px 12px;
     font-size: 16px;
 }
-.items{
+.item-manage.items{
     list-style: none;
     padding: 0;
     margin: 0;
 }
-.item-row{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 4px;
-}
+
 .item-label{
     display: flex;
     align-items: center;
@@ -41,12 +36,8 @@
     padding: 0;
 }
 
-.color-box {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    display: inline-block; 
-}
+/* 学習項目 削除　*/
+
 .delete-row {
     display: flex;
     align-items: center;
@@ -54,11 +45,6 @@
     padding: 4px 6px;
     margin-bottom: 2px;
     border-radius: 6px;
-}
-
-
-.muted {
-    color: #888;
 }
 
 .delete-row.red .color-box    { background-color: #ff0000; }

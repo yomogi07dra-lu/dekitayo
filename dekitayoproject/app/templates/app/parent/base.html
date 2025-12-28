@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {# 保護者用　ベースCSS #}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/parent_base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/parent/base.css' %}">
     {% block extra_css %}
     {% endblock %}
 
@@ -37,8 +38,15 @@
         <header class="site-header">
             <div class="header-inner">
                 <a href="{% url 'parent_home' %}" class="header-title">できたよ！</a>
-                <div class="header-icons">
-                    <a href="{% url 'parent_mypage' %}">マイページ</a>
+                <div class="mypage-icon">
+                <a href="{% url 'parent_mypage' %}">
+                    {% if request.user.icon %}
+                    <img
+                        class="mypage-icon"
+                        src="{% static request.user.icon.image_url %}"
+                        alt="icon">
+                    {% endif %}
+                </a>
                 </div>
             </div>
         </header>
@@ -51,8 +59,19 @@
         </main>
 
         <footer class="site-footer">
-            <div class="footer-icons">
-                    <a href="{% url 'parent_home' %}">今日</a>
+            <div class="icon-row">
+                <a href="{% url 'parent_home' %}">
+                    <img class="icon" src="{% static 'icons/today.png' %}" alt="今日">
+                </a>
+                <a href="{% url 'parent_monthly_calendar' %}">
+                    <img class="icon" src="{% static 'icons/calendar.png' %}" alt="カレンダー">
+                </a>
+                <a href="{% url 'parent_monthly_graph' %}">
+                    <img class="icon" src="{% static 'icons/week.png' %}" alt="週間">
+                </a>
+                <a href="{% url 'parent_weekly_graph' %}">
+                    <img class="icon" src="{% static 'icons/month.png' %}" alt="月間">
+                </a>     
             </div>
         </footer>
     </div>
