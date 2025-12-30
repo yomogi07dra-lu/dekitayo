@@ -20,3 +20,81 @@
     margin: 0;
     padding: 0;
 }
+/* 子どものコメントフォーム枠 */
+.content-box textarea {
+    border: none;
+    outline: none;
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+    resize: none;
+}
+
+/*  写真・「＋」の枠 */
+
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  justify-items: stretch;
+}
+
+.upload-input {
+  display: none;
+}
+
+.upload-plus {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;  
+
+    border: 2px solid #bfbfbf;
+    border-radius: 12px;
+    background: #fff;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.upload-item {
+    width: 160px;
+    height: 100px; 
+    justify-self: center;
+    position: relative; 
+}
+.upload-meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #333;
+}
+
+/* プレビュー */
+.upload-preview{
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    margin-top: 0;          /* ← これ重要：下に押し出す原因 */
+    display: none;          /* ← 初期は非表示（画像選択で表示） */
+    }
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    display: block;
+}
+
+.upload-meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #333;
+}

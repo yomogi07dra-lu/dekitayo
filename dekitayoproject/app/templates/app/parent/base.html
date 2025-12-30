@@ -3,10 +3,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+{% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {# 保護者用　ベースCSS #}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/parent/base.css' %}">
     {% block extra_css %}
@@ -38,16 +38,18 @@
         <header class="site-header">
             <div class="header-inner">
                 <a href="{% url 'parent_home' %}" class="header-title">できたよ！</a>
-                <div class="mypage-icon">
-                <a href="{% url 'parent_mypage' %}">
-                    {% if request.user.icon %}
-                    <img
-                        class="mypage-icon"
-                        src="{% static request.user.icon.image_url %}"
-                        alt="icon">
-                    {% endif %}
+                    <div class="header-actions">
+                        <a href="{% url 'parent_child_switch' %}" class="header-icon-link">
+                            <img src="{% static 'icons/switching.png' %}" alt="切替" class="icon">
+                        </a>
+
+                        <a href="{% url 'parent_mypage' %}" class="header-icon-link">
+                            {% if request.user.icon %}
+                                <img src="{% static request.user.icon.image_url %}" alt="マイページ" class="mypage-icon">
+                            {% endif %}
+                        </a>
+                    </div>
                 </a>
-                </div>
             </div>
         </header>
 

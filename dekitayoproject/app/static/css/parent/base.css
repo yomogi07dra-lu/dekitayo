@@ -35,5 +35,10 @@
     font-weight: bold;
     margin: 0;
 }
-
-
+/* ヘッダーのマイページと切替アイコン */
+.header-actions{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

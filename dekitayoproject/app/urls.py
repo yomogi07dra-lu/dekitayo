@@ -1,32 +1,35 @@
 from django.urls import path
-from . import views
+from .views import child, parent, auth
 
 urlpatterns = [
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
+    path('signup/', auth.signup, name='signup'),
+    path('login/', auth.user_login, name='login'),
+    path('logout/', auth.user_logout, name='logout'),
 
-    path('request_password_reset/', views.request_password_reset, name='request_password_reset'),
-    path('reset_password/<uuid:token>/', views.reset_password, name='reset_password'),
+    path('request_password_reset/', auth.request_password_reset, name='request_password_reset'),
+    path('reset_password/<uuid:token>/', auth.reset_password, name='reset_password'),
 # 子ども用
-    path('child/home/', views.child_home, name='child_home'),
-    path('child/mypage/', views.child_mypage, name='child_mypage'),    
-    path('child/record/', views.child_record, name='child_record'),
+    path('child/home/', child.child_home, name='child_home'),
+    path('child/mypage/', child.child_mypage, name='child_mypage'),    
+    path('child/record/', child.child_record, name='child_record'),
 
-    path('child/monthly_calendar/', views.child_monthly_calendar, name='child_monthly_calendar'),
-    path('child/monthly_graph/', views.child_monthly_graph, name='child_monthly_graph'),
-    path('child/weekly_graph/', views.child_weekly_graph, name='child_weekly_graph'),
+    path('child/home/<int:year>/<int:month>/<int:day>/', child.child_home, name="child_home_by_date"), #過去学習記録　slug形式
+    path('child/monthly_calendar/', child.child_monthly_calendar, name='child_monthly_calendar'),
+    path('child/monthly_calendar/<int:year>/<int:month>/', child.child_monthly_calendar, name='child_monthly_calendar_by_month'),
+    path('child/monthly_graph/', child.child_monthly_graph, name='child_monthly_graph'),
+    path('child/weekly_graph/', child.child_weekly_graph, name='child_weekly_graph'),
 # 保護者用
-    path('parent/home/', views.parent_home, name='parent_home'),
-    path("parent/home/<int:child_id>/", views.parent_home, name="parent_home_with_child"),
+    path('parent/home/', parent.parent_home, name='parent_home'),
+    path("parent/home/<int:child_id>/", parent.parent_home, name="parent_home_with_child"),
 
-    path('parent/mypage/', views.parent_mypage, name='parent_mypage'),
-    path('parent/item_manage/', views.parent_item_manage, name='parent_item_manage'),
-    path("parent/item_manage/<int:child_id>/", views.parent_item_manage, name="parent_item_manage_with_child"),
-    path('parent/invitation/', views.invitation, name='invitation'),
+    path('parent/daily_detail/<int:year>/<int:month>/<int:day>/', parent.parent_daily_detail, name="parent_daily_detail"),
+    path('parent/mypage/', parent.parent_mypage, name='parent_mypage'),
+    path('parent/item_manage/', parent.parent_item_manage, name='parent_item_manage'),
+    path("parent/item_manage/<int:child_id>/", parent.parent_item_manage, name="parent_item_manage_with_child"),
+    path('parent/invitation/', parent.invitation, name='invitation'),
 
-    path('parent/monthly_calendar/', views.parent_monthly_calendar, name='parent_monthly_calendar'),
-    path('parent/monthly_graph/', views.parent_monthly_graph, name='parent_monthly_graph'),
-    path('parent/weekly_graph/', views.parent_weekly_graph, name='parent_weekly_graph'),
-    path('parent/child_switch/', views.parent_child_switch, name='parent_child_switch'),    
+    path('parent/monthly_calendar/', parent.parent_monthly_calendar, name='parent_monthly_calendar'),
+    path('parent/monthly_graph/', parent.parent_monthly_graph, name='parent_monthly_graph'),
+    path('parent/weekly_graph/', parent.parent_weekly_graph, name='parent_weekly_graph'),
+    path('parent/child_switch/', parent.parent_child_switch, name='parent_child_switch'),    
 ]

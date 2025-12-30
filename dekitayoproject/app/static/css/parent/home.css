@@ -2,4 +2,12 @@
     padding: 4px 0;
 }
 
+.content-box textarea {
+    border: none;
+    outline: none;
+    width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+    resize: none;
+}
 

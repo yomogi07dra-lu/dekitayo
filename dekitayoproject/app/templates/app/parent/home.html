@@ -9,15 +9,15 @@
 {% endblock %}
 
 {% block content %}
-
+{# 日付 #}
 <p class="today">{{ today|date:"n月j日(D)" }}</p>
 
 {% if not child %}
     <h2>お子様の登録を行ってください</h2>
 {% else %}    
-    <p class="child-name">{{ child.user.username }}</p>
-    <h2>今日のできた！</h2>
-
+<p class="child-name">{{ child.user.username }}</p>
+<h2>今日のできた！</h2>
+<div class="content-box">
     {% if daily_log %}
   <div class="items">
     {% for row in rows %}
@@ -29,24 +29,39 @@
       {% endif %}
     {% endfor %}
   </div>
-    {% else %}
-    <p>（まだ登録されていません）</p>
-    {% endif %}
-
+{% else %}
+<p>（まだ登録されていません）</p>
+{% endif %}
 
 <p>{{ daily_log.child_comment|default:"（コメントなし）" }}</p>
+</div>
+{# 写真 #}
+<div class="photo-grid">
+  {% if daily_log.photo1_url %}
+    <div class="photo-box">
+      <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+    </div>  
+  {% endif %}
 
-{% if daily_log.photo1_url %}<img src="{{ daily_log.photo1_url.url }}" width="160">{% endif %}
-{% if daily_log.photo2_url %}<img src="{{ daily_log.photo2_url.url }}" width="160">{% endif %}
+  {% if daily_log.photo2_url %}
+    <div class="photo-box">
+      <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+    </div>    
+  {% endif %}
 
-{% if not daily_log.photo1_url and not daily_log.photo2_url %}
-    <p>（写真なし）</p>
-{% endif %}
+  {% if not daily_log.photo1_url and not daily_log.photo2_url %}
+      <p>（写真なし）</p>
+  {% endif %}
+</div> 
 
 <form method="post">
     {% csrf_token %}
-    {{ comment_form.as_p }}
-    <button type="submit">送信</button>
+      <div class="content-box">
+        <div class="form-center">
+          {{ comment_form.text }}
+        </div>
+      </div>
+  <button type="submit" class="btn">送信</button>
 </form>
 {% endif %}
 {% endblock %}

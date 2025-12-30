@@ -166,8 +166,9 @@ class ParentCommentForm(forms.ModelForm):
             'text': '',
         }        
         widgets = {
-            "parent_comment": forms.Textarea(attrs={
+            "text": forms.Textarea(attrs={
             "rows": 3,
+            "maxlength": 100,
             "placeholder": "コメント：最大100字",
             })
         }

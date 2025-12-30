@@ -9,6 +9,8 @@
 {% endblock %}
 
 
+
+
 {% block content %}
 <div class="top-row">
   <p class="today">{{ today|date:"n月j日(D)" }}</p>
@@ -18,35 +20,109 @@
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+
+    {% if form.errors %}
+        <div>
+            {{ form.errors }}
+        </div>
+    {% endif %}
 {#項目#}
 <div class="items">
-    {% for row in rows %}
-        {% if row.item %}
-            <div class="item-row">
-                <span class="color-box {{ row.class }}"></span>
+    <div class="content-box">
+        {% for row in rows %}
+            {% if row.item %}
+                <div class="item-row">
+                    <span class="color-box {{ row.class }}"></span>
 
-                <label class="item-label">
-                        <input
-                            type="checkbox"
-                            name="item_ids"
-                            value="{{ row.item.id }}"
-                            {% if row.item.id in checked_item_ids %}
-                                checked
-                            {% endif %}
-                        >
-                        <span class="item-name">{{ row.item.item_name }}</span>
-                </label>
-            </div>
-        {% endif %}    
-    {% endfor %}
-    <div class="form-center">
-        {{ form.child_comment }}
-    </div>    
-    <div class="form-center">
-        {{ form.photo1_url }}
-        {{ form.photo2_url }}
+                    <label class="item-label">
+                            <input
+                                type="checkbox"
+                                name="item_ids"
+                                value="{{ row.item.id }}"
+                                {% if row.item.id in checked_item_ids %}
+                                    checked
+                                {% endif %}
+                            >
+                            <span class="item-name">{{ row.item.item_name }}</span>
+                    </label>
+                </div>
+            {% endif %}    
+        {% endfor %}
     </div>
 
-        <button type="submit" class="btn">登録</button>
+    <div class="content-box">
+        <div class="form-center">
+            {{ form.child_comment }}
+        </div>        
+    </div>    
+
+<div class="upload-grid">
+    <div class="upload-item">
+        <input id="photo1" type="file" name="photo1_url" accept="image/*" class="upload-input">
+        <label for="photo1" class="upload-plus">＋</label>
+        <div id="upload_preview1" class="upload-preview"></div>
+    </div>
+
+    <div class="upload-item">
+        <input id="photo2" type="file" name="photo2_url" accept="image/*" class="upload-input">
+        <label for="photo2" class="upload-plus">＋</label>
+        <div id="upload_preview2" class="upload-preview"></div>
+    </div>
+</div>
+
+<div id="upload_meta2" class="upload-meta"></div>
+
+
+    <button type="submit" class="btn">登録</button>
+</div>
 </form>
+
+
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    function setupImagePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const previewBox = document.getElementById(previewId);
+        const plusLabel = input.nextElementSibling; // ＋ラベル
+
+        input.addEventListener("change", () => {
+            const file = input.files[0];
+
+        // 何も選ばれていない場合
+            if (!file) {
+                previewBox.innerHTML = "";
+                previewBox.style.display = "none";   // ←追加
+                plusLabel.style.display = "flex";
+                return;
+            }
+
+        // 画像以外は無視
+            if (!file.type.startsWith("image/")) {
+                previewBox.innerHTML = "";
+                return;
+            }
+
+        // imgタグを作る
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.style.maxWidth = "100%";
+            img.style.borderRadius = "8px";
+
+        // 前のプレビューを消してから追加
+            previewBox.innerHTML = "";
+            previewBox.appendChild(img);
+
+            previewBox.style.display = "block";  
+            plusLabel.style.display = "none";
+        });
+    }
+
+    // photo1 / photo2 に適用
+    setupImagePreview("photo1", "upload_preview1");
+    setupImagePreview("photo2", "upload_preview2");
+</script>
+{% endblock %}
+
+

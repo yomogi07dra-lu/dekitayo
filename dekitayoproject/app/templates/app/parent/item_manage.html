@@ -23,39 +23,39 @@
     </div>
 </form>
 
-<hr>
+    <hr>
+<div class="content-box">
+    <form method="post" class="delete-box">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
 
-<form method="post" class="delete-box">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="delete">
+        {% for row in rows %}
+        <div class="delete-row {{ row.class }}">
 
-    {% for row in rows %}
-    <div class="delete-row {{ row.class }}">
+        {#色付き四角#}
+        <span class="color-box"></span>
 
-    {#色付き四角#}
-    <span class="color-box"></span>
+        {# チェックボックス #}
+        <input
+            type="checkbox"
+            name="item_ids"
+            {% if row.item %}
+            value="{{ row.item.id }}"
+            {% else %}
+            disabled
+            {% endif %}
+        >
 
-    {# チェックボックス #}
-    <input
-        type="checkbox"
-        name="item_ids"
-        {% if row.item %}
-        value="{{ row.item.id }}"
-        {% else %}
-        disabled
-        {% endif %}
-    >
+        {# 表示テキストだけ切り替える #}
+            {% if row.item %}
+                <span class="name">{{ row.item.item_name }}</span>
+            {% else %}
+                <span class="name muted">未登録</span>
+            {% endif %}
 
-    {# 表示テキストだけ切り替える #}
-        {% if row.item %}
-            <span class="name">{{ row.item.item_name }}</span>
-        {% else %}
-            <span class="name muted">未登録</span>
-        {% endif %}
-
-    </div>
+        </div>
   {% endfor %}
-
+</div>
     <button type="submit" class=" btn btn-danger ">削除</button>
 </form>
 {% endblock %}

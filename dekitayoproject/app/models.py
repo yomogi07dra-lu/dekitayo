@@ -113,14 +113,14 @@ class Daily_log(models.Model):
     )  
     date = models.DateField(default=timezone.localdate)
     child_comment = models.CharField(max_length=100, blank=True)
-    photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
-    photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True)
+    photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True,max_length=255)
+    photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True,max_length=255)
 
     class Meta:
         db_table = 'daily_logs'
         #重複禁止　指定した組み合わせが1つ
         constraints = [
-            models.UniqueConstraint(fields=["child", "date"], name="uniq_dailylog_user_date")
+            models.UniqueConstraint(fields=["child", "date"], name="uniq_dailylog__date")
         ]
 
 

@@ -1,11 +1,19 @@
 {% extends 'app/parent/base.html' %}
 
+{# CSS #}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/parent/invitation.css' %}">
+{% endblock %}
+
 {% block content %}
     <h2>招待コード</h2>
 
+<div class="invite-outline">
     {% if invite %}
         <p><strong>{{ invite.code }}</strong></p>
     {% endif %}
+</div>
 
     <form method="post" action="{% url 'invitation' %}">
         {% csrf_token %}
