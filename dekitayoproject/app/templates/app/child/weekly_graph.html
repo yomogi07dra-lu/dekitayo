@@ -10,4 +10,33 @@
 
 {% block content %}
 
+<a href="{% url 'child_weekly_graph_by_week' prev_year prev_month prev_day %}">←</a>
+<span>１週間のできた！</span>
+<a href="{% url 'child_weekly_graph_by_week' next_year next_month next_day %}">→</a>
+
+  <h2> {{ start_date|date:"n/j" }}〜{{ end_date|date:"n/j" }} </h2>
+
+  <canvas id="weeklyChart"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const labels = {{ labels|safe }};
+    const counts = {{ counts|safe }};
+
+    new Chart(document.getElementById("weeklyChart"), {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "1日の合計学習項目数",
+          data: counts,
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  </script>
+
+
 {% endblock %}

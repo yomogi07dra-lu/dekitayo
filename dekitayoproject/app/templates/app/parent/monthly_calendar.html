@@ -8,6 +8,36 @@
 <link rel="stylesheet" href="{% static 'css/parent/monthly_calendar.css' %}">
 {% endblock %}
 
+
 {% block content %}
 
+{% if not child %}
+  <p>お子さまを登録すると月間グラフが表示されます。</p>
+{% else %}
+<a href="{% url 'parent_monthly_calendar_by_month' child.id prev_year prev_month %}">←</a>
+<span>{{ month }}月のできた！</span>
+<a href="{% url 'parent_monthly_calendar_by_month' child.id next_year next_month %}">→</a>
+{% endif %}
+
+  <table class="calendar">{# 表でカレンダー作成 #}
+    <tr>
+      <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+    </tr>
+    {% for week in month_days %}{# １週間ずつ取り出し1行に #}
+    <tr>
+      {% for day in week %}{# １日ずつ見る #}
+        {% if day == 0 %}{# 先月・来月のはみ出した日は空白 #}
+          <td class="empty"></td>{# １マス #}
+        {% else %}
+          <td>
+            {{ day }}            
+            {% if day in learned_days %}
+                <a href="{% url 'parent_daily_detail_with_child' child.id year month day %}" class="star-link">⭐</a>
+            {% endif %}
+          </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
 {% endblock %}

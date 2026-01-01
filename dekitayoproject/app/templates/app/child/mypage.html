@@ -32,6 +32,9 @@
 <h2>マイページ</h2>
 
 <div class="mypage-menu"> 
+    <a href="{% url 'child_icon_change' %}" class="menu-item">アイコン変更</a>
+    <a href="{% url 'child_email_change' %}" class="menu-item">メールアドレス変更</a>
+    <a href="{% url 'child_password_change' %}" class="menu-item">パスワード変更</a>
     <button type="button" class="btn btn-danger menu-item logout-item" id="open-logout">ログアウト</button>
 
 </div>

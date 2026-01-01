@@ -10,4 +10,16 @@
 
 {% block content %}
 
+<h2>兄弟姉妹切り替え</h2>
+
+<ul>
+  {% for child in children %}
+      <a href="{% url 'parent_home_child_id' child.id %}">
+        {{ child.user.username }}
+      </a>
+  {% empty %}
+    <li>お子様が登録されていません</li>
+  {% endfor %}
+</ul>
+
 {% endblock %}

@@ -2,11 +2,38 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
 from .. models import Child,Family_member,Item,Invitation,DailyLogItem,Daily_log
+
 from datetime import date, timedelta
 from .. forms import ItemForm, ParentCommentForm
-import uuid, calendar
+import calendar
 from .. utils import generate_invite_code
+
+# 表示する子どもの選択 child_idがあるならその子（兄弟切替から）ない場合は家族一覧最初の子ども (共通)
+def get_target_child(request, child_id=None):
+
+    family = request.user.family_member.family
+
+    if child_id is not None:
+        return get_object_or_404(
+            Child,
+            id=child_id,
+            family_member__family=family,
+            family_member__role=Family_member.CHILD,
+        )
+
+    return (
+        Child.objects
+        .filter(
+            family_member__family=family,
+            family_member__role=Family_member.CHILD,
+        )
+        .select_related("user")
+        .order_by("id")
+        .first()
+    )
+
 
 # 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
 COLOR_SLOTS = [
@@ -24,39 +51,20 @@ SLOT_INDEXES = [slot["index"] for slot in COLOR_SLOTS]
 #保護者用ホーム画面
 def parent_home(request,child_id=None):
     today = timezone.localdate()
-    family = request.user.family_member.family
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
         messages.error(request, "保護者のみアクセスできます")
         return redirect("child_home")
     
-    #child_idがあるならその子（兄弟切替から）ない場合は家族一覧最初の子ども
-    
-    if child_id is not None:
-        child = get_object_or_404(
-            Child,
-            id=child_id,
-            family_member__family=family,
-            family_member__role=Family_member.CHILD,
-        )
-    else:
-        child=(
-            Child.objects
-            .filter(
-                family_member__family=family,
-                family_member__role=Family_member.CHILD,
-            )
-            .select_related("user")
-            .order_by("id")
-            .first()
-        )
-
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id) 
+   
     if child is None:
         # 子どもが未登録なら何も表示していないホーム画面を表示　テンプレートにて子ども登録のコメント
         return render(request, "app/parent/home.html", {
-            "today": today,
             "child": None,
+            "today":today
         })
 
     # 今日の学習記録　取得
@@ -66,6 +74,7 @@ def parent_home(request,child_id=None):
     ).first() #最新取得
 
     # 今日の学習項目　取得
+    family = request.user.family_member.family    
     items = list(
         Item.objects
         .filter(family=family, child=child)
@@ -135,35 +144,27 @@ def parent_home(request,child_id=None):
 @login_required
 def parent_item_manage(request, child_id=None):
 
-    # ログインユーザーのfamily取得
-    family = request.user.family_member.family
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id)
+    
+    if child is None:
+        # 子どもが未登録なら何も表示していない学習項目登録画面を表示　テンプレートにて子ども登録のコメント
+        return render(request, "app/parent/item_manage.html", {
+            "child": None,
+        })
+    
+    # 入口を寄せる（child_idなしで来たら 対応URLへ）
+    if child_id is None:
+        return redirect("parent_item_manage_child_id", child_id=child.id)
 
 
-    if child_id is None: #child_idが指定されていない場合
-        # 最初に登録された子ども
-        child = (
-            Child.objects
-            .filter(
-                family_member__family=family,
-                family_member__role=Family_member.CHILD,
-            )
-            .select_related("user", "family_member")
-            .order_by("id")     # 最初に登録した子ども
-            .first()
-        )
-        #　子どもが登録されていない場合
-        if child is None:
-            return redirect("invitation")
-
-    # child_id が指定されている場合　兄弟切替
-    else:
-        child = get_object_or_404(
-            Child,
-            id=child_id,
-            family_member__family=family,
-            family_member__role=Family_member.CHILD,
-        )
     #学習項目取得
+    family = request.user.family_member.family
     items = Item.objects.filter(
             family=family,
             child=child
@@ -183,21 +184,21 @@ def parent_item_manage(request, child_id=None):
             if form.is_valid():
                 item_name = form.cleaned_data["item_name"]
 
-            used = set(items_by_index.keys())                     # 既に埋まっているスロット
-            empty = [i for i in SLOT_INDEXES if i not in used]    # 空きスロット　上から
+                used = set(items_by_index.keys())                     # 既に埋まっているスロット
+                empty = [i for i in SLOT_INDEXES if i not in used]    # 空きスロット　上から
 
-            if not empty:
-                form.add_error(None, "学習項目は最大7つまでです")
+                if not empty:
+                    form.add_error(None, "学習項目は最大7つまでです")
 
-            else: #スロットにItemがない（一番上から）
-                Item.objects.create(
-                    family=family,
-                    child=child,
-                    item_name=item_name,
-                    color_index=empty[0],
-                    )
+                else: #スロットにItemがない（一番上から）
+                    Item.objects.create(
+                        family=family,
+                        child=child,
+                        item_name=item_name,
+                        color_index=empty[0],
+                        )
 
-                return redirect("parent_item_manage_with_child", child_id=child.id)
+                    return redirect("parent_item_manage_child_id", child_id=child.id)
 
         # 削除
         elif action == "delete":
@@ -208,7 +209,7 @@ def parent_item_manage(request, child_id=None):
                 child=child,
             ).delete()
 
-            return redirect("parent_item_manage_with_child", child_id=child.id)
+            return redirect("parent_item_manage_child_id", child_id=child.id)
 
     # 表示
     rows = [
@@ -230,48 +231,354 @@ def parent_item_manage(request, child_id=None):
     )
 
 # 保護者用　過去記録
-def parent_daily_detail(request,child_id=None):
+@login_required
+def parent_daily_detail(request,child_id=None,year=None, month=None, day=None):
+
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+    
+    # 基準の日付
+    if year and month and day:
+        today = date(year, month, day)                    
+    else:
+        today = timezone.localdate() #　指定なければ今日
+        
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id)
+    
+    if child is None:
+        # 子どもが未登録なら何も表示していない学習項目登録画面を表示　テンプレートにて子ども登録のコメント
+        return render(request, "app/parent/daily_detail.html", {
+            "child": None,
+        })
+    
+    # 今日の学習記録
     family = request.user.family_member.family
+    daily_log = Daily_log.objects.filter(
+        child=child,
+        date=today,
+    ).first() # 最新取得
+
+    # 今日の学習項目　取得
+    items = list(
+        Item.objects
+        .filter(family=family, child=child)
+        .order_by("color_index")
+    )
+
+    # 空の箱　今日の記録がなかった場合エラーにならないように
+    checked_item_ids = []
+
+    # 今日のチェックされた学習項目　取得
+    if daily_log is not None:
+        checked_item_ids = list(
+            DailyLogItem.objects
+            .filter(daily_log=daily_log)
+            .values_list("item_id", flat=True) # idリストとして取得
+        )
+    
+    # 表示 #
+    rows = []
+
+    for slot in COLOR_SLOTS:
+        index = slot["index"]
+        css_class = slot["class"]
+        item = None
+
+    # 登録されている学習項目を1つずつ確認する
+        for one_item in items:
+
+    # 学習項目の表示位置が、このスロット番号と同じか？
+            if one_item.color_index == index:
+                item = one_item
+                break
+
+        rows.append({
+            "class": css_class,
+            "item": item,
+        })
+
+
+    return render(request, "app/parent/daily_detail.html", {
+        "today": today,
+        "daily_log": daily_log,
+        "child": child,
+        "rows": rows,
+        "checked_item_ids": checked_item_ids,
+        "is_past": today != timezone.localdate(),  #過去学習記録用のテンプレートで使用
+    })
+
+    # 子ども・保護者のコメントは表示なのでテンプレート
+
+
+    
+# 保護者用月間学習記録カレンダー
+@login_required
+def parent_monthly_calendar(request, child_id=None, year=None, month=None):
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
         messages.error(request, "保護者のみアクセスできます")
         return redirect("child_home")
 
-    #child_idがあるならその子（兄弟切替から）ない場合は家族一覧最初の子ども
-    if child_id is not None:
-        child = get_object_or_404(
-            Child,
-            id=child_id,
-            family_member__family=family,
-            family_member__role=Family_member.CHILD,
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id)
+
+    #　基準の日付
+    today = date.today()
+    year = year or today.year
+    month = month or today.month
+
+    if child is None:
+        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
+        return render(request, "app/parent/monthly_calendar.html", {
+            "today": today,
+            "child": None,
+        })
+    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
+    if child_id is None:
+        return redirect(
+            "parent_monthly_calendar_by_month",
+            child_id=child.id,
+            year=year,
+            month=month,
         )
+
+    # 基準　今月の1日
+    current = date(year, month, 1)
+
+    # 前月
+    prev_date = current - timedelta(days=1) # timedelta は「日・時間・秒」単位ずらす
+    prev_year = prev_date.year
+    prev_month = prev_date.month
+
+    # 次月
+    next_date = (current + timedelta(days=31)).replace(day=1)
+    next_year = next_date.year
+    next_month = next_date.month
+
+    cal = calendar.Calendar(firstweekday=6) # 日曜(6)始まり
+    month_days = cal.monthdayscalendar(year, month)
+
+
+    #記録の絞り込み
+    daily_logs = Daily_log.objects.filter(
+        child=child,
+        date__year=year,
+        date__month=month,
+    )    
+    # 学習した日付　
+    learned_days = {
+        daily_log.date.day
+        for daily_log in daily_logs
+    }
+    
+    context = {
+        "child_id": child.id,
+        "child": child,
+        "year": year,
+        "month": month,
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month,
+        "month_days": month_days,
+        "learned_days": learned_days,
+    }
+
+    return render (request, 'app/parent/monthly_calendar.html', context)
+
+
+
+# 保護者用月間学習記録グラフ
+@login_required
+def parent_monthly_graph(request, child_id=None, year=None, month=None):
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+    
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id)
+    
+    #日付
+    today = date.today()
+    year = year or today.year
+    month = month or today.month
+
+    start_date = date(year, month, 1) # 月初めの日（1日）
+    last_day = calendar.monthrange(year, month)[1] # 1か月間　何日あるか
+    end_date = date(year, month, last_day) # 月終わりの日付
+
+    current = date(year, month, 1)
+
+    prev_date = current - timedelta(days=1)
+    prev_year = prev_date.year
+    prev_month = prev_date.month
+
+    next_date = (current + timedelta(days=31)).replace(day=1)
+    next_year = next_date.year
+    next_month = next_date.month   
+
+
+    if child is None:
+        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
+        return render(request, "app/parent/monthly_graph.html", {
+            "today": today,
+            "child": None,
+        })
+    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
+    if child_id is None:
+        return redirect(
+            "parent_monthly_graph_by_month",
+            child_id=child.id,
+            year=year,
+            month=month
+        )
+   
+    #データ
+    family = request.user.family_member.family
+    qs = (
+    Item.objects      # 学習項目から（項目数が0でも表示できる）
+    .filter(family=family, child=child)
+    .annotate(
+        total=Count(          # 各 Item に計算結果の列 total を追加
+            "dailylogitem",   # Item に紐づく DailyLogItem を数える
+            filter=Q(         #「この月の分だけ」を数える条件
+                dailylogitem__daily_log__date__range=(start_date, end_date)
+            ),
+        )
+    )        
+    .order_by("color_index") # 並び順
+)
+    
+    # COLOR_SLOTSを利用 辞書に
+    COLOR_CLASS_MAP = {slot["index"]: slot["class"] for slot in COLOR_SLOTS}
+
+    # グラフ
+    labels = [item.item_name for item in qs] # 縦軸
+    counts = [item.total for item in qs] # 横軸
+    colors = [COLOR_CLASS_MAP.get(item.color_index, "gray") for item in qs] # 色　（0～6以外はgray）
+
+    context = {
+        "today": today,
+        "child": child,
+        "child_id": child.id,
+        "labels": labels,
+        "counts": counts,
+        "colors": colors,
+        "year": year,
+        "month": month,
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month,
+    }
+
+    return render (request, 'app/parent/monthly_graph.html', context)
+
+@login_required
+# 保護者用週間学習記録グラフ
+def parent_weekly_graph(request, child_id=None, year=None, month=None, day=None):
+    
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+
+    #日付
+    today = date.today()
+    if year and month and day:
+        base_date = date(int(year), int(month), int(day))
     else:
-        child=(
-            Child.objects
-            .filter(
-                family_member__family=family,
-                family_member__role=Family_member.CHILD,
-            )
-            .select_related("user")
-            .order_by("id")
-            .first()
+        base_date = today
+    # 週の範囲
+    offset = (base_date.weekday() + 1) % 7
+    start_date = base_date - timedelta(days=offset)       # 日曜
+    end_date = start_date + timedelta(days=6)             # 土曜
+
+    # 前週・次週用
+    prev_base = start_date - timedelta(days=7)
+    next_base = start_date + timedelta(days=7)
+
+    
+    # 表示する子どもの選択（共通）
+    child = get_target_child(request, child_id=child_id)
+
+    if child is None:
+        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
+        return render(request, "app/parent/weekly_graph.html", {
+            "today": today,
+            "child": None,
+        })
+    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
+    if child_id is None:
+        return redirect(
+            "parent_weekly_graph_by_week",
+            child_id=child.id,
+            year=base_date.year,
+            month=base_date.month,
+            day=base_date.day,
         )
+    #データ
+    day_totals = (
+        Daily_log.objects
+        .filter(child=child, date__range=(start_date, end_date))
+        .annotate(total=Count("dailylogitem"))
+        .values("date", "total")
+    )    
+    
+    total_map = {row["date"]: row["total"] for row in day_totals}
 
-        
+    # グラフ
+    labels = ["日", "月", "火", "水", "木", "金", "土"] # 縦軸
+    counts = [total_map.get(start_date + timedelta(days=i), 0) for i in range(7)] # 横軸
 
-    return render (request, 'app/parent/daily_detail.html')
+    context = {
+        "today": today,
+        "child": child,
+        "child_id": child.id,
+        "labels": labels,
+        "counts": counts,
+        "start_date": start_date,
+        "end_date": end_date,
+        "prev_year": prev_base.year, "prev_month": prev_base.month, "prev_day": prev_base.day,
+        "next_year": next_base.year, "next_month": next_base.month, "next_day": next_base.day,
+    }
 
-# 保護者用月間学習記録カレンダー
-def parent_monthly_calendar(request):
 
-    return render (request, 'app/parent/monthly_calendar.html')
+    return render (request, 'app/parent/weekly_graph.html',context)
 
 
 # 保護者用マイページ
+@login_required
 def parent_mypage(request):
 
     return render (request, 'app/parent/mypage.html')
+
+
+# 保護者用 兄弟姉妹切替
+@login_required
+def parent_child_switch(request):
+
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+    
+    # 子ども一覧
+    family = request.user.family_member.family
+    children = Child.objects.filter(
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    ).select_related("user")
+
+    return render (request, 'app/parent/child_switch.html',
+        {"children": children}
+    )
+
 
 #招待コード#
 @login_required
@@ -300,18 +607,26 @@ def invitation(request):
         'invite': invite
     })
 
-# 保護者用 兄弟姉妹切替
-def parent_child_switch(request):
+# 保護者用 家族一覧
+@login_required
+def parent_family_list(request):
 
-    return render (request, 'app/parent/child_switch.html')
+    return render (request, 'app/parent/family_list.html')
 
+# 保護者用 パスワード変更
+@login_required
+def parent_password_change(request):
 
-# 保護者用月間学習記録グラフ
-def parent_monthly_graph(request):
+    return render (request, 'app/parent/password_change.html')
 
-    return render (request, 'app/parent/monthly_graph.html')
+# 保護者用 メールアドレス変更
+@login_required
+def parent_email_change(request):
 
-# 保護者用週間学習記録グラフ
-def parent_weekly_graph(request):
+    return render (request, 'app/parent/email_change.html')
 
-    return render (request, 'app/parent/weekly_graph.html')
+# 保護者用 アイコン変更
+@login_required
+def parent_icon_change(request):
+
+    return render (request, 'app/parent/icon_change.html')

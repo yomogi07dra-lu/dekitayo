@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
+from django.db.models import Count, Q
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from .. models import Child,Family_member,Item,DailyLogItem,Daily_log
@@ -200,7 +201,7 @@ def child_record(request):
     })
 
 
-# 子ども用　月間
+# 子ども用　月間学習記録カレンダー
 def child_monthly_calendar(request, year=None, month=None):
     today = date.today()
     year = year or today.year
@@ -218,7 +219,6 @@ def child_monthly_calendar(request, year=None, month=None):
     next_date = (current + timedelta(days=31)).replace(day=1)
     next_year = next_date.year
     next_month = next_date.month
-
 
 
     cal = calendar.Calendar(firstweekday=6) # 日曜(6)始まり
@@ -258,23 +258,160 @@ def child_monthly_calendar(request, year=None, month=None):
     return render (request, 'app/child/monthly_calendar.html',context)
 
 
+# 子ども用月間学習記録グラフ
+def child_monthly_graph(request, year=None, month=None):
+
+    #ログイン中のユーザーに紐づくchild取得
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
+    #日付
+    today = timezone.localdate()
+    year = year or today.year
+    month = month or today.month
+
+    start_date = date(year, month, 1) # 月初めの日（1日）
+    last_day = calendar.monthrange(year, month)[1] # 1か月間　何日あるか
+    end_date = date(year, month, last_day) # 月終わりの日付
+
+    current = date(year, month, 1)
+
+    prev_date = current - timedelta(days=1)
+    prev_year = prev_date.year
+    prev_month = prev_date.month
+
+    next_date = (current + timedelta(days=31)).replace(day=1)
+    next_year = next_date.year
+    next_month = next_date.month   
+
+   
+    #データ
+    qs = (
+    Item.objects      # 学習項目から（項目数が0でも表示できる）
+    .filter(family=family, child=child)
+    .annotate(
+        total=Count(          # 各 Item に計算結果の列 total を追加
+            "dailylogitem",   # Item に紐づく DailyLogItem を数える
+            filter=Q(         #「この月の分だけ」を数える条件
+                dailylogitem__daily_log__date__range=(start_date, end_date)
+            ),
+        )
+    )        
+    .order_by("color_index") # 並び順
+)
+    
+    # COLOR_SLOTSを利用 辞書に
+    COLOR_CLASS_MAP = {slot["index"]: slot["class"] for slot in COLOR_SLOTS}
+
+    # グラフ
+    labels = [item.item_name for item in qs] # 縦軸
+    counts = [item.total for item in qs] # 横軸
+    colors = [COLOR_CLASS_MAP.get(item.color_index, "gray") for item in qs] # 色　（0～6以外はgray）
+
+    context = {
+        "today": today,
+        "child": child,
+        "child_id": child.id,
+        "labels": labels,
+        "counts": counts,
+        "colors": colors,
+        "year": year,
+        "month": month,
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month,
+    }
+
+
+    return render (request, 'app/child/monthly_graph.html', context)
+
+# 子ども用週間学習記録グラフ
+def child_weekly_graph(request, year=None, month=None, day=None):
+
+    #ログイン中のユーザーに紐づくchild取得
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
+
+    #日付
+    today = timezone.localdate()
+    if year and month and day:
+        base_date = date(int(year), int(month), int(day))
+    else:
+        base_date = today
+    # 週の範囲
+    offset = (base_date.weekday() + 1) % 7
+    start_date = base_date - timedelta(days=offset)       # 日曜
+    end_date = start_date + timedelta(days=6)             # 土曜
+
+    # 前週・次週用
+    prev_base = start_date - timedelta(days=7)
+    next_base = start_date + timedelta(days=7)
+
+    
+    #データ
+    day_totals = (
+        Daily_log.objects
+        .filter(child=child, date__range=(start_date, end_date))
+        .annotate(total=Count("dailylogitem"))
+        .values("date", "total")
+    )    
+    
+    total_map = {row["date"]: row["total"] for row in day_totals}
+
+    # グラフ
+    labels = ["日", "月", "火", "水", "木", "金", "土"] # 縦軸
+    counts = [total_map.get(start_date + timedelta(days=i), 0) for i in range(7)] # 横軸
+
+    context = {
+        "today": today,
+        "child": child,
+        "child_id": child.id,
+        "labels": labels,
+        "counts": counts,
+        "start_date": start_date,
+        "end_date": end_date,
+        "prev_year": prev_base.year, "prev_month": prev_base.month, "prev_day": prev_base.day,
+        "next_year": next_base.year, "next_month": next_base.month, "next_day": next_base.day,
+    }
+
+    return render (request, 'app/child/weekly_graph.html', context)
+
+
+
+
+
 # 子ども用マイページ
 def child_mypage(request):
 
     return render (request, 'app/child/mypage.html')
 
+# 子ども用 アイコン変更
+@login_required
+def child_icon_change(request):
 
+    return render (request, 'app/child/icon_change.html')
 
-# 子ども用月間学習記録グラフ
-def child_monthly_graph(request):
+# 子ども用 パスワード変更
+@login_required
+def child_password_change(request):
 
-    return render (request, 'app/child/monthly_graph.html')
+    return render (request, 'app/child/password_change.html')
 
-# 子ども用週間学習記録グラフ
-def child_weekly_graph(request):
+# 子ども用 メールアドレス変更
+@login_required
+def child_email_change(request):
 
-    return render (request, 'app/child/weekly_graph.html')
-
+    return render (request, 'app/child/email_change.html')
 
 
         

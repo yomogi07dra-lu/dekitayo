@@ -10,4 +10,41 @@
 
 {% block content %}
 
+<a href="{% url 'child_monthly_graph_by_month' prev_year prev_month %}">←</a>
+<span>{{ month }}月のできた！</span>
+<a href="{% url 'child_monthly_graph_by_month' next_year next_month %}">→</a>
+
+
+    <canvas id="monthlyBar"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {# グラフライブラリ #}
+    <script>
+    const ctx = document.getElementById('monthlyBar');  // <canvas> を指定
+
+    new Chart(ctx, {
+    type: 'bar',  // 横棒グラフ
+    data: {
+        labels: {{ labels|safe }},  //　学習項目名
+        datasets: [{
+        data: {{ counts|safe }},  // 横の長さ
+        backgroundColor: {{ colors|safe }}, //　棒グラフの色（7色）
+        }]
+    },
+    options: {
+        indexAxis: 'y',   //  横棒にする際に必要（無いと縦棒になる）
+        scales: {
+        x: {
+            beginAtZero: true, // メモリ設定　0から
+            ticks: {
+            stepSize: 1 // 1目盛りずつ
+            }
+        }
+        },
+        plugins: {
+        legend: { display: false } // 凡例は消す
+        }
+    }
+    });
+    </script>
+
 {% endblock %}

@@ -10,38 +10,6 @@
     font-weight: bold;
 }
 
-.home-comment{
-    display: flex;
-    align-items: center;
-    gap: 10px;           /* アイコンと文字の間隔 */
-
-    text-align: left; /* 親の中央寄せを打ち消す */
-}
-
-.comment-icon{
-    width: 32px;         /* 好みで調整 */
-    height: 32px;
-    object-fit: cover;
-
-    border-radius: 50%;      /* 丸形 */
-    border: 2px solid #595959;
-
-    flex: 0 0 auto;          /* つぶれ防止 */
-    display: block;          /* baseline由来のズレを減らす */
-}
-
-.home-comment-text{
-    display: inline-block;     /* 文字の箱として扱う */
-    padding: 6px 10px;
-    border-radius: 6px;
-
-    line-height: 1.3;          /* 高さを自然に */
-    text-align: left;
-
-    max-width: 240px;          /* 画面幅に合わせて調整 */
-    word-break: break-word;
-}
-
 
 
 

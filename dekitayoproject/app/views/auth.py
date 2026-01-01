@@ -1,19 +1,11 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
-from django.utils import timezone
-from django.utils.dateparse import parse_date
-from django.http import HttpResponseForbidden,Http404
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .. models import User,Icon,Child,Family,Family_member,PasswordResetToken,Item,Invitation,DailyLogItem,Daily_log,ParentComment
-from .. import forms
-from datetime import date, timedelta
-from .. forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm,ItemForm,DailyLogForm, ParentCommentForm
-import uuid, calendar
-from .. utils import generate_invite_code
+from .. models import User,Icon,Child,Family,Family_member,PasswordResetToken
+from .. forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm
+import uuid
 
 
 #新規登録
@@ -93,35 +85,6 @@ def signup(request):
             'role': family_member_form,
         }
     )
-
-#招待コード#
-@login_required
-def invitation(request):
-    member = request.user.family_member
-
-    if member is None or member.role != 0 or not member.is_admin:
-        messages.error(request, '権限がありません')
-        return redirect('parent_mypage')
-
-    family = member.family
-    invite = Invitation.objects.filter(family=family).first()
-
-    if invite is None:
-        invite = Invitation.objects.create(
-            family=family,
-            code=generate_invite_code(),
-            is_active=True
-        )
-    else:
-        invite.code = generate_invite_code()
-        invite.is_active = True
-        invite.save()
-
-    return render(request, 'app/parent/invitation.html', {
-        'invite': invite
-    })
-
-
 
 #ログイン
 def user_login(request):
