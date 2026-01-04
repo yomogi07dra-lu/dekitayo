@@ -9,6 +9,39 @@
 {% endblock %}
 
 {% block content %}
+<h2>アイコン変更</h2>
 
+
+{% if current_icon %}
+  <div class="current-icon">
+    <img src="{% static current_icon.image_url %}" alt="current icon">
+  </div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="icon-grid">
+    {% for icon in icons %}
+      <label class="icon-choice">
+        <input
+          type="radio"
+          name="icon_id"
+          value="{{ icon.id }}"
+          {% if current_icon and icon.id == current_icon.id %}checked{% endif %}
+          required
+        >
+        <img class="icon-img" src="{% static icon.image_url %}" alt="icon">
+      </label>
+    {% endfor %}
+  </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+  <button type="submit" class="btn">変更</button>
+
+</form>
 
 {% endblock %}

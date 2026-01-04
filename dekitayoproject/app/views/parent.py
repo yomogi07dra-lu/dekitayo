@@ -3,10 +3,10 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from .. models import Child,Family_member,Item,Invitation,DailyLogItem,Daily_log
-
+from .. models import Child,Family_member,Item,Invitation,DailyLogItem,Daily_log, Icon
+from django.contrib.auth import update_session_auth_hash
 from datetime import date, timedelta
-from .. forms import ItemForm, ParentCommentForm
+from .. forms import ItemForm, ParentCommentForm, EmailChangeForm, PasswordChangeForm
 import calendar
 from .. utils import generate_invite_code
 
@@ -616,17 +616,95 @@ def parent_family_list(request):
 # 保護者用 パスワード変更
 @login_required
 def parent_password_change(request):
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
 
-    return render (request, 'app/parent/password_change.html')
+    parent_password_change_form = PasswordChangeForm(
+        user=request.user,
+        data=request.POST or None
+    )
+    if request.method == "POST":
+        if parent_password_change_form.is_valid():
+            parent_password_change_form .save()
+            update_session_auth_hash(request, request.user)
+        # 成功メッセージ（モーダルで表示する）
+            messages.success(request, "パスワードを変更しました")
+        
+        else:
+        # 失敗メッセージ（モーダルで表示する）
+            messages.error(request, "パスワードを変更できませんでした")
+        
+    
+    return render (request, 'app/parent/password_change.html', context={
+        'parent_password_change_form': parent_password_change_form,})
 
 # 保護者用 メールアドレス変更
 @login_required
 def parent_email_change(request):
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+    
+    
+    form = EmailChangeForm(request.POST or None)
 
-    return render (request, 'app/parent/email_change.html')
+    if request.method == "POST":
+        if form.is_valid():
+            current_email = form.cleaned_data["current_email"]
+            new_email = form.cleaned_data["new_email"]
+
+            if current_email != request.user.email:
+                form.add_error(
+                "current_email",
+                "現在のメールアドレスが正しくありません"
+            )
+            else:
+                request.user.email = new_email
+                request.user.save()
+                return redirect("parent_mypage")
+
+
+    return render (request, 'app/parent/email_change.html',context={
+        'email_change_form': form})
 
 # 保護者用 アイコン変更
 @login_required
 def parent_icon_change(request):
 
-    return render (request, 'app/parent/icon_change.html')
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+
+    # 表示したいアイコン一覧
+    target_paths = [
+        "icons\\pengin_6.png",
+        "icons\\octopus_7.png",
+        "icons\\tortoise_8.png",
+        "icons\\whale_9.png",
+        "icons\\dolphin_10.png",
+    ]
+    icons = Icon.objects.filter(image_url__in=target_paths).order_by("id")
+    current_icon = request.user.icon
+    # 選択　保存
+    if request.method == "POST":
+        icon_id = request.POST.get("icon_id")
+        if not icon_id:
+        # 選択していない（事故防止）
+            return render(
+                request,
+                "app/child/icon_change.html",
+                {"icons": icons, "current_icon": current_icon, "error": "アイコンを選択してください"}
+            )
+
+        icon = get_object_or_404(Icon, id=int(icon_id))
+        request.user.icon = icon
+        request.user.save(update_fields=["icon"])
+        return redirect("parent_mypage")
+        
+
+    return render (request, 'app/parent/icon_change.html',
+                   {"icons": icons, "current_icon": current_icon})

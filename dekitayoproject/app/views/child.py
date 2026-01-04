@@ -2,11 +2,12 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
 from django.db.models import Count, Q
-from django.contrib.auth import logout
+from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from .. models import Child,Family_member,Item,DailyLogItem,Daily_log
+from django.contrib import messages
+from .. models import Child,Family_member,Item,DailyLogItem,Daily_log, Icon
 from datetime import date, timedelta
-from .. forms import DailyLogForm
+from .. forms import DailyLogForm, EmailChangeForm, PasswordChangeForm
 import calendar
 
 # 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
@@ -392,26 +393,123 @@ def child_weekly_graph(request, year=None, month=None, day=None):
 
 # 子ども用マイページ
 def child_mypage(request):
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )    
 
     return render (request, 'app/child/mypage.html')
 
 # 子ども用 アイコン変更
 @login_required
 def child_icon_change(request):
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
+    # 表示したいアイコン一覧
+    target_paths = [
+        "icons\\cat_1.png",
+        "icons\\wolf_2.png",
+        "icons\\deer_3.png",
+        "icons\\squirrel_4.png",
+        "icons\\tiger_5.png",
+    ]
+    icons = Icon.objects.filter(image_url__in=target_paths).order_by("id")
+    current_icon = request.user.icon
+    # 選択　保存
+    if request.method == "POST":
+        icon_id = request.POST.get("icon_id")
+        if not icon_id:
+        # 選択していない（事故防止）
+            return render(
+                request,
+                "app/child/icon_change.html",
+                {"icons": icons, "current_icon": current_icon, "error": "アイコンを選択してください"}
+            )
 
-    return render (request, 'app/child/icon_change.html')
+        icon = get_object_or_404(Icon, id=int(icon_id))
+        request.user.icon = icon
+        request.user.save(update_fields=["icon"])
+        return redirect("child_mypage")
+        
+    return render (request, 'app/child/icon_change.html',
+        {"icons": icons, "current_icon": current_icon})
+
 
 # 子ども用 パスワード変更
 @login_required
-def child_password_change(request):
 
-    return render (request, 'app/child/password_change.html')
+def child_password_change(request): 
+    
+    #　子どもかどうか
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
+
+    child_password_change_form = ChildPasswordChangeForm(
+        user=request.user,
+        data=request.POST or None
+    )
+    if request.method == "POST":
+        if child_password_change_form.is_valid():
+            child_password_change_form .save()
+            update_session_auth_hash(request, request.user)
+        # 成功メッセージ（モーダルで表示する）
+            messages.success(request, "パスワードを変更しました")
+        
+        else:
+        # 失敗メッセージ（モーダルで表示する）
+            messages.error(request, "パスワードを変更できませんでした")
+        
+    
+    return render (request, 'app/child/password_change.html', context={
+        'child_password_change_form': child_password_change_form,
+    })
 
 # 子ども用 メールアドレス変更
 @login_required
-def child_email_change(request):
+def child_email_change(request): 
+    
+    #　子どもかどうか
+    family = request.user.family_member.family
+    child = get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )
 
-    return render (request, 'app/child/email_change.html')
+    form = EmailChangeForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            current_email = form.cleaned_data["current_email"]
+            new_email = form.cleaned_data["new_email"]
+
+            if current_email != request.user.email:
+                form.add_error(
+                "current_email",
+                "現在のメールアドレスが正しくありません"
+            )
+            else:
+                request.user.email = new_email
+                request.user.save()
+                return redirect("child_mypage")
+
+    return render (request, 'app/child/email_change.html', context={
+        'email_change_form': form}
+    )
 
 
         

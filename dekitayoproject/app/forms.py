@@ -1,6 +1,7 @@
 from django import forms
 from .models import User,Family_member,Item,Invitation,Daily_log, ParentComment
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 
 #新規登録
@@ -172,3 +173,32 @@ class ParentCommentForm(forms.ModelForm):
             "placeholder": "コメント：最大100字",
             })
         }
+
+# パスワード変更
+class PasswordChangeForm(PasswordChangeForm):
+
+    old_password = forms.CharField(
+        label="現在のパスワード",
+        widget=forms.PasswordInput()
+    )
+    new_password1 = forms.CharField(
+        label="新しいパスワード",
+        widget=forms.PasswordInput(
+            attrs={
+                "placeholder": "8文字以上・英字と数字を組み合わせてください"
+            }
+        ),
+    )
+    new_password2 = forms.CharField(
+        label="新しいパスワード（再入力）",
+        widget=forms.PasswordInput()
+    )
+
+# メールアドレス変更
+class EmailChangeForm(forms.Form):
+    current_email = forms.EmailField(label="現在のメールアドレス")
+    new_email = forms.EmailField(label="新しいメールアドレス")
+
+
+
+

@@ -1,14 +1,14 @@
 /* ベース */
 body {
     height: 100vh;
-    overflow: hidden;
-    display: flex;
     margin: 0;
     padding: 0px;
     justify-content: center;
     align-items: center;
     font-size: 16px;
     background: var(--bg);
+    overflow: hidden;
+    display: flex;
     }
 h2 {
     text-align: center;
@@ -82,7 +82,7 @@ h2 {
     display: block;
     border: 2px solid #595959;
 }
-
+/* コメントのアイコン */
 .comment-icon{
     width: 32px;         /* 好みで調整 */
     height: 32px;
@@ -94,17 +94,60 @@ h2 {
     flex: 0 0 auto;          /* つぶれ防止 */
     display: block;          /* baseline由来のズレを減らす */
 }
-
+/* 保護者ヘッダーアイコン */
 .icon-row {
     display: flex;
     justify-content: space-around; 
     align-items: center;
     margin-top: -5px;
 }
-
+/* フッターアイコン */
 .icon {
     width: 60px;
     height: 55px;
+}
+
+/* アイコン一覧　現在のアイコン */
+.current-icon img{
+    width: 160px;                 /* 好きなサイズに調整 */
+    height: 160px;
+    border-radius: 50%;           /* ← 丸くする */
+    border: 2px solid #595959;/* ← 円で囲う（共通色） */
+    display: block;
+    margin: 0 auto 44px;          /* 中央寄せ＋下余白 */
+}
+
+/* アイコン変更一覧　ラジオボタンなくす */
+.icon-choice input[type="radio"]{
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+/* アイコン変更一覧　画像選択 */
+.icon-choice{
+  display: inline-block;
+  cursor: pointer;
+}
+/* アイコン変更一覧のアイコン */
+.icon-img{
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #b4b4b4;
+    margin: 0 auto 44px;
+}
+/* アイコンが選択されたとき （.icon-choice の中でラジオボタンが選ばれていたら　その隣にある画像に）*/
+.icon-choice input[type="radio"]:checked + .icon-img{
+  border: 4px solid var(--btn-bg);
+}
+/* アイコン変更　並び */
+.icon-grid{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* 子どものコメント */
@@ -172,6 +215,7 @@ h2 {
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    pointer-events: auto;
 }
 
 .modal {
@@ -182,6 +226,7 @@ h2 {
     max-width: 300px;
     text-align: center;
     position: relative;
+    pointer-events: auto;
 }
 
 .modal-close {
@@ -284,4 +329,32 @@ h2 {
   object-fit: cover;   
   display: block;
   background: #fff; 
+}
+
+
+/* メールアドレス・パスワード入力 */
+input[type="email"],
+input[type="password"]{
+    width:80%;
+    padding: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    margin: 0 auto 28px;
+}
+/* プレスホルダーの文字 */
+input[type="email"]::placeholder,
+input[type="password"]::placeholder{
+    font-size: 0.8rem;   /* 小さくする */
+}
+/* メールアドレス・パスワード（まとめて）のラベル */
+label[for="id_current_email"],
+label[for="id_new_email"],
+label[for="id_old_password"],
+label[for^="id_new_password"]{
+    display: block;
+    width: 80%;
+    text-align: left;
+
+    margin: 0 auto 2px;
+    line-height: 1.2;     /*  行間を詰める */
 }
