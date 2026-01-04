@@ -457,7 +457,7 @@ def child_password_change(request):
         family_member__role=Family_member.CHILD,
     )
 
-    child_password_change_form = ChildPasswordChangeForm(
+    child_password_change_form = PasswordChangeForm(
         user=request.user,
         data=request.POST or None
     )

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from .. models import Child,Family_member,Item,Invitation,DailyLogItem,Daily_log, Icon
+from .. models import User,Child,Family_member,Item,Invitation,DailyLogItem,Daily_log, Icon
 from django.contrib.auth import update_session_auth_hash
 from datetime import date, timedelta
 from .. forms import ItemForm, ParentCommentForm, EmailChangeForm, PasswordChangeForm
@@ -610,8 +610,53 @@ def invitation(request):
 # 保護者用 家族一覧
 @login_required
 def parent_family_list(request):
+    #保護者かどうか
+    if request.user.family_member.role != Family_member.PARENT:
+        messages.error(request, "保護者のみアクセスできます")
+        return redirect("child_home")
+    
+    # 家族取得
+    family = request.user.family_member.family
 
-    return render (request, 'app/parent/family_list.html')
+    # 家族代表のみ
+    member = request.user.family_member
+    if member is None or member.role != 0 or not member.is_admin:
+        messages.error(request, '権限がありません')
+        return redirect('parent_mypage')
+
+    # 削除
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        if not user_id:
+            messages.error(request, "削除対象が選択されていません")
+            return redirect("parent_family_list")
+        
+        target_user = get_object_or_404(
+            User,
+            id=user_id,
+            family_member__family=family,
+        )
+
+        # 自分を消せないようにする
+        if target_user.id == request.user.id:
+            messages.error(request, "自分自身は削除できません")
+            return redirect("parent_family_list")
+        
+        target_user.delete()  # Userごと消す
+        messages.success(request, "アカウントを削除しました")
+        return redirect("parent_family_list")
+    
+    # GET：一覧表示
+    members = (
+        User.objects
+        .filter(family_member__family=family)
+        .select_related("family_member", "icon")
+        .order_by("id")
+    )
+
+    return render (request, 'app/parent/family_list.html', {
+        "members": members,
+    })
 
 # 保護者用 パスワード変更
 @login_required

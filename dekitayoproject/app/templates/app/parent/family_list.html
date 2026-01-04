@@ -5,13 +5,88 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/parent/child_switch.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/family_list.css' %}">
+{% endblock %}
+
+{# 削除確認用モーダル　JavaScript#}
+{% block extra_js %}
+<script>
+    const modal = document.getElementById("delete-modal");
+    const openBtn = document.getElementById("open-delete-modal");
+    const cancel = document.getElementById("close-delete");
+
+    function isMemberSelected() {
+        return document.querySelector('input[name="user_id"]:checked');
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+    }
+
+    if (openBtn && cancel && modal) {
+        openBtn.addEventListener("click", () => {
+            if (!isMemberSelected()) {
+                return;// 選択していないとモーダルは開かない
+            }
+            modal.classList.remove("hidden");
+        });
+    
+        cancel.addEventListener("click", closeModal)
+    }
+</script>
 {% endblock %}
 
 {% block content %}
 
+<h2 class="page-title">家族アカウント一覧</h2>
+
+<form method="post" id="delete-form">
+{% csrf_token %}
+<div class="list-box">
+    {% for member in members %}
+        <div class="member-row">
+            <label class="member-box">
+
+                <input
+                type="radio"
+                name="user_id"
+                value="{{ member.id }}"
+                >
+
+                <span class="avatar">
+                <img
+                    src="{% static member.icon.image_url %}"
+                    alt="member_icon"
+                    class="member-icon"
+                >
+                </span>
+
+                <span class="member-name">
+                {{ member.username }}
+                </span>
 
 
+            </label>
+        </div>
+        {% empty %}
+            <p class="empty">（家族メンバーがいません）</p>
+        {% endfor %}
+        </div>
+        <button type="button" class=" btn btn-danger" id="open-delete-modal">削除</button>
+</form>
 
+
+{# 削除確認用モーダル HTML#}
+<div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal">
+        <p>削除しますか？</p>
+        <div class="modal-actions">
+            <button type="submit" form="delete-form"class="btn yes">削除</button>
+            <button type="button" class="btn no" id="close-delete">キャンセル</button>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
+
+

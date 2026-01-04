@@ -1,0 +1,43 @@
+/* ラジオボタンを見えなくする */
+.member-box input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.member-icon{
+  width: 40px;     
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid #b4b4b4;
+}
+.member-box {
+width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+
+  transition: all 0.2s ease;
+}
+
+.member-name {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.member-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.member-box:has(input[type="radio"]:checked) {
+  border-color: #59b421;
+}

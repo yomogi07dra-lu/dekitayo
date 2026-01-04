@@ -68,8 +68,8 @@ h2 {
     outline: 2px solid #b4b4b4;
     border-radius: 5px;
     padding: 12px;
-    margin: 8px auto;     /* ←左右autoで中央基準 */
-    width: calc(100% - 32px); /* ←今の左右16pxを維持したいなら */
+    margin: 8px auto;     /* 左右autoで中央基準 */
+    width: calc(100% - 32px); /* 左右16pxを維持 */
     box-sizing: border-box;
 }
 
@@ -136,7 +136,7 @@ h2 {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #b4b4b4;
-    margin: 0 auto 44px;
+    margin: 0 ;
 }
 /* アイコンが選択されたとき （.icon-choice の中でラジオボタンが選ばれていたら　その隣にある画像に）*/
 .icon-choice input[type="radio"]:checked + .icon-img{
@@ -144,10 +144,11 @@ h2 {
 }
 /* アイコン変更　並び */
 .icon-grid{
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0;
 }
 
 /* 子どものコメント */
@@ -248,6 +249,43 @@ h2 {
 
 .modal-close:hover {
     color: #000;
+}
+ 
+.modal-actions{
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.modal-actions .btn {
+    width: 100px;    
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;     
+    padding: 0px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid #999;
+    background: #fff;
+    color: #333;
+}
+
+.modal-actions .btn.yes {
+    background: #ea9999ff;
+    border: 2px solid #999;
+    color: #333;
+}
+
+.modal-actions .btn.no {
+    background: #b7b7b7ff;
+    border: 2px solid #999;
+    color: #333;
 }
 
 /* 日付などの上段 */

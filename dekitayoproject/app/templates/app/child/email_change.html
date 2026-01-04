@@ -11,13 +11,13 @@
 <form method="post">
     {% csrf_token %}
     <div>
-    {{ change_form.current_email.label_tag }}
-    {{ change_form.current_email }}
+    {{ email_change_form.current_email.label_tag }}
+    {{ email_change_form.current_email }}
     </div>
 
     <div>
-    {{ change_form.new_email.label_tag }}
-    {{ change_form.new_email }}
+    {{ email_change_form.new_email.label_tag }}
+    {{ email_change_form.new_email }}
     </div>
 
 

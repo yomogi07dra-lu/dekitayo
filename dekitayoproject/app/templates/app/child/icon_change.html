@@ -21,7 +21,7 @@
 
 <form method="post">
   {% csrf_token %}
-
+<div class="content-box">
   <div class="icon-grid">
     {% for icon in icons %}
       <label class="icon-choice">
@@ -36,10 +36,7 @@
       </label>
     {% endfor %}
   </div>
-
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+</div>
 
   <button type="submit" class="btn">変更</button>
 
