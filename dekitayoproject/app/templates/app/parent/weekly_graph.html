@@ -13,11 +13,11 @@
 {% if not child %}
   <p>お子様の登録を行ってください</p>
 {% else %}
-
-<a href="{% url 'parent_weekly_graph_by_week' child.id prev_year prev_month prev_day %}">←</a>
-<span>１週間のできた！</span>
-<a href="{% url 'parent_weekly_graph_by_week' child.id next_year next_month next_day %}">→</a>
-
+<div class="period-header">
+  <a href="{% url 'parent_weekly_graph_by_week' child.id prev_year prev_month prev_day %}" class="arrow">←</a>
+  <span class="period-title">１週間のできた！</span>
+  <a href="{% url 'parent_weekly_graph_by_week' child.id next_year next_month next_day %}" class="arrow">→</a>
+</div>
   <h2> {{ start_date|date:"n/j" }}〜{{ end_date|date:"n/j" }} </h2>
 
   <canvas id="weeklyChart"></canvas>

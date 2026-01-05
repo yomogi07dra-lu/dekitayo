@@ -30,3 +30,28 @@
     transform: translateX(-50%);
     line-height: 40px;
 }
+
+/* グラフ・カレンダーのタイトル */
+.period-header{
+  display: flex;
+  align-items: center;        /* 縦位置を中央に */
+  justify-content: center;
+  gap: 12px;
+  margin: 8px auto 12px;
+  width: 94%;                 /* カレンダー幅と揃える */
+}
+
+.period-title{
+  text-align: center;
+  margin: 0 0 8px;
+  font-size: 1.5em;   /* ← h2相当 */
+  font-weight: bold;
+}
+
+.arrow{
+  font-size: 18px;
+  color: var(--primary-fg);
+  text-decoration: none;
+  font-size: 22px;     /* 大きくする */
+  font-weight: 900;   /* 太くする */
+}

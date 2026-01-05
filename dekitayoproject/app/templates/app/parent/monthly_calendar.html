@@ -14,10 +14,13 @@
 {% if not child %}
   <p>お子さまを登録すると月間グラフが表示されます。</p>
 {% else %}
-<a href="{% url 'parent_monthly_calendar_by_month' child.id prev_year prev_month %}">←</a>
-<span>{{ month }}月のできた！</span>
-<a href="{% url 'parent_monthly_calendar_by_month' child.id next_year next_month %}">→</a>
-{% endif %}
+
+<div class="period-header">
+  <a href="{% url 'parent_monthly_calendar_by_month' child.id prev_year prev_month %}" class="arrow">←</a>
+  <span class="period-title">{{ month }} 月のできた！</span>
+  <a href="{% url 'parent_monthly_calendar_by_month' child.id next_year next_month %}" class="arrow">→</a>
+</div>
+  {% endif %}
 
   <table class="calendar">{# 表でカレンダー作成 #}
     <tr>
@@ -30,9 +33,10 @@
           <td class="empty"></td>{# １マス #}
         {% else %}
           <td>
-            {{ day }}            
+            {{ day }}          
             {% if day in learned_days %}
-                <a href="{% url 'parent_daily_detail_with_child' child.id year month day %}" class="star-link">⭐</a>
+              <br>
+              <a href="{% url 'parent_daily_detail_with_child' child.id year month day %}" class="star-link">⭐</a>
             {% endif %}
           </td>
         {% endif %}

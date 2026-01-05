@@ -9,42 +9,67 @@
 {% endblock %}
 
 {% block content %}
+<div class="period-header">
+    <a href="{% url 'child_monthly_graph_by_month' prev_year prev_month %}" class="arrow">←</a>
+    <span class="period-title">{{ month }}月のできた！</span>
+    <a href="{% url 'child_monthly_graph_by_month' next_year next_month %}" class="arrow">→</a>
+</div>
+<div class="period-title">合計できた数：{{ monthly_total }}個</div>
 
-<a href="{% url 'child_monthly_graph_by_month' prev_year prev_month %}">←</a>
-<span>{{ month }}月のできた！</span>
-<a href="{% url 'child_monthly_graph_by_month' next_year next_month %}">→</a>
 
-
-    <canvas id="monthlyBar"></canvas>
+    <div class="content-box chart-box">
+        <div class="chart-wrap">
+                <canvas id="monthlyBar"></canvas>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {# グラフライブラリ #}
     <script>
     const ctx = document.getElementById('monthlyBar');  // <canvas> を指定
 
     new Chart(ctx, {
-    type: 'bar',  // 横棒グラフ
-    data: {
-        labels: {{ labels|safe }},  //　学習項目名
-        datasets: [{
-        data: {{ counts|safe }},  // 横の長さ
-        backgroundColor: {{ colors|safe }}, //　棒グラフの色（7色）
-        }]
-    },
-    options: {
-        indexAxis: 'y',   //  横棒にする際に必要（無いと縦棒になる）
-        scales: {
-        x: {
-            beginAtZero: true, // メモリ設定　0から
-            ticks: {
-            stepSize: 1 // 1目盛りずつ
+        type: 'bar',  // 横棒グラフ
+        data: {
+            labels: {{ labels|safe }},  //　学習項目名
+            datasets: [{
+            data: {{ counts|safe }},  // 横の長さ
+            backgroundColor: {{ colors|safe }}, //　棒グラフの色（7色）
+            }]
+        },
+        options: {
+            indexAxis: 'y',   //  横棒にする際に必要（無いと縦棒になる）
+            responsive: true,
+            maintainAspectRatio: false, 
+
+            scales: {
+                x: {
+                    beginAtZero: true, // メモリ設定　0から
+                    ticks: {
+                        stepSize: 1, // 1目盛りずつ
+                        color: '#000' 
+                    },
+                    grid: {
+                        color: '#ccc'   // ← 補助線（薄いグレーで上品）
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#000'   // ← 項目名（文字）を黒に
+                    },
+                    grid: {
+                        display: false  // ← 横棒グラフなら消すと見やすい
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false }, // 凡例は消す
+                title: {
+                    display: false,
+                    color: '#000'
+                }
             }
         }
-        },
-        plugins: {
-        legend: { display: false } // 凡例は消す
-        }
-    }
-    });
+    }); 
     </script>
 
 {% endblock %}

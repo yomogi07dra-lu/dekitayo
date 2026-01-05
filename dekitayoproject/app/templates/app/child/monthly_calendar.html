@@ -10,10 +10,11 @@
 
 {% block content %}
 
-<a href="{% url 'child_monthly_calendar_by_month' prev_year prev_month %}">←</a>
-<span>{{ month }}月のできた！</span>
-<a href="{% url 'child_monthly_calendar_by_month' next_year next_month %}">→</a>
-
+<div class="period-header">
+  <a href="{% url 'child_monthly_calendar_by_month' prev_year prev_month %}" class="arrow">←</a>
+  <span class="period-title">{{ month }}月のできた！</span>
+  <a href="{% url 'child_monthly_calendar_by_month' next_year next_month %}" class="arrow">→</a>
+</div>
 
 <table class="calendar">{# 表でカレンダー作成 #}
   <tr>
@@ -28,7 +29,8 @@
         <td>
           {{ day }}
           {% if day in learned_days %}
-             <a href="{% url 'child_home_by_date' year month day %}" class="star-link">⭐</a>
+            <br>
+            <a href="{% url 'child_home_by_date' year month day %}" class="star-link">⭐</a>
           {% endif %}
         </td>
       {% endif %}

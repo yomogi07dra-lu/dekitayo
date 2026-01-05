@@ -328,6 +328,9 @@ def child_monthly_graph(request, year=None, month=None):
         "next_month": next_month,
     }
 
+    # 月間学習項目数
+    monthly_total = sum(item.total for item in qs)
+    context["monthly_total"] = monthly_total
 
     return render (request, 'app/child/monthly_graph.html', context)
 

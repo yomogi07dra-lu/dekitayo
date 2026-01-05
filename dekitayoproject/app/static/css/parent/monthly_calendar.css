@@ -1,0 +1,80 @@
+
+/* カレンダー全体（外枠） */
+table.calendar{
+  width: 94%;                 /* ← 100% → 少し小さく */
+  margin: 44px auto 0;             /* ← 中央寄せ */
+  border-collapse: collapse;
+  table-layout: fixed;/* セル幅を均一 */
+
+  border: 0;                  /* ← 外枠borderはやめる */
+  outline: 3px solid #8a8a8a;  /* ← 外枠はoutlineで描く */
+  outline-offset: 0;          /* 基本0でOK */
+
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+
+/* 中のマス（前回の細さに戻す） */
+table.calendar th,
+table.calendar td{
+  border: 1px solid #b4b4b4;   /* ← 中は細いまま */
+  padding: 8px 0;
+  text-align: center;
+  vertical-align: top;
+  font-size: 14px;
+  height: 44px;
+}
+
+/* 曜日（見出し行） */
+table.calendar th{
+  font-weight: 700;
+  padding: 10px 0;
+}
+
+/* 曜日ごとに色（HTMLを変えずに nth-child で指定）
+   ※あなたの表は「日 月 火 水 木 金 土」の順 */
+table.calendar th:nth-child(1){ background:#ffe5e5; } /* 日 */
+table.calendar th:nth-child(2){ background:#f2f2f2; } /* 月 */
+table.calendar th:nth-child(3){ background:#f2f2f2; } /* 火 */
+table.calendar th:nth-child(4){ background:#f2f2f2; } /* 水 */
+table.calendar th:nth-child(5){ background:#f2f2f2; } /* 木 */
+table.calendar th:nth-child(6){ background:#f2f2f2; } /* 金 */
+table.calendar th:nth-child(7){ background:#e6f0ff; } /* 土 */
+
+
+/* 空白セル（前月/次月）は薄く */
+table.calendar td.empty{
+  background: #fafafa;
+}
+
+/* ⭐リンク：右上に固定して見やすく */
+table.calendar a.star-link{
+  position: static;     /* ← absoluteを無効化 */
+  text-decoration: none;
+}
+
+.period-header{
+  display: flex;
+  align-items: center;        /* 縦位置を中央に */
+  justify-content: center;
+  gap: 12px;
+  margin: 8px auto 12px;
+  width: 94%;                 /* カレンダー幅と揃える */
+}
+
+.period-title{
+  text-align: center;
+  margin: 0 0 8px;
+  font-size: 1.5em;   /* ← h2相当 */
+  font-weight: bold;
+}
+
+.arrow{
+  font-size: 18px;
+  color: var(--primary-fg);
+  text-decoration: none;
+  font-size: 22px;     /* 大きくする */
+  font-weight: 900;   /* 太くする */
+}
