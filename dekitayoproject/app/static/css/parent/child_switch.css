@@ -1,0 +1,21 @@
+/* 家族一覧の見た aタグを箱 */
+.member-link{
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* アイコン 名前 */
+  gap: 12px;
+
+  padding: 10px 12px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+
+  text-decoration: none;
+  color: inherit;
+
+  transition: all 0.2s ease;
+}
+
+.member-link:hover{
+  border-color: #59b421;
+}

@@ -14,7 +14,7 @@
 {% if not child %}
   <p>お子さまを登録すると月間グラフが表示されます。</p>
 {% else %}
-
+<p class="child-name">{{ child.user.username }}</p>
 <div class="period-header">
   <a href="{% url 'parent_monthly_calendar_by_month' child.id prev_year prev_month %}" class="arrow">←</a>
   <span class="period-title">{{ month }} 月のできた！</span>

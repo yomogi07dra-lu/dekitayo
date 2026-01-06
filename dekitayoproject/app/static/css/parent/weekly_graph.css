@@ -1,0 +1,23 @@
+/* グラフ枠：他ページと統一しつつ、グラフだけ見やすく */
+.chart-box{
+  padding: 12px;
+}
+
+/* Chart.js は親要素のサイズ */
+.chart-wrap{
+  width: 100%;
+  height: 240px;      /* 基本の高さ */
+}
+
+/* Canvasは親にぴったり */
+#weeklyChart{
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* 補足テキスト */
+.chart-note{
+  margin: 8px 0 0;
+  font-size: 12px;
+}

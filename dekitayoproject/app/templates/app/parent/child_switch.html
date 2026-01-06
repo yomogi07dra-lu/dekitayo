@@ -5,6 +5,7 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/family_list.css' %}">
 <link rel="stylesheet" href="{% static 'css/parent/child_switch.css' %}">
 {% endblock %}
 
@@ -12,11 +13,22 @@
 
 <h2>兄弟姉妹切り替え</h2>
 
-<ul>
+<div class="list-box">  
   {% for child in children %}
-      <a href="{% url 'parent_home_child_id' child.id %}">
-        {{ child.user.username }}
+    <div class="member-row">
+      <a class="member-link" href="{% url 'parent_home_child_id' child.id %}">
+
+        <span class="avatar">
+          <img
+              src="{% static child.user.icon.image_url %}"
+              alt="child_icon"
+              class="member-icon"
+          >
+        </span>
+
+        <span class="member-name">{{ child.user.username }}</span>
       </a>
+    </div>
   {% empty %}
     <li>お子様が登録されていません</li>
   {% endfor %}

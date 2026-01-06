@@ -3,6 +3,8 @@ from django.db import transaction
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings  
 from .. models import User,Icon,Child,Family,Family_member,PasswordResetToken
 from .. forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPasswordResetForm, SetNewPasswordForm
 import uuid
@@ -140,10 +142,26 @@ def request_password_reset(request):
             password_reset_token.used = False
             password_reset_token.save()
         user.is_active = False
-        user.save
+        user.save()
 
         token = password_reset_token.token
-        print(f"{request.scheme}://{request.get_host()}/app/reset_password/{token}/")
+        reset_url = (f"{request.scheme}://{request.get_host()}/app/reset_password/{token}/")
+
+        send_mail(
+            subject="【パスワード再設定】",
+            message=f"""
+                以下のURLからパスワードを再設定してください。
+
+                {reset_url}
+
+                ※このリンクは一度のみ有効です。
+            """,
+            
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
 
     return render (request, 'app/request_password_reset.html',context={
         'reset_form': request_password_resetForm,
