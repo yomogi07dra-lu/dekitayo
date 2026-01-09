@@ -40,7 +40,7 @@
     <p>（まだ登録されていません）</p>
     {% endif %}
 
-    <div class="home-comment home-comment--child">
+    <div class="child-comment">
       {% if request.user.icon %}
           <img
             class="comment-icon"
@@ -76,7 +76,21 @@
 {% endif %}
 
 <div class="content-box">
-<p>{{ daily_log.parent_comment|default:"（コメントなし）" }}</p>
+  {% if parent_comments %}
+    {% for comment in parent_comments %}
+      <div class="parent-comment">
+        {% if comment.user.icon %}
+          <img class="comment-icon"
+               src="{% static comment.user.icon.image_url %}"
+               alt="parent icon">
+        {% endif %}
+
+        <div class="comment-bubble parent-comment-text">{{ comment.text }}</div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>（保護者コメントなし）</p>
+  {% endif %}
 </div>
 
 

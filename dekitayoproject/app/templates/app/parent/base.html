@@ -18,9 +18,9 @@
 <body>
 {# メッセージ用モーダル #}
     {% if messages %}
-    <div class="modal-overlay">
+    <div id="message-modal" class="modal-overlay">
         <div class="modal">
-            <button class="modal-close" onclick="closeModal()">×</button>
+            <button class="modal-close" onclick="closeMessageModal()">×</button>
             {% for message in messages %}
                 <p>{{ message }}</p>
             {% endfor %}
@@ -29,8 +29,9 @@
     {% endif %}
 {# メッセージ用モーダル　JavaScript (メッセージ用モーダルを閉じる)#}
     <script>
-    function closeModal() {
-        document.querySelector('.modal-overlay').style.display = 'none';
+    function closeMessageModal() {
+        const modal = document.getElementById("message-modal");
+        if (modal) modal.style.display = "none";
     }
     </script>
 
@@ -49,7 +50,6 @@
                             {% endif %}
                         </a>
                     </div>
-                </a>
             </div>
         </header>
 

@@ -19,7 +19,7 @@
 <h2>今日のできた！</h2>
 <div class="content-box">
     {% if daily_log %}
-  <div class="items">
+      <div class="items">
     {% for row in rows %}
       {% if row.item and row.item.id in checked_item_ids %}
         <div class="item-row">
@@ -28,12 +28,23 @@
         </div>
       {% endif %}
     {% endfor %}
-  </div>
+      </div>
 {% else %}
 <p>（まだ登録されていません）</p>
 {% endif %}
 
-<p>{{ daily_log.child_comment|default:"（コメントなし）" }}</p>
+  <div class="child-comment">
+    {% if request.user.icon %}
+        <img
+          class="comment-icon"
+          src="{% static child.user.icon.image_url %}"
+          alt="commenticon">
+    {% endif %}
+    
+    <span class="child-comment-text">
+      {{ daily_log.child_comment|default:"（コメントなし）" }}
+    </span>
+  </div>
 </div>
 {# 写真 #}
 <div class="photo-grid">

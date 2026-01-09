@@ -15,9 +15,9 @@
 {% else %}
 <p class="child-name">{{ child.user.username }}</p>
 <div class="period-header">
-  <a href="{% url 'parent_weekly_graph_by_week' child.id prev_year prev_month prev_day %}" class="arrow">←</a>
+  <a href="{% url 'parent_weekly_graph_by_week' prev_year prev_month prev_day %}" class="arrow">←</a>
   <span class="period-title">１週間のできた！</span>
-  <a href="{% url 'parent_weekly_graph_by_week' child.id next_year next_month next_day %}" class="arrow">→</a>
+  <a href="{% url 'parent_weekly_graph_by_week' next_year next_month next_day %}" class="arrow">→</a>
 </div>
 
   <div> {{ start_date|date:"n月j日(D)" }}〜{{ end_date|date:"n月j日(D)" }} <div>

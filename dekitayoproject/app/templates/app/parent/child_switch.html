@@ -11,12 +11,15 @@
 
 {% block content %}
 
-<h2>兄弟姉妹切り替え</h2>
+<h2>兄弟姉妹切替</h2>
 
 <div class="list-box">  
   {% for child in children %}
     <div class="member-row">
-      <a class="member-link" href="{% url 'parent_home_child_id' child.id %}">
+      <form method="post" action="{% url 'parent_child_switch' %}" class="member-link">
+        {% csrf_token %}
+        <input type="hidden" name="child_id" value="{{ child.id }}">
+        <button type="submit" class="member-button">
 
         <span class="avatar">
           <img
@@ -27,11 +30,11 @@
         </span>
 
         <span class="member-name">{{ child.user.username }}</span>
-      </a>
+        </button>
+      </form>
     </div>
   {% empty %}
-    <li>お子様が登録されていません</li>
+    <p>お子様が登録されていません</p>
   {% endfor %}
-</ul>
 
 {% endblock %}

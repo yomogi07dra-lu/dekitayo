@@ -1,0 +1,44 @@
+{# 新規登録画面 #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>signup</title>
+
+    <link rel="stylesheet" href="{% static 'css/auth/signup.css' %}">
+</head>
+
+<body>
+    <div class="app">
+    <h1 class="app-title">できたよ！</h1>
+        <form method="POST">
+        {% csrf_token %}
+        {{ signup.as_p }}
+
+            <div class="role">
+                {% for choice in role.role %}
+                    <label class="role-item">
+                        {{ choice.tag }}
+                    <span class='role-label'>{{ choice.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+
+        <p>保護者の方は招待コードなしでも登録できます</p>
+        
+        <div>
+            <input type="submit" value="登録">
+        </div>
+        
+        </form>
+
+        <div style="text-align: center;">
+            <a href="{% url 'login' %}">ログイン</a>
+        </div>
+    
+    </div>
+
+</body>
+</html>

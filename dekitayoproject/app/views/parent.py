@@ -9,30 +9,7 @@ from datetime import date, timedelta
 from .. forms import ItemForm, ParentCommentForm, EmailChangeForm, PasswordChangeForm
 import calendar
 from .. utils import generate_invite_code
-
-# 表示する子どもの選択 child_idがあるならその子（兄弟切替から）ない場合は家族一覧最初の子ども (共通)
-def get_target_child(request, child_id=None):
-
-    family = request.user.family_member.family
-
-    if child_id is not None:
-        return get_object_or_404(
-            Child,
-            id=child_id,
-            family_member__family=family,
-            family_member__role=Family_member.CHILD,
-        )
-
-    return (
-        Child.objects
-        .filter(
-            family_member__family=family,
-            family_member__role=Family_member.CHILD,
-        )
-        .select_related("user")
-        .order_by("id")
-        .first()
-    )
+from .utils import get_target_child
 
 
 # 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
@@ -49,7 +26,7 @@ SLOT_INDEXES = [slot["index"] for slot in COLOR_SLOTS]
 
 @login_required
 #保護者用ホーム画面
-def parent_home(request,child_id=None):
+def parent_home(request):
     today = timezone.localdate()
 
     #保護者かどうか
@@ -58,7 +35,7 @@ def parent_home(request,child_id=None):
         return redirect("child_home")
     
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id) 
+    child = get_target_child(request) 
    
     if child is None:
         # 子どもが未登録なら何も表示していないホーム画面を表示　テンプレートにて子ども登録のコメント
@@ -119,7 +96,7 @@ def parent_home(request,child_id=None):
     if request.method == "POST":
         if daily_log is None:
             messages.error(request, "今日の学習記録はまだありません")
-            return redirect("parent_home_with_child", child_id=child.id)
+            return redirect("parent_home")
 
         form = ParentCommentForm(request.POST)
         if form.is_valid():
@@ -127,7 +104,7 @@ def parent_home(request,child_id=None):
             parent_comment.user = request.user
             parent_comment.daily_log = daily_log
             parent_comment.save()
-            return redirect("parent_home_with_child", child_id=child.id)
+            return redirect("parent_home")
     else:
         form = ParentCommentForm()    
 
@@ -142,7 +119,7 @@ def parent_home(request,child_id=None):
 
 #保護者用学習項目登録
 @login_required
-def parent_item_manage(request, child_id=None):
+def parent_item_manage(request):
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
@@ -150,17 +127,13 @@ def parent_item_manage(request, child_id=None):
         return redirect("child_home")
 
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id)
+    child = get_target_child(request)
     
     if child is None:
         # 子どもが未登録なら何も表示していない学習項目登録画面を表示　テンプレートにて子ども登録のコメント
         return render(request, "app/parent/item_manage.html", {
             "child": None,
         })
-    
-    # 入口を寄せる（child_idなしで来たら 対応URLへ）
-    if child_id is None:
-        return redirect("parent_item_manage_child_id", child_id=child.id)
 
 
     #学習項目取得
@@ -198,7 +171,7 @@ def parent_item_manage(request, child_id=None):
                         color_index=empty[0],
                         )
 
-                    return redirect("parent_item_manage_child_id", child_id=child.id)
+                    return redirect("parent_item_manage")
 
         # 削除
         elif action == "delete":
@@ -209,7 +182,7 @@ def parent_item_manage(request, child_id=None):
                 child=child,
             ).delete()
 
-            return redirect("parent_item_manage_child_id", child_id=child.id)
+            return redirect("parent_item_manage")
 
     # 表示
     rows = [
@@ -232,7 +205,7 @@ def parent_item_manage(request, child_id=None):
 
 # 保護者用　過去記録
 @login_required
-def parent_daily_detail(request,child_id=None,year=None, month=None, day=None):
+def parent_daily_detail(request, year=None, month=None, day=None):
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
@@ -246,7 +219,7 @@ def parent_daily_detail(request,child_id=None,year=None, month=None, day=None):
         today = timezone.localdate() #　指定なければ今日
         
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id)
+    child = get_target_child(request)
     
     if child is None:
         # 子どもが未登録なら何も表示していない学習項目登録画面を表示　テンプレートにて子ども登録のコメント
@@ -316,7 +289,7 @@ def parent_daily_detail(request,child_id=None,year=None, month=None, day=None):
     
 # 保護者用月間学習記録カレンダー
 @login_required
-def parent_monthly_calendar(request, child_id=None, year=None, month=None):
+def parent_monthly_calendar(request, year=None, month=None):
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
@@ -324,7 +297,7 @@ def parent_monthly_calendar(request, child_id=None, year=None, month=None):
         return redirect("child_home")
 
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id)
+    child = get_target_child(request)
 
     #　基準の日付
     today = date.today()
@@ -337,14 +310,6 @@ def parent_monthly_calendar(request, child_id=None, year=None, month=None):
             "today": today,
             "child": None,
         })
-    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
-    if child_id is None:
-        return redirect(
-            "parent_monthly_calendar_by_month",
-            child_id=child.id,
-            year=year,
-            month=month,
-        )
 
     # 基準　今月の1日
     current = date(year, month, 1)
@@ -376,7 +341,6 @@ def parent_monthly_calendar(request, child_id=None, year=None, month=None):
     }
     
     context = {
-        "child_id": child.id,
         "child": child,
         "year": year,
         "month": month,
@@ -394,14 +358,14 @@ def parent_monthly_calendar(request, child_id=None, year=None, month=None):
 
 # 保護者用月間学習記録グラフ
 @login_required
-def parent_monthly_graph(request, child_id=None, year=None, month=None):
+def parent_monthly_graph(request, year=None, month=None):
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
         messages.error(request, "保護者のみアクセスできます")
         return redirect("child_home")
     
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id)
+    child = get_target_child(request)
     
     #日付
     today = date.today()
@@ -429,14 +393,6 @@ def parent_monthly_graph(request, child_id=None, year=None, month=None):
             "today": today,
             "child": None,
         })
-    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
-    if child_id is None:
-        return redirect(
-            "parent_monthly_graph_by_month",
-            child_id=child.id,
-            year=year,
-            month=month
-        )
    
     #データ
     family = request.user.family_member.family
@@ -465,7 +421,6 @@ def parent_monthly_graph(request, child_id=None, year=None, month=None):
     context = {
         "today": today,
         "child": child,
-        "child_id": child.id,
         "labels": labels,
         "counts": counts,
         "colors": colors,
@@ -485,7 +440,7 @@ def parent_monthly_graph(request, child_id=None, year=None, month=None):
 
 @login_required
 # 保護者用週間学習記録グラフ
-def parent_weekly_graph(request, child_id=None, year=None, month=None, day=None):
+def parent_weekly_graph(request, year=None, month=None, day=None):
     
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
@@ -509,7 +464,7 @@ def parent_weekly_graph(request, child_id=None, year=None, month=None, day=None)
 
     
     # 表示する子どもの選択（共通）
-    child = get_target_child(request, child_id=child_id)
+    child = get_target_child(request)
 
     if child is None:
         # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
@@ -517,15 +472,7 @@ def parent_weekly_graph(request, child_id=None, year=None, month=None, day=None)
             "today": today,
             "child": None,
         })
-    # 入口URL（child_id無し）で来たら、child_idありURLへ寄せる
-    if child_id is None:
-        return redirect(
-            "parent_weekly_graph_by_week",
-            child_id=child.id,
-            year=base_date.year,
-            month=base_date.month,
-            day=base_date.day,
-        )
+    
     #データ
     day_totals = (
         Daily_log.objects
@@ -543,7 +490,6 @@ def parent_weekly_graph(request, child_id=None, year=None, month=None, day=None)
     context = {
         "today": today,
         "child": child,
-        "child_id": child.id,
         "labels": labels,
         "counts": counts,
         "start_date": start_date,
@@ -579,6 +525,14 @@ def parent_child_switch(request):
         family_member__role=Family_member.CHILD,
     ).select_related("user")
 
+    # 子どもidを セッションで保存
+    if request.method == "POST":
+        selected_child_id = request.POST.get("child_id")
+
+        if selected_child_id:
+            request.session["selected_child_id"] = int(selected_child_id)
+            return redirect("parent_home")
+        
     return render (request, 'app/parent/child_switch.html',
         {"children": children}
     )
@@ -647,7 +601,6 @@ def parent_family_list(request):
             return redirect("parent_family_list")
         
         target_user.delete()  # Userごと消す
-        messages.success(request, "アカウントを削除しました")
         return redirect("parent_family_list")
     
     # GET：一覧表示

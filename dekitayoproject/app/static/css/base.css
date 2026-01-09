@@ -12,7 +12,7 @@ body {
     }
 h2 {
     text-align: center;
-    margin: 0 0 8px;
+    margin: 12px 0 8px;
 }
 
 .app {
@@ -61,7 +61,7 @@ h2 {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding: 12px 0 16px; 
+    padding: 4px 0 16px; 
 }
 /* それぞれの囲い */
 .content-box{
@@ -119,15 +119,15 @@ h2 {
 
 /* アイコン変更一覧　ラジオボタンなくす */
 .icon-choice input[type="radio"]{
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
 }
 /* アイコン変更一覧　画像選択 */
 .icon-choice{
-  display: inline-block;
-  cursor: pointer;
+    display: inline-block;
+    cursor: pointer;
 }
 /* アイコン変更一覧のアイコン */
 .icon-img{
@@ -140,7 +140,7 @@ h2 {
 }
 /* アイコンが選択されたとき （.icon-choice の中でラジオボタンが選ばれていたら　その隣にある画像に）*/
 .icon-choice input[type="radio"]:checked + .icon-img{
-  border: 4px solid var(--btn-bg);
+    border: 4px solid var(--btn-bg);
 }
 /* アイコン変更　並び */
 .icon-grid{
@@ -158,11 +158,13 @@ h2 {
     gap: 10px;           /* アイコンと文字の間隔 */
 
     text-align: left; /* 親の中央寄せを打ち消す */
+    word-break: break-word;
 }
 .child-comment-text{
     display: inline-block;     /* 文字の箱として扱う */
     padding: 6px 10px;
     border-radius: 6px;
+    white-space: pre-line; /* 改行は残す／スペースは潰す */
 
     line-height: 1.3;          /* 高さを自然に */
     text-align: left;
@@ -170,9 +172,47 @@ h2 {
     max-width: 240px;          /* 画面幅に合わせて調整 */
     word-break: break-word;
 }
+/* 保護者コメント */
+.parent-comment{
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;   
+}
+.parent-comment-text{
+    white-space: pre-line; /* 改行は残す／スペースは潰す */
+}
+
+.parent-comment-row:last-child{
+  margin-bottom: 0;
+}
+
+/* 保護者コメントの吹き出し */
+.comment-bubble{
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: #eeeeeeff;
+    border: 1px solid #1c4587;
+    max-width: 75%;
+    line-height: 1.4;
+    font-size: 14px;
+    position: relative;
+}
+/* 保護者コメントの吹き出し しっぽ部分*/
+.comment-bubble::before{
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 10px;
+    width: 10px;
+    height: 10px;
+    background: #eeeeeeff;
+    border-left: 1px solid #1c4587;
+    border-bottom: 1px solid #1c4587;
+    transform: rotate(45deg);
+}
 
 /* ボタン */
-
 .btn {
     display: block;
     width: 30%;
@@ -200,11 +240,11 @@ h2 {
 /* 未登録・コメントなし */
 .muted { color: var(--muted); }
 
-/* モーダル */
+/* モーダル 通常非表示　必ず優先して非表示（!important）*/
 .hidden {
     display: none !important;
 }
-
+/* 画面全体を覆う背景 */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -218,7 +258,7 @@ h2 {
     z-index: 1000;
     pointer-events: auto;
 }
-
+/* メッセージの箱 */
 .modal {
     background: white;
     padding: 20px;
@@ -229,7 +269,7 @@ h2 {
     position: relative;
     pointer-events: auto;
 }
-
+/*　モーダルを閉じるボタン */
 .modal-close {
     position: absolute;
     top: 8px;
@@ -247,17 +287,14 @@ h2 {
     color: #666;
 }
 
-.modal-close:hover {
-    color: #000;
-}
- 
+/*　ボタンの置き場 　ログアウト・キャンセル・削除・登録などメッセージ以外*/ 
 .modal-actions{
     margin-top: 16px;
     display: flex;
     justify-content: center;
     gap: 12px;
 }
-
+/*　モーダルの共通ボタン */
 .modal-actions .btn {
     width: 100px;    
     display: inline-flex;
@@ -290,12 +327,15 @@ h2 {
 
 /* 日付などの上段 */
 .top-row{
-  margin: 0 0 12px;
-  padding: 0 8px;
+    position: relative;
+    margin-top: 0;  
+    padding-top: 0;    
+    margin: 0 0 12px;
+    padding: 0 12px;
 }
 
 .today{
-  margin: 0;
+    margin: 0;
 }
 .today{
     position: static;
@@ -303,33 +343,33 @@ h2 {
     margin: 0;
 }
 .child-name{
-  font-size: 1.5em;   /* h2と同じサイズ */
-  font-weight: bold;
-  margin: 0;
+    font-size: 1.5em;   /* h2と同じサイズ */
+    font-weight: bold;
+    margin: 0;
 }
 
 /* 学習項目 */
 .items{
-  padding-left: 0;
-  margin: 0 0 12px;
+    padding-left: 0;
+    margin: 0 0 12px;
 }
 
 .item-row{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
 }
 
 .color-box{
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .item-name{
-  text-align: left;
+    text-align: left;
 }
 
 
@@ -343,30 +383,30 @@ h2 {
 
 /* 写真 */
 .photo-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  justify-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    justify-items: center;
 }
 
 .photo-box{
-  width: 160px;
-  height: 100px;           /* ←プレビュー枠と同じ高さに */
-  border: 2px solid #bfbfbf;
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-  box-sizing: border-box;
-  max-width: 160px;
-  margin: 8px;      
+    width: 160px;
+    height: 100px;           /* ←プレビュー枠と同じ高さに */
+    border: 2px solid #bfbfbf;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+    box-sizing: border-box;
+    max-width: 160px;
+    margin: 8px;      
 }
 
 .photo-img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;   
-  display: block;
-  background: #fff; 
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   
+    display: block;
+    background: #fff; 
 }
 
 

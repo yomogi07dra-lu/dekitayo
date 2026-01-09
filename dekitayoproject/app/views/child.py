@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .. models import Child,Family_member,Item,DailyLogItem,Daily_log, Icon
+from .. models import Child,Family_member,Item,DailyLogItem,Daily_log, Icon, ParentComment
 from datetime import date, timedelta
 from .. forms import DailyLogForm, EmailChangeForm, PasswordChangeForm
 import calendar
@@ -53,8 +53,11 @@ def child_home(request, year=None, month=None, day=None):
         .order_by("color_index")
     )
 
-    # 空の箱　今日の記録がなかった場合エラーにならないように
+    # 空の箱　今日の記録がなかった場合エラーにならないように　対象：学習項目
     checked_item_ids = []
+
+    # 空の箱　今日の記録がなかった場合エラーにならないように　対象：保護者コメント
+    parent_comments = []
 
     # 今日のチェックされた学習項目　取得
     if daily_log is not None:
@@ -62,6 +65,11 @@ def child_home(request, year=None, month=None, day=None):
             DailyLogItem.objects
             .filter(daily_log=daily_log)
             .values_list("item_id", flat=True) # idリストとして取得
+        )
+        parent_comments = (
+        daily_log.parent_comments
+        .select_related("user", "user__icon")   # コメントした保護者のアイコン
+        .order_by("-id")           # コメント新しい順
         )
     
     # 表示 #
@@ -89,6 +97,7 @@ def child_home(request, year=None, month=None, day=None):
     return render(request, "app/child/home.html", {
         "today": today,
         "daily_log": daily_log,
+        "parent_comments": parent_comments,
         "rows": rows,
         "checked_item_ids": checked_item_ids,
         "is_past": today != timezone.localdate(),  #過去学習記録用のテンプレートで使用
@@ -453,7 +462,7 @@ def child_password_change(request):
     
     #　子どもかどうか
     family = request.user.family_member.family
-    child = get_object_or_404(
+    get_object_or_404(
         Child,
         user=request.user,
         family_member__family=family,

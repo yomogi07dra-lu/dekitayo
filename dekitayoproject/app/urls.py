@@ -7,7 +7,7 @@ urlpatterns = [
     path('logout/', auth.user_logout, name='logout'),
 
     path('request_password_reset/', auth.request_password_reset, name='request_password_reset'),
-    path('reset_password/<uuid:token>/', auth.reset_password, name='reset_password'),
+    path('password_reset_confirm/<uuid:token>/', auth.password_reset_confirm, name='password_reset_confirm'),
 # 子ども用
     path('child/home/', child.child_home, name='child_home'), 
     path('child/home/<int:year>/<int:month>/<int:day>/', child.child_home, name="child_home_by_date"), #過去学習記録　slug形式 
@@ -30,25 +30,22 @@ urlpatterns = [
 
 # 保護者用
     path('parent/home/', parent.parent_home, name='parent_home'),
-    path("parent/home/<int:child_id>/", parent.parent_home, name="parent_home_child_id"),
 
     path('parent/daily_detail/<int:year>/<int:month>/<int:day>/', parent.parent_daily_detail, name="parent_daily_detail"),
-    path('parent/daily_detail/<int:child_id>/<int:year>/<int:month>/<int:day>/', parent.parent_daily_detail, name="parent_daily_detail_with_child"),
 
     path('parent/mypage/', parent.parent_mypage, name='parent_mypage'),
     path('parent/invitation/', parent.invitation, name='invitation'),
 
     path('parent/item_manage/', parent.parent_item_manage, name='parent_item_manage'),
-    path('parent/item_manage/<int:child_id>/', parent.parent_item_manage, name="parent_item_manage_child_id"),
 
     path('parent/monthly_calendar/', parent.parent_monthly_calendar, name='parent_monthly_calendar'),
-    path('parent/monthly_calendar/<int:child_id>/<int:year>/<int:month>/', parent.parent_monthly_calendar, name='parent_monthly_calendar_by_month'),
+    path('parent/monthly_calendar/<int:year>/<int:month>/', parent.parent_monthly_calendar, name='parent_monthly_calendar_by_month'),
     
     path("parent/monthly_graph/",parent.parent_monthly_graph, name="parent_monthly_graph"),
-    path("parent/monthly_graph/<int:child_id>/<int:year>/<int:month>/", parent.parent_monthly_graph, name="parent_monthly_graph_by_month"),
+    path("parent/monthly_graph/<int:year>/<int:month>/", parent.parent_monthly_graph, name="parent_monthly_graph_by_month"),
    
     path("parent/weekly_graph/", parent.parent_weekly_graph, name="parent_weekly_graph"),
-    path("parent/weekly_graph/<int:child_id>/<int:year>/<int:month>/<int:day>/", parent.parent_weekly_graph, name="parent_weekly_graph_by_week"),
+    path("parent/weekly_graph/<int:year>/<int:month>/<int:day>/", parent.parent_weekly_graph, name="parent_weekly_graph_by_week"),
 
 
     path('parent/child_switch/', parent.parent_child_switch, name='parent_child_switch'),

@@ -32,7 +32,7 @@ def signup(request):
                             "invitation_code",
                             "子どもは招待コードが必要です"
                         )
-                        return render(request,'app/signup.html', {
+                        return render(request,'app/auth/signup.html', {
                             'signup': user_form,
                             'role': family_member_form
                         })
@@ -81,7 +81,7 @@ def signup(request):
 
     return render(
         request, 
-        'app/signup.html', 
+        'app/auth/signup.html', 
         context={
             'signup': user_form,
             'role': family_member_form,
@@ -100,17 +100,17 @@ def user_login(request):
             user_email = User.objects.get(email=email)
         except User.DoesNotExist:
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
-            return render(request,"app/login.html", {"login_form": login_form})
+            return render(request,"app/auth/login.html", {"login_form": login_form})
         
         user = authenticate(request,username=user_email.username, password=password)
 
         if user is None:
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
-            return render(request,"app/login.html", {"login_form": login_form})
+            return render(request,"app/auth/login.html", {"login_form": login_form})
         
         login(request, user)
 
-#保護者と子ども　画面遷移分け
+    # 保護者と子ども　画面遷移分け
         member = user.family_member
         if member and member.role == Family_member.PARENT:
             return redirect('parent_home')
@@ -118,7 +118,7 @@ def user_login(request):
             return redirect('child_home')
 
     return render(
-        request, 'app/login.html',context={
+        request, 'app/auth/login.html',context={
         'login_form': login_form,
         }
     )
@@ -145,7 +145,7 @@ def request_password_reset(request):
         user.save()
 
         token = password_reset_token.token
-        reset_url = (f"{request.scheme}://{request.get_host()}/app/reset_password/{token}/")
+        reset_url = (f"{request.scheme}://{request.get_host()}/app/password_reset_confirm/{token}/")
 
         send_mail(
             subject="【パスワード再設定】",
@@ -163,12 +163,12 @@ def request_password_reset(request):
         )
 
 
-    return render (request, 'app/request_password_reset.html',context={
+    return render (request, 'app/auth/request_password_reset.html',context={
         'reset_form': request_password_resetForm,
     })
 
 #パスワード再設定変更
-def reset_password(request, token):
+def password_reset_confirm(request, token):
     password_reset_token = get_object_or_404(
         PasswordResetToken,
         token=token,
@@ -189,6 +189,6 @@ def reset_password(request, token):
         return redirect('login')
         
     return render(request,
-        'app/password_reset_confirm.html',context={
+        'app/auth/password_reset_confirm.html',context={
         'confirm_form': form,
     })

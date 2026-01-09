@@ -1,7 +1,7 @@
 /* 家族一覧の見た aタグを箱 */
 .member-link{
   width: 60%;
-  display: flex;
+  display: block;
   align-items: center;
   justify-content: flex-start; /* アイコン 名前 */
   gap: 12px;
@@ -19,3 +19,14 @@
 .member-link:hover{
   border-color: #59b421;
 }
+/* 兄弟姉妹切替：行全体が押せる */
+.member-button{
+  all: unset;              /* ボタン見た目リセット */
+  display: flex;
+  align-items: center;
+  width: 100%;             /* 行いっぱいクリック */
+  cursor: pointer;
+  position: relative;
+  z-index: 1;              /* クリックを前面に */
+}
+

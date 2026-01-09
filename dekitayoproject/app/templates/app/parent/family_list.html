@@ -11,28 +11,35 @@
 {# 削除確認用モーダル　JavaScript#}
 {% block extra_js %}
 <script>
-    const modal = document.getElementById("delete-modal");
+// HTMLが全部読み込まれたらモーダル処理
+document.addEventListener("DOMContentLoaded", () => {
+    // 削除確認モーダル本体
+    const deleteModal = document.getElementById("delete-modal");
+    // 削除ボタン    
     const openBtn = document.getElementById("open-delete-modal");
-    const cancel = document.getElementById("close-delete");
+    // キャンセルボタン
+    const cancelBtn = document.getElementById("close-delete");
 
+    // 家族が選択されているか確認　
     function isMemberSelected() {
         return document.querySelector('input[name="user_id"]:checked');
     }
-
-    function closeModal() {
-      modal.classList.add("hidden");
+    // 選択されていればモーダル表示
+    function openDeleteModal() {
+        if (!isMemberSelected()) return;
+        deleteModal.classList.remove("hidden");
     }
-
-    if (openBtn && cancel && modal) {
-        openBtn.addEventListener("click", () => {
-            if (!isMemberSelected()) {
-                return;// 選択していないとモーダルは開かない
-            }
-            modal.classList.remove("hidden");
-        });
-    
-        cancel.addEventListener("click", closeModal)
+    // モーダルを閉じる
+    function closeDeleteModal() {
+        deleteModal.classList.add("hidden");
     }
+   // 削除ボタンがクリック→openDeleteModal（モーダルを開く）
+   // キャンセルボタンがクリック→closeDeleteModal(モーダルを閉じる)
+  if (openBtn && cancelBtn && deleteModal) {
+    openBtn.addEventListener("click", openDeleteModal);
+    cancelBtn.addEventListener("click", closeDeleteModal);
+  }
+});
 </script>
 {% endblock %}
 

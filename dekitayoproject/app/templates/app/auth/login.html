@@ -1,0 +1,27 @@
+{# ログイン画面 #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+
+    <link rel="stylesheet" href="{% static 'css/auth/login.css' %}">
+</head>
+
+<body>
+    <div class="app">
+    <h1 class="app-title">できたよ！</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ login_form.as_p }}
+            <input type="submit" value="ログイン">
+        </form>
+        <div style="text-align: center;">
+            <a href="{% url 'signup' %}">アカウント登録</a>
+            <p>パスワードを忘れた方は<a href="{% url 'request_password_reset' %}">こちら</a></p>
+        </div>
+    </div>
+</body>
+</html>

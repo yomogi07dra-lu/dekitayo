@@ -1,0 +1,61 @@
+body{
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    background: #eee;
+    font-size: 16px;
+}
+.app{
+    width: 100%;
+    max-width: 390px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    justify-content: center;
+    align-items: center;
+}
+input:not([type="radio"]){
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.role{
+    display: flex;
+    gap: 24px;         
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0;
+}
+.role-label{
+    white-space: nowrap;
+}
+.role-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}      
+input[type="submit"]{
+    width: 100px;
+    padding: 6px 12px;
+    margin: 8px auto;
+    display: block;
+    font-size: 14px;
+    background-color: #98ee98ff;
+}
+.app-title{
+    margin:8px 0 18px;
+    text-align: center;
+    font-size: 36px;
+    color: #59b421;
+    letter-spacing: 0.02em;
+}
+/* プレスホルダーの文字 */
+input::placeholder {
+    font-size: 0.8rem;   /* 小さくする */
+}
