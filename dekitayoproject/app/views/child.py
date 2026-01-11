@@ -495,7 +495,7 @@ def child_email_change(request):
     
     #　子どもかどうか
     family = request.user.family_member.family
-    child = get_object_or_404(
+    get_object_or_404(
         Child,
         user=request.user,
         family_member__family=family,
