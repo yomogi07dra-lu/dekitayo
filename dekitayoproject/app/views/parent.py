@@ -12,6 +12,7 @@ from .. utils import generate_invite_code
 from .utils import get_target_child
 
 
+
 # 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
 COLOR_SLOTS = [
     {"index":0, "class": "red"},
@@ -548,18 +549,23 @@ def invitation(request):
         return redirect('parent_mypage')
 
     family = member.family
-    invite = Invitation.objects.filter(family=family).first()
+    invite = None
 
-    if invite is None:
-        invite = Invitation.objects.create(
-            family=family,
-            code=generate_invite_code(),
-            is_active=True
-        )
-    else:
-        invite.code = generate_invite_code()
-        invite.is_active = True
-        invite.save()
+    # 発行ボタンを押したときだけ発行
+    if request.method == "POST":
+        invite = Invitation.objects.filter(family=family).first()
+
+        if invite is None:
+            invite = Invitation.objects.create(
+                family=family,
+                code=generate_invite_code(),
+                is_active=True
+            )
+        else:
+            invite.code = generate_invite_code()
+            invite.is_active = True
+            invite.save()
+
 
     return render(request, 'app/parent/invitation.html', {
         'invite': invite

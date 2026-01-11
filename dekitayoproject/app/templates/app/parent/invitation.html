@@ -11,7 +11,9 @@
 
 <div class="invite-outline">
     {% if invite %}
-        <p><strong>{{ invite.code }}</strong></p>
+        <p class="invite-code">{{ invite.code }}</p>
+    {% else %}
+        <p class="invite-placeholder">&nbsp;</p> {# &nbsp; は「高さを保つための空白」 #}
     {% endif %}
 </div>
 
