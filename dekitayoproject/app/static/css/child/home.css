@@ -1,13 +1,14 @@
 .add-button {
-    position: absolute;
+    position: static; 
     right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-
+    top: 0%;
+    transform: none;
+    margin-left: auto;
     text-decoration: none;
     color: #000;
     font-size: 28px;
     font-weight: bold;
+    line-height: 1;
     white-space: pre-line; /* 改行は残す／スペースは潰す */
 }
 
