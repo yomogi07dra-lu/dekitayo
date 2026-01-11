@@ -427,11 +427,11 @@ def child_icon_change(request):
     )
     # 表示したいアイコン一覧
     target_paths = [
-        "icons\\cat_1.png",
-        "icons\\wolf_2.png",
-        "icons\\deer_3.png",
-        "icons\\squirrel_4.png",
-        "icons\\tiger_5.png",
+        "icons/cat_1.png",
+        "icons/wolf_2.png",
+        "icons/deer_3.png",
+        "icons/squirrel_4.png",
+        "icons/tiger_5.png",
     ]
     icons = Icon.objects.filter(image_url__in=target_paths).order_by("id")
     current_icon = request.user.icon

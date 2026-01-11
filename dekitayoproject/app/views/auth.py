@@ -57,10 +57,16 @@ def signup(request):
                 user.family_member = family_member
 
                 if role == 1:
-                    user.icon_id = 1
+                    default_path = "icons/cat_1.png"
                 else:
-                    user.icon_id = 6
+                    default_path = "icons/pengin_6.png"
 
+                # Iconレコードを探す（無ければNone）FOREIGN KEY constraint failedを防ぐ
+                default_icon = Icon.objects.filter(image_url=default_path).first()
+
+                # なければ未設定
+                if default_icon:
+                    user.icon = default_icon
 
                 user.save()
 
