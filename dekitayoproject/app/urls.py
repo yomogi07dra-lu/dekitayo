@@ -2,7 +2,7 @@ from django.urls import path
 from .views import child, parent, auth , portfolio
 
 urlpatterns = [
-    path("", portfolio.portfolio, name="portfolio"),
+    path("", auth.signup, name="dekitayo_entry"),
 
     path('signup/', auth.signup, name='signup'),
     path('login/', auth.user_login, name='login'),
