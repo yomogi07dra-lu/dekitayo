@@ -1,4 +1,5 @@
 from typing import Optional
+from django.shortcuts import get_object_or_404
 from ..models import Child, Family_member 
 
 SESSION_CHILD_KEY = "selected_child_id"
@@ -33,3 +34,13 @@ def get_target_child(request) -> Optional[Child]:
     first_child = children.first()
     request.session[SESSION_CHILD_KEY] = first_child.id
     return first_child
+
+# 共通関数　ログイン中ユーザーに紐づくChildを返す。子どもでなければ404
+def get_current_child(request) -> Child:
+    family = request.user.family_member.family
+    return get_object_or_404(
+        Child,
+        user=request.user,
+        family_member__family=family,
+        family_member__role=Family_member.CHILD,
+    )

@@ -1,0 +1,51 @@
+{# ポートフォリオ用画面 #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>portfolio</title>
+
+    <link rel="stylesheet" href="{% static 'css/portfolio.css' %}">
+</head>
+
+
+<body>
+  <main class="wrap">
+    <h1>
+    <span class="no">作品No.1</span>
+    <span class="title">できたよ！</span>
+    </h1>
+
+
+    <section class="screenshots" aria-label="アプリ画面イメージ">
+      <figure class="app-screenshot">
+        <img src= "{% static 'images/portfolio/screenshot-child-home.png' %}" alt="子ども用ホーム画面のスクリーンショット" />
+      </figure>
+      <figure class="app-screenshot">
+        <img src= "{% static 'images/portfolio/screenshot-parent-monthly-graph.png' %}" alt="保護者用月間学習グラフ画面のスクリーンショット" />
+      </figure>
+    </section>
+
+
+    <section class="app-description" aria-label="アプリ説明">
+        <p>「できたよ！」は、子どもが取り組んだ学習やお手伝いを写真で記録・共有できるアプリです。<br>
+            毎日の記録を週・月単位で振り返ることで、子どもの自己肯定感と継続力を育て、<br>
+            保護者が「できたこと」に目を向けやすくなります。<br>
+        </p>
+    </section>
+
+    <nav class="reference-links" aria-label="資料リンク">
+      <a href="{% static 'docs/plan.pdf' %}" target="_blank" rel="noopener">企画書(PDF)</a>
+      <a href="{% static 'docs/ui_design.pdf' %}" target="_blank" rel="noopener">画面設計(PDF)</a>
+      <a href="{% static 'docs/screen_flow.svg' %}" target="_blank" rel="noopener">画面遷移図(SVG)</a>
+      <a href="{% static 'docs/er.svg' %}" target="_blank" rel="noopener">ER図(SVG)</a>
+    </nav>
+
+    <div class="app-link">
+      <a href="https://example.com/" target="_blank" rel="noopener">このアプリにアクセス</a>
+    </div>
+  </main>
+</body>
+</html>

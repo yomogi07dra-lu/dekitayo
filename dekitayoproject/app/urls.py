@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import child, parent, auth
+from .views import child, parent, auth , portfolio
 
 urlpatterns = [
-    path("", auth.signup, name="home"),
+    path("", portfolio.portfolio, name="portfolio"),
+
     path('signup/', auth.signup, name='signup'),
     path('login/', auth.user_login, name='login'),
     path('logout/', auth.user_logout, name='logout'),

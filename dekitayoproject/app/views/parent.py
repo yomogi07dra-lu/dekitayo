@@ -439,8 +439,8 @@ def parent_monthly_graph(request, year=None, month=None):
 
     return render (request, 'app/parent/monthly_graph.html', context)
 
-@login_required
 # 保護者用週間学習記録グラフ
+@login_required
 def parent_weekly_graph(request, year=None, month=None, day=None):
     
     #保護者かどうか
@@ -704,7 +704,7 @@ def parent_icon_change(request):
         # 選択していない（事故防止）
             return render(
                 request,
-                "app/child/icon_change.html",
+                "app/parent/icon_change.html",
                 {"icons": icons, "current_icon": current_icon, "error": "アイコンを選択してください"}
             )
 

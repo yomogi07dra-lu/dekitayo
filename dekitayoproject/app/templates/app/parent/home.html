@@ -13,7 +13,10 @@
 <p class="today">{{ today|date:"n月j日(D)" }}</p>
 
 {% if not child %}
-    <h2>お子様の登録を行ってください</h2>
+<p>
+  マイページから招待コードを使用し<br>
+  お子様のアカウント登録をおこなってください
+</p>
 {% else %}    
 <p class="child-name">{{ child.user.username }}</p>
 <h2>今日のできた！</h2>

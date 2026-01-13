@@ -2,13 +2,15 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.db import transaction
 from django.utils import timezone
 from django.db.models import Count, Q
-from django.contrib.auth import logout, update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .. models import Child,Family_member,Item,DailyLogItem,Daily_log, Icon, ParentComment
+from .. models import Item,DailyLogItem,Daily_log, Icon
 from datetime import date, timedelta
 from .. forms import DailyLogForm, EmailChangeForm, PasswordChangeForm
+from .utils import get_current_child
 import calendar
+
 
 # 保護者学習項目登録・子ども学習記録・子どもホーム画面・保護者ホーム画面共通
 COLOR_SLOTS = [
@@ -32,13 +34,8 @@ def child_home(request, year=None, month=None, day=None):
     
     family = request.user.family_member.family
 
-    #ログイン中のユーザーに紐づくchild取得
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
     # 今日の学習記録
     daily_log = Daily_log.objects.filter(
@@ -106,26 +103,17 @@ def child_home(request, year=None, month=None, day=None):
     # 子ども・保護者のコメントは表示なのでテンプレート
 
 
-# 子ども用　学習記録　項目登録 #
+# 子ども用　学習記録　項目登録 
 @login_required
 def child_record(request):
     today = timezone.localdate()
     family = request.user.family_member.family #子ども所属家族取得
-    family_member = request.user.family_member
     
-    child = Child.objects.filter(
-        family_member=family_member,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    ).select_related("family_member").first()
+    
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
-    # ログインしているユーザーに紐づくChildレコードが存在しない場合(なくても動く)  
-    if child is None:
-        logout(request)
-        return redirect("login")  
-    
     items = list(Item.objects.filter(family=family, child=child).order_by("color_index"))
-
 
     # 今日の学習項目
     daily_log = Daily_log.objects.filter(
@@ -212,6 +200,7 @@ def child_record(request):
 
 
 # 子ども用　月間学習記録カレンダー
+@login_required
 def child_monthly_calendar(request, year=None, month=None):
     today = date.today()
     year = year or today.year
@@ -234,14 +223,9 @@ def child_monthly_calendar(request, year=None, month=None):
     cal = calendar.Calendar(firstweekday=6) # 日曜(6)始まり
     month_days = cal.monthdayscalendar(year, month)
 
-    #ログイン中のユーザーに紐づくchild取得
-    family = request.user.family_member.family
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
+
     #記録の絞り込み
     daily_logs = Daily_log.objects.filter(
         child=child,
@@ -269,16 +253,12 @@ def child_monthly_calendar(request, year=None, month=None):
 
 
 # 子ども用月間学習記録グラフ
+@login_required
 def child_monthly_graph(request, year=None, month=None):
 
-    #ログイン中のユーザーに紐づくchild取得
-    family = request.user.family_member.family
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
+
     #日付
     today = timezone.localdate()
     year = year or today.year
@@ -300,6 +280,7 @@ def child_monthly_graph(request, year=None, month=None):
 
    
     #データ
+    family = request.user.family_member.family
     qs = (
     Item.objects      # 学習項目から（項目数が0でも表示できる）
     .filter(family=family, child=child)
@@ -344,16 +325,11 @@ def child_monthly_graph(request, year=None, month=None):
     return render (request, 'app/child/monthly_graph.html', context)
 
 # 子ども用週間学習記録グラフ
+@login_required
 def child_weekly_graph(request, year=None, month=None, day=None):
 
-    #ログイン中のユーザーに紐づくchild取得
-    family = request.user.family_member.family
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
     #日付
     today = timezone.localdate()
@@ -404,27 +380,20 @@ def child_weekly_graph(request, year=None, month=None, day=None):
 
 
 # 子ども用マイページ
+@login_required
 def child_mypage(request):
-    family = request.user.family_member.family
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )    
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
     return render (request, 'app/child/mypage.html')
 
 # 子ども用 アイコン変更
 @login_required
 def child_icon_change(request):
-    family = request.user.family_member.family
-    child = get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
+
     # 表示したいアイコン一覧
     target_paths = [
         "icons/cat_1.png",
@@ -457,17 +426,10 @@ def child_icon_change(request):
 
 # 子ども用 パスワード変更
 @login_required
-
 def child_password_change(request): 
     
-    #　子どもかどうか
-    family = request.user.family_member.family
-    get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
     child_password_change_form = PasswordChangeForm(
         user=request.user,
@@ -493,14 +455,8 @@ def child_password_change(request):
 @login_required
 def child_email_change(request): 
     
-    #　子どもかどうか
-    family = request.user.family_member.family
-    get_object_or_404(
-        Child,
-        user=request.user,
-        family_member__family=family,
-        family_member__role=Family_member.CHILD,
-    )
+    # 共通関数：ログイン中のユーザーに紐づくchild取得
+    child = get_current_child(request)
 
     form = EmailChangeForm(request.POST or None)
 

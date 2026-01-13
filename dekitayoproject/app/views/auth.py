@@ -10,20 +10,26 @@ from .. forms import UsersModelForm,Family_membersModelForm,LoginForm,RequestPas
 import uuid
 
 
-#新規登録
+# 新規登録
 def signup(request):
+    # GETの時　空フォーム表示　
     user_form = UsersModelForm()
     family_member_form = Family_membersModelForm()
-
+    
+    # POST（送信）の時
     if request.method == 'POST':
+        # request（ブラウザからサーバーに送られきた全ての情報が入ったもの）からPOST（POST送信で入力された値） を使ってUsersModelForm（定義）に渡してuser_form（入力済みフォーム・インスタンス）を作る
         user_form = UsersModelForm(request.POST)
         family_member_form = Family_membersModelForm(request.POST)
-        
+
+        # バリデーション（OKならcleaned_dataが使用できる）
         if user_form.is_valid() and family_member_form.is_valid():
-            with transaction.atomic():#すべて成功したらDB反映
+            with transaction.atomic():  # すべて成功したらDB反映　エラーが起きたらなかったことに（中途半端を防ぐ）
                 
                 role = family_member_form.cleaned_data.get("role")
 
+                # 招待コード（あれば使う）：getattr(対象, "属性", デフォルト値) 対象に属性があれば、その値を返す。なければデフォルト値を返す。
+                # AttributeError （対象が属性を持っていないときのエラー）を確実に防げ、安全にNoneを返せる。
                 invite = getattr(user_form, "invite", None)
 
                 if role == 1:  #子ども
