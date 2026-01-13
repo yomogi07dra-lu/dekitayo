@@ -439,8 +439,8 @@ def parent_monthly_graph(request, year=None, month=None):
 
     return render (request, 'app/parent/monthly_graph.html', context)
 
-# 保護者用週間学習記録グラフ
 @login_required
+# 保護者用週間学習記録グラフ
 def parent_weekly_graph(request, year=None, month=None, day=None):
     
     #保護者かどうか
@@ -657,26 +657,15 @@ def parent_email_change(request):
         return redirect("child_home")
     
     
-    form = EmailChangeForm(request.POST or None)
+    form = EmailChangeForm(request.POST or None, user=request.user)
 
-    if request.method == "POST":
-        if form.is_valid():
-            current_email = form.cleaned_data["current_email"]
-            new_email = form.cleaned_data["new_email"]
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("parent_mypage")
 
-            if current_email != request.user.email:
-                form.add_error(
-                "current_email",
-                "現在のメールアドレスが正しくありません"
-            )
-            else:
-                request.user.email = new_email
-                request.user.save()
-                return redirect("parent_mypage")
-
-
-    return render (request, 'app/parent/email_change.html',context={
-        'email_change_form': form})
+    return render(request, "app/parent/email_change.html", {
+        "email_change_form": form
+    })
 
 # 保護者用 アイコン変更
 @login_required
@@ -704,7 +693,7 @@ def parent_icon_change(request):
         # 選択していない（事故防止）
             return render(
                 request,
-                "app/parent/icon_change.html",
+                "app/child/icon_change.html",
                 {"icons": icons, "current_icon": current_icon, "error": "アイコンを選択してください"}
             )
 

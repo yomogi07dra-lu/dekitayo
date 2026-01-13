@@ -458,26 +458,15 @@ def child_email_change(request):
     # 共通関数：ログイン中のユーザーに紐づくchild取得
     child = get_current_child(request)
 
-    form = EmailChangeForm(request.POST or None)
+    form = EmailChangeForm(request.POST or None, user=request.user)
+        
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("child_mypage")
 
-    if request.method == "POST":
-        if form.is_valid():
-            current_email = form.cleaned_data["current_email"]
-            new_email = form.cleaned_data["new_email"]
-
-            if current_email != request.user.email:
-                form.add_error(
-                "current_email",
-                "現在のメールアドレスが正しくありません"
-            )
-            else:
-                request.user.email = new_email
-                request.user.save()
-                return redirect("child_mypage")
-
-    return render (request, 'app/child/email_change.html', context={
-        'email_change_form': form}
-    )
+    return render(request, "app/child/email_change.html", {
+        "email_change_form": form
+    })
 
 
         

@@ -3,6 +3,7 @@ from .models import User,Family_member,Item,Invitation,Daily_log, ParentComment
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 #新規登録
 class UsersModelForm(forms.ModelForm):
@@ -195,10 +196,36 @@ class PasswordChangeForm(PasswordChangeForm):
     )
 
 # メールアドレス変更
+User = get_user_model()
+
 class EmailChangeForm(forms.Form):
     current_email = forms.EmailField(label="現在のメールアドレス")
     new_email = forms.EmailField(label="新しいメールアドレス")
 
+    # ログイン中ユーザーを受け取る
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    # 現在メールが本人のものかチェック
+    def clean_current_email(self):
+        current = self.cleaned_data["current_email"]
+        if not self.user or current != self.user.email:
+            raise forms.ValidationError("現在のメールアドレスが正しくありません")
+        return current
+
+    # 新メールが他人と重複していないかチェック
+    def clean_new_email(self):
+        new = self.cleaned_data["new_email"]
+        if User.objects.filter(email=new).exclude(id=self.user.id).exists():
+            raise forms.ValidationError("このメールアドレスは既に使用されています")
+        return new
+
+    # 保存
+    def save(self):
+        self.user.email = self.cleaned_data["new_email"]
+        self.user.save(update_fields=["email"])
+        return self.user
 
 
 

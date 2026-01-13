@@ -12,11 +12,13 @@
     <div>
     {{ email_change_form.current_email.label_tag }}
     {{ email_change_form.current_email }}
+         {{ email_change_form.current_email.errors }}
     </div>
 
     <div>
     {{ email_change_form.new_email.label_tag }}
     {{ email_change_form.new_email }}
+        {{ email_change_form.new_email.errors }}
     </div>
 
 
