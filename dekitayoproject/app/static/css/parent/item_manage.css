@@ -28,7 +28,13 @@
 
 .item-name{
     flex: 1;  
-    white-space: nowrap;
+    white-space: normal;                 /* 折り返しを許可 */
+    display: -webkit-box;                /* 複数行制御 */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;               /* ★ 2行まで */
+    overflow: hidden;                    /* はみ出し非表示 */
+    word-break: break-all;               /* 英数字も折る */
+    line-height: 1.4;
 }
 .item-check{
     width: auto;
@@ -54,3 +60,10 @@
 .delete-row.cyan .color-box   { background-color: #00ffff; }
 .delete-row.blue .color-box   { background-color: #0000ff; }
 .delete-row.purple .color-box { background-color: #9900ff; }
+
+/* non_field_errors の黒丸（・）と左ズレを消す */
+.item-form ul.errorlist {
+  list-style: none;   /* 黒丸を消す */
+  padding-left: 0;    /* 左の余白を消す */
+  margin: 8px 0;      
+}

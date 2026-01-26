@@ -26,7 +26,7 @@ class UsersModelForm(forms.ModelForm):
                 'placeholder': 'test@test.com'
             }),
             'password': forms.PasswordInput(attrs={
-                'placeholder': '8文字以上、英字と数字を組み合わせてください'
+                'placeholder': '8文字以上、英字と数字、記号が使用できます'
             }),
             'username': forms.TextInput(attrs={
                 'placeholder': 'はなこ'
@@ -107,7 +107,7 @@ class SetNewPasswordForm(forms.Form):
         label='新しいパスワード',
         widget=forms.PasswordInput(
             attrs={
-                'placeholder': '8文字以上、英字と数字を組み合わせてください',
+                'placeholder': '8文字以上、英字と数字、記号を使用できます',
             }
         ),
     )
@@ -186,7 +186,7 @@ class PasswordChangeForm(PasswordChangeForm):
         label="新しいパスワード",
         widget=forms.PasswordInput(
             attrs={
-                "placeholder": "8文字以上・英字と数字を組み合わせてください"
+                "placeholder": "8文字以上・英字と数字、記号を使用できます"
             }
         ),
     )

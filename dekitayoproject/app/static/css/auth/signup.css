@@ -8,6 +8,10 @@ body{
     background: #eee;
     font-size: 16px;
 }
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+               "Yu Gothic", "Meiryo", sans-serif;
+}
 .app{
     width: 100%;
     max-width: 390px;
@@ -47,6 +51,7 @@ input[type="submit"]{
     display: block;
     font-size: 14px;
     background-color: #98ee98ff;
+    color: #000;
 }
 .app-title{
     margin:8px 0 18px;

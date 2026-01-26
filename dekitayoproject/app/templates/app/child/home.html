@@ -7,7 +7,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/child/home.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/child/home.css' %}?v=88888">
 {% endblock %}
 
 {# ホーム画面内容 #}
@@ -15,9 +15,7 @@
 
 <div class="top-row">
   <p class="today">{{ today|date:"n月j日(D)" }}</p>
-  {% if not is_past %}
-    <a href="{% url 'child_record' %}" class="add-button">＋</a>
-  {% endif %}
+  <a href="{% url 'child_record_by_date' today.year today.month today.day %}" class="add-button">＋</a>
 </div>
 {% if is_past %}
   <h2>この日のできた！</h2>

@@ -32,12 +32,15 @@ def signup(request):
                 # AttributeError （対象が属性を持っていないときのエラー）を確実に防げ、安全にNoneを返せる。
                 invite = getattr(user_form, "invite", None)
 
+                # ロール
                 if role == 1:  #子ども
                     if not invite:#招待コード無
+                        # "invitation_code"に紐づくエラー文
                         user_form.add_error(
                             "invitation_code",
                             "子どもは招待コードが必要です"
                         )
+                        # request(POST)に対してエラー情報が入ったフォームを使用してtemplate再描写し、レスポンスとして返す
                         return render(request,'app/auth/signup.html', {
                             'signup': user_form,
                             'role': family_member_form
@@ -87,10 +90,13 @@ def signup(request):
                     invite.is_active = False
                     invite.save()
 
-
-            return redirect('login')
+            # 新規登録後の遷移先をロールで分岐
+            login(request, user)
+            if role == 0:  # 保護者
+                return redirect("parent_home")
+            else:          # 子ども
+                return redirect("child_home")
         
-
     return render(
         request, 
         'app/auth/signup.html', 
@@ -114,7 +120,7 @@ def user_login(request):
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
             return render(request,"app/auth/login.html", {"login_form": login_form})
         
-        user = authenticate(request,username=user_email.username, password=password)
+        user = authenticate(request,email=email, password=password)
 
         if user is None:
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")

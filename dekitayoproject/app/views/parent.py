@@ -26,9 +26,13 @@ COLOR_SLOTS = [
 SLOT_INDEXES = [slot["index"] for slot in COLOR_SLOTS] 
 
 @login_required
-#保護者用ホーム画面
-def parent_home(request):
-    today = timezone.localdate()
+#保護者用ホーム画面・過去記録画面
+def parent_home(request, year=None, month=None, day=None):
+    # 基準の日付
+    if year and month and day:
+        target_date = date(int(year), int(month), int(day))
+    else:
+        target_date = timezone.localdate() #　指定なければ今日
 
     #保護者かどうか
     if request.user.family_member.role != Family_member.PARENT:
@@ -42,13 +46,13 @@ def parent_home(request):
         # 子どもが未登録なら何も表示していないホーム画面を表示　テンプレートにて子ども登録のコメント
         return render(request, "app/parent/home.html", {
             "child": None,
-            "today":today
+            "today":target_date
         })
 
     # 今日の学習記録　取得
     daily_log = Daily_log.objects.filter(
         child=child,
-        date=today,
+        date=target_date,
     ).first() #最新取得
 
     # 今日の学習項目　取得
@@ -96,21 +100,28 @@ def parent_home(request):
     # 保護者コメント
     if request.method == "POST":
         if daily_log is None:
-            messages.error(request, "今日の学習記録はまだありません")
-            return redirect("parent_home")
-
+            messages.error(request, "この日のお子様の学習記録がないため\nコメントは送信できません")
+            return redirect(
+                "parent_home_by_date",
+                year=target_date.year, month=target_date.month, day=target_date.day
+            )
         form = ParentCommentForm(request.POST)
         if form.is_valid():
             parent_comment = form.save(commit=False)
             parent_comment.user = request.user
             parent_comment.daily_log = daily_log
             parent_comment.save()
-            return redirect("parent_home")
+            
+            messages.success(request, "送信しました")
+        return redirect(
+            "parent_home_by_date",
+            year=target_date.year, month=target_date.month, day=target_date.day
+        )
     else:
         form = ParentCommentForm()    
 
     return render(request, "app/parent/home.html", {
-        "today": today,
+        "today": target_date,
         "child": child,
         "daily_log": daily_log,
         "rows": rows,
@@ -301,16 +312,9 @@ def parent_monthly_calendar(request, year=None, month=None):
     child = get_target_child(request)
 
     #　基準の日付
-    today = date.today()
+    today = timezone.localdate()
     year = year or today.year
     month = month or today.month
-
-    if child is None:
-        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
-        return render(request, "app/parent/monthly_calendar.html", {
-            "today": today,
-            "child": None,
-        })
 
     # 基準　今月の1日
     current = date(year, month, 1)
@@ -327,7 +331,38 @@ def parent_monthly_calendar(request, year=None, month=None):
 
     cal = calendar.Calendar(firstweekday=6) # 日曜(6)始まり
     month_days = cal.monthdayscalendar(year, month)
+    
+    # 子どもがいない場合  month_days から calendar_days を作る
+    if child is None:
+        calendar_days = []
+        for week in month_days:
+            row = []
+            for day in week:
+                if day == 0:
+                    row.append({"day": 0})
+                else:
+                    target = date(year, month, day)
+                    row.append({
+                        "day": day,
+                        "can_edit": False,     # 未来日
+                        "has_log": False,    # ⭐用
+                    })
+            calendar_days.append(row)
 
+        context = {
+            "today": today,
+            "child": None,
+            "year": year,
+            "month": month,
+            "prev_year": prev_year,
+            "prev_month": prev_month,
+            "next_year": next_year,
+            "next_month": next_month,
+            "month_days": month_days,
+            "calendar_days": calendar_days,  
+            "learned_days": set(),
+        }
+        return render(request, "app/parent/monthly_calendar.html", context)
 
     #記録の絞り込み
     daily_logs = Daily_log.objects.filter(
@@ -340,8 +375,24 @@ def parent_monthly_calendar(request, year=None, month=None):
         daily_log.date.day
         for daily_log in daily_logs
     }
+    # テンプレを簡単にするためのデータ
+    calendar_days = []
+    for week in month_days:
+        row = []
+        for day in week:
+            if day == 0:
+                row.append({"day": 0})
+            else:
+                target = date(year, month, day)
+                row.append({
+                    "day": day,
+                    "can_edit": target <= today,     # 未来日はリンク無し
+                    "has_log": day in learned_days,    # ⭐表示用
+                })
+        calendar_days.append(row)
     
     context = {
+        "today": today,
         "child": child,
         "year": year,
         "month": month,
@@ -349,7 +400,7 @@ def parent_monthly_calendar(request, year=None, month=None):
         "prev_month": prev_month,
         "next_year": next_year,
         "next_month": next_month,
-        "month_days": month_days,
+        "calendar_days": calendar_days,
         "learned_days": learned_days,
     }
 
@@ -387,13 +438,24 @@ def parent_monthly_graph(request, year=None, month=None):
     next_year = next_date.year
     next_month = next_date.month   
 
-
+    # 子ども未登録の場合　"labels""counts""colors"空データ
     if child is None:
-        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
-        return render(request, "app/parent/monthly_graph.html", {
+        context = {
             "today": today,
             "child": None,
-        })
+            "labels": [],      
+            "counts": [],      
+            "colors": [],      
+            "year": year,
+            "month": month,
+            "prev_year": prev_year,
+            "prev_month": prev_month,
+            "next_year": next_year,
+            "next_month": next_month,
+            "monthly_total": 0,
+        }
+        return render(request, "app/parent/monthly_graph.html", context)
+
    
     #データ
     family = request.user.family_member.family
@@ -467,12 +529,24 @@ def parent_weekly_graph(request, year=None, month=None, day=None):
     # 表示する子どもの選択（共通）
     child = get_target_child(request)
 
+
+    # 子ども未登録の場合　"counts"は空データ
     if child is None:
-        # 子どもが未登録なら何も表示していない月間グラフ画面を表示　テンプレートにて子ども登録のコメント
-        return render(request, "app/parent/weekly_graph.html", {
+        context = {
             "today": today,
             "child": None,
-        })
+            "labels": ["日", "月", "火", "水", "木", "金", "土"],
+            "counts": [0, 0, 0, 0, 0, 0, 0],
+            "start_date": start_date,
+            "end_date": end_date,
+            "prev_year": prev_base.year,
+            "prev_month": prev_base.month,
+            "prev_day": prev_base.day,
+            "next_year": next_base.year,
+            "next_month": next_base.month,
+            "next_day": next_base.day,
+        }
+        return render(request, "app/parent/weekly_graph.html", context)
     
     #データ
     day_totals = (

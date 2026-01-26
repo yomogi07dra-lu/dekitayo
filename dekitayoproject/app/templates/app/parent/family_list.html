@@ -19,14 +19,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const openBtn = document.getElementById("open-delete-modal");
     // キャンセルボタン
     const cancelBtn = document.getElementById("close-delete");
+    // 自分自身を削除しようとしたとき、
+    // サーバー側でエラーメッセージを出すために削除フォームを取得
+    const deleteForm = document.getElementById("delete-form");
 
     // 家族が選択されているか確認　
     function isMemberSelected() {
         return document.querySelector('input[name="user_id"]:checked');
     }
+
+    // 選択されたradiodのidを返す（未選択ならnull）
+    function getSelectedRadio() {
+        return document.querySelector('input[name="user_id"]:checked');
+    }
+
     // 選択されていればモーダル表示
     function openDeleteModal() {
-        if (!isMemberSelected()) return;
+        const selected = getSelectedRadio();
+        if (!selected) return;
+
+    // ★自分のID（HTMLのdata-meから取得）
+        const myId = deleteForm.dataset.me;
+
+    // ★自分を選んでいたら：確認モーダルは出さない → サーバに送って messages を出す
+        if (selected.value === myId) {
+        deleteForm.submit();   // POST → ビューの「自分自身は削除できません」が messages で出る
+        return;
+        }
+
+        // 本人以外なら：いつも通り確認モーダル
         deleteModal.classList.remove("hidden");
     }
     // モーダルを閉じる
@@ -47,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <h2 class="page-title">家族アカウント一覧</h2>
 
-<form method="post" id="delete-form">
+<form method="post" id="delete-form" data-me="{{ request.user.id }}">
 {% csrf_token %}
 <div class="list-box">
     {% for member in members %}
@@ -88,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="modal">
         <p>削除しますか？</p>
         <div class="modal-actions">
-            <button type="submit" form="delete-form"class="btn yes">削除</button>
+            <button type="submit" form="delete-form" class="btn yes">削除</button>
             <button type="button" class="btn no" id="close-delete">キャンセル</button>
         </div>
     </div>

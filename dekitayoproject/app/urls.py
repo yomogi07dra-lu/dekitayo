@@ -13,7 +13,9 @@ urlpatterns = [
 # 子ども用
     path('child/home/', child.child_home, name='child_home'), 
     path('child/home/<int:year>/<int:month>/<int:day>/', child.child_home, name="child_home_by_date"), #過去学習記録　slug形式 
+    
     path('child/record/', child.child_record, name='child_record'),
+    path('child/record/<int:year>/<int:month>/<int:day>/', child.child_record, name='child_record_by_date'),
 
     path('child/monthly_calendar/', child.child_monthly_calendar, name='child_monthly_calendar'),
     path('child/monthly_calendar/<int:year>/<int:month>/', child.child_monthly_calendar, name='child_monthly_calendar_by_month'),
@@ -32,6 +34,7 @@ urlpatterns = [
 
 # 保護者用
     path('parent/home/', parent.parent_home, name='parent_home'),
+    path('parent/home/<int:year>/<int:month>/<int:day>/', parent.parent_home, name="parent_home_by_date"),
 
     path('parent/daily_detail/<int:year>/<int:month>/<int:day>/', parent.parent_daily_detail, name="parent_daily_detail"),
 

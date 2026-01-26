@@ -90,9 +90,11 @@ def child_home(request, year=None, month=None, day=None):
             "item": item,
         })
 
-
     return render(request, "app/child/home.html", {
         "today": today,
+        "day": today.day,
+        "year": year,
+        "month": month,
         "daily_log": daily_log,
         "parent_comments": parent_comments,
         "rows": rows,
@@ -105,9 +107,16 @@ def child_home(request, year=None, month=None, day=None):
 
 # 子ども用　学習記録　項目登録 
 @login_required
-def child_record(request):
-    today = timezone.localdate()
-    family = request.user.family_member.family #子ども所属家族取得
+def child_record(request, year=None, month=None, day=None):
+
+    # 対象日（指定がなければ今日）
+    if year and month and day:
+        target_date = date(int(year), int(month), int(day))
+    else:
+        target_date = timezone.localdate()
+
+    # 子ども所属家族取得
+    family = request.user.family_member.family 
     
     
     # 共通関数：ログイン中のユーザーに紐づくchild取得
@@ -115,10 +124,10 @@ def child_record(request):
 
     items = list(Item.objects.filter(family=family, child=child).order_by("color_index"))
 
-    # 今日の学習項目
+    # 指定日の学習記録
     daily_log = Daily_log.objects.filter(
         child=child,
-        date=today
+        date=target_date
     ).first() #最新取得
     
     # 一度登録していた時の学習項目ID一覧
@@ -152,8 +161,10 @@ def child_record(request):
             "item": item,
         })
 
+    item_rows = [row for row in rows if row.get("item")]
+
     if request.method == "POST":
-        form = DailyLogForm(request.POST, request.FILES)
+        form = DailyLogForm(request.POST, request.FILES, instance=daily_log)
 
         if form.is_valid():
             checked_item_ids = request.POST.getlist("item_ids")#チェックされた項目
@@ -161,14 +172,18 @@ def child_record(request):
             with transaction.atomic():#同じ日なら更新、なければ新規作成
                 daily_log, created = Daily_log.objects.update_or_create(
                     child=child,
-                    date=today,
+                    date=target_date,
                     defaults={"user": request.user},  
                 )
 
                 # コメント・写真を保存
                 daily_log.child_comment = form.cleaned_data["child_comment"]
-                daily_log.photo1_url = form.cleaned_data["photo1_url"]
-                daily_log.photo2_url = form.cleaned_data["photo2_url"]
+                # 写真は「新しく選んだ時だけ更新
+                if form.cleaned_data.get("photo1_url"):
+                    daily_log.photo1_url = form.cleaned_data["photo1_url"]
+                if form.cleaned_data.get("photo2_url"):
+                    daily_log.photo2_url = form.cleaned_data["photo2_url"]
+
                 daily_log.save()
                 
                 # 更新項目　前データ削除
@@ -182,7 +197,7 @@ def child_record(request):
                         daily_log=daily_log,
                         item_id=item_id
                     )
-            return redirect("child_home")
+            return redirect("child_home_by_date", year=target_date.year, month=target_date.month, day=target_date.day)
     
     else:
         if daily_log is not None:
@@ -192,17 +207,19 @@ def child_record(request):
     
     
     return render(request, "app/child/record.html",{
-        "today": today,        
+        "today": target_date,        
         "form": form,
         "rows": rows,
         "checked_item_ids": checked_item_ids,
+        "is_past": target_date != timezone.localdate(),
+        "item_rows": item_rows,
     })
 
 
 # 子ども用　月間学習記録カレンダー
 @login_required
 def child_monthly_calendar(request, year=None, month=None):
-    today = date.today()
+    today = timezone.localdate()
     year = year or today.year
     month = month or today.month
 
@@ -237,15 +254,31 @@ def child_monthly_calendar(request, year=None, month=None):
         daily_log.date.day
         for daily_log in daily_logs
     }
-    
+    # 過去の記録遷移
+    calendar_days = []
+    for week in month_days:
+        row = []
+        for day in week:
+            if day == 0:
+                row.append({"day": 0})
+            else:
+                target = date(year, month, day)
+                row.append({
+                    "day": day,
+                    "can_edit": target <= today,     # 未来日はリンク無し
+                    "has_log": day in learned_days,    # ⭐表示用
+                })
+        calendar_days.append(row)
+
     context = {
+        "today": today,
         "year": year,
         "month": month,
         "prev_year": prev_year,
         "prev_month": prev_month,
         "next_year": next_year,
         "next_month": next_month,
-        "month_days": month_days,
+        "calendar_days": calendar_days, 
         "learned_days": learned_days,
     }
 

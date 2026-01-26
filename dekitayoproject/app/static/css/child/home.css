@@ -6,12 +6,18 @@
     margin-left: auto;
     text-decoration: none;
     color: #000;
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 26px;
+    font-weight: 900;
     line-height: 1;
     white-space: pre-line; /* 改行は残す／スペースは潰す */
+    text-shadow:/* 文字を　二重描画　*/
+        1px 0 #000,
+        -1px 0 #000,
+        0 1px #000,
+        0 -1px #000,
+        1px 1px #000,
+        -1px -1px #000,
+        1px -1px #000,
+        -1px 1px #000;
 }
-
-
-
 

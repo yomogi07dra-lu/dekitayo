@@ -6,6 +6,9 @@
 {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{# Googleフォント #}
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
 {# 保護者用　ベースCSS #}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/parent/base.css' %}">
@@ -22,7 +25,7 @@
         <div class="modal">
             <button class="modal-close" onclick="closeMessageModal()">×</button>
             {% for message in messages %}
-                <p>{{ message }}</p>
+                <p>{{ message|linebreaksbr }}</p>
             {% endfor %}
         </div>
     </div>

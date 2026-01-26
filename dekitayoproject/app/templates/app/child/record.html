@@ -5,18 +5,18 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/child/record.css' %}">
+    <link rel="stylesheet" href="{% static 'css/child/record.css' %}?v=6">
 {% endblock %}
-
-
-
 
 {% block content %}
 <div class="top-row">
   <p class="today">{{ today|date:"n月j日(D)" }}</p>
 </div>
-<h2>今日のできた！登録</h2>
-
+{% if is_past %}
+  <h2>この日のできたこと！</h2>
+{% else %}
+  <h2>今日のできたこと！</h2>
+{% endif %}
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
@@ -28,27 +28,26 @@
     {% endif %}
 {#項目#}
 <div class="items">
-    <div class="content-box">
-        {% for row in rows %}
-            {% if row.item %}
+
+    {% if item_rows %}
+        <div class="content-box">
+            {% for row in item_rows %}
                 <div class="item-row">
                     <span class="color-box {{ row.class }}"></span>
 
                     <label class="item-label">
-                            <input
-                                type="checkbox"
-                                name="item_ids"
-                                value="{{ row.item.id }}"
-                                {% if row.item.id in checked_item_ids %}
-                                    checked
-                                {% endif %}
-                            >
-                            <span class="item-name">{{ row.item.item_name }}</span>
+                        <input
+                            type="checkbox"
+                            name="item_ids"
+                            value="{{ row.item.id }}"
+                            {% if row.item.id in checked_item_ids %}checked{% endif %}
+                        >
+                        <span class="item-name">{{ row.item.item_name }}</span>
                     </label>
-                </div>
-            {% endif %}    
-        {% endfor %}
-    </div>
+                </div>   
+            {% endfor %}
+        </div>
+    {% endif %} 
 
     <div class="content-box">
         <div class="form-center">

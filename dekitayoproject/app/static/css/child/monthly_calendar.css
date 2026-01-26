@@ -49,15 +49,13 @@ table.calendar td.empty{
   background: #fafafa;
 }
 
-/* ⭐リンク：右上に固定して見やすく */
-table.calendar a.star-link{
-  position: static;     /* ← absoluteを無効化 */
-  text-decoration: none;
+/* ⭐数字の下 */
+.day-number{
+  display: block;
 }
 
-/* ホバー時（PCでも見やすい程度） */
-table.calendar a.star-link:hover{
-  transform: scale(1.08);
+.day-link{
+  text-decoration: none;
 }
 
 .period-header{
@@ -82,3 +80,4 @@ table.calendar a.star-link:hover{
   font-size: 1.5em;   /* ← h2相当 */
   font-weight: 900;   /* 太くする */
 }
+

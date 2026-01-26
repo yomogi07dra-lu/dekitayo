@@ -1,10 +1,16 @@
+/* フォント */
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+               "Yu Gothic", "Meiryo", sans-serif;
+}
+
 /* ベース */
 body {
     height: 100dvh;
     margin: 0;
     padding: 0px;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     font-size: 16px;
     background: var(--bg);
     overflow: hidden;
@@ -12,17 +18,19 @@ body {
     }
 h2 {
     text-align: center;
-    margin: 2px 0;
+    margin: 2px 0 0;
 }
 
 .app {
     width: 100%;
     max-width: 390px;
+    min-height: 100dvh;
     height: 100dvh;
     display: flex;
     flex-direction: column;
     background: var(--surface);
     text-align: center;
+    
     }
 
 /* ヘッダー・フッター */
@@ -30,29 +38,39 @@ h2 {
 .site-footer {
     background-color: var(--primary-bg); 
     color: var(--primary-fg);                
-    padding: 15px;
+    padding: 0;
     text-align: center;
     font-weight: bold;
     text-decoration: none; 
-    height: 44px;
+    height: 64px;
     flex-shrink: 0;
     flex: 0 0 auto;
 }
 .header-inner {
-    height: 100%;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
 }
 .header-title {
-    font-weight: 900
-;
+    font-weight: 900;
+    text-shadow:
+    0.5px 0 var(--primary-fg),
+   -0.5px 0 var(--primary-fg),
+    0 0.5px var(--primary-fg),
+    0 -0.5px var(--primary-fg);
     color: var(--primary-fg);
     text-decoration: none;
     font-size: 30px;
 }
+.site-footer {
+    display: flex;          
+    align-items: center;    /* 縦中央に収める */
+    padding-bottom: 2px;
+}
 
+  
 
 /* content-area */
 .content-area {
@@ -60,6 +78,8 @@ h2 {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 4px;
 }
 
 /* それぞれの囲い */
@@ -103,9 +123,23 @@ h2 {
 /* フッターアイコン */
 .icon {
     width: 60px;
-    height: 55px;
+    height: 57px;
+    display: block;
 }
-
+.site-footer .icon-row{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  justify-content: space-between; 
+}
+/* 各ボタンを同じ幅にする */
+.site-footer .icon-row a{
+  flex: 1;                  /* 4つを同じ幅にする */
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* 中央寄せ */
+}
 /* アイコン一覧　現在のアイコン */
 .current-icon img{
     width: 160px;                 /* 好きなサイズに調整 */
@@ -171,6 +205,7 @@ h2 {
 
     max-width: 240px;          /* 画面幅に合わせて調整 */
     word-break: break-word;
+    font-size: 16px;
 }
 /* 保護者コメント */
 .parent-comment{
@@ -181,6 +216,8 @@ h2 {
 }
 .parent-comment-text{
     white-space: pre-line; /* 改行は残す／スペースは潰す */
+    text-align: left; 
+    font-size: 16px;
 }
 
 .parent-comment-row:last-child{
@@ -195,7 +232,6 @@ h2 {
     border: 1px solid #1c4587;
     max-width: 75%;
     line-height: 1.4;
-    font-size: 14px;
     position: relative;
 }
 /* 保護者コメントの吹き出し しっぽ部分*/
@@ -328,13 +364,22 @@ h2 {
 /* 日付などの上段 */
 .top-row{
     position: relative;
-    margin-top: 0;  
     padding-top: 0;    
-    margin: 0 0 4px;
+    margin: 8px 0 2px;
     padding: 0 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+/* ヘッダーと日付の“見た目”を固定してブレを防止 */
+.app .top-row{
+    height: 24px !important; 
+}
+
+/* 文字の行ボックス差で高さが変わるのを防止 */
+.app .today,
+.app .add-button{
+    line-height: 1 !important;
 }
 
 .today{
@@ -366,11 +411,19 @@ h2 {
     width: 16px;
     height: 16px;
     border-radius: 4px;
+    flex-shrink: 0; 
     display: inline-block;
 }
 
 .item-name{
     text-align: left;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    word-break: break-all;
+    line-height: 1.4;
 }
 
 
@@ -437,3 +490,4 @@ label[for^="id_new_password"]{
     margin: 0 auto 2px;
     line-height: 1.2;     /*  行間を詰める */
 }
+

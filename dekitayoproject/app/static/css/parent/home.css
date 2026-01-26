@@ -11,3 +11,6 @@
     resize: none;
 }
 
+.form-center textarea {
+    font-size: 18px;
+}

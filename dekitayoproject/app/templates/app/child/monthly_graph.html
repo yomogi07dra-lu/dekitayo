@@ -25,12 +25,38 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {# グラフライブラリ #}
     <script>
-    const ctx = document.getElementById('monthlyBar');  // <canvas> を指定
+    const canvas = document.getElementById('monthlyBar'); // <canvas> を指定
+    const rawLabels = {{ labels|safe }};
 
-    new Chart(ctx, {
+    const h = Math.max(260, rawLabels.length * 36);
+    document.querySelector('.chart-wrap').style.height = `${h}px`;
+    canvas.height = h;
+
+    function labelWithEllipsis(text, perLine = 5, maxLines = 2) {
+        if (text.length <= perLine) return text;
+
+        const lines = [];
+        for (let i = 0; i < text.length; i += perLine) {
+            lines.push(text.slice(i, i + perLine));
+        }
+
+        if (lines.length <= maxLines) {
+            return lines;
+        }
+        lines[maxLines - 1] =
+            lines[maxLines - 1].slice(0, perLine - 1) + '…';
+
+        return lines.slice(0, maxLines);
+    }
+
+    const labels2lineEllipsis = rawLabels.map(l =>
+        labelWithEllipsis(l, 5, 2)
+    );
+
+    new Chart(canvas, {
         type: 'bar',  // 横棒グラフ
         data: {
-            labels: {{ labels|safe }},  //　学習項目名
+            labels: labels2lineEllipsis,  //　学習項目名
             datasets: [{
             data: {{ counts|safe }},  // 横の長さ
             backgroundColor: {{ colors|safe }}, //　棒グラフの色（7色）
@@ -46,7 +72,7 @@
                     beginAtZero: true, // メモリ設定　0から
                     ticks: {
                         stepSize: 1, // 1目盛りずつ
-                        color: '#000' 
+                        color: '#000'
                     },
                     grid: {
                         color: '#ccc'   // ← 補助線（薄いグレーで上品）
@@ -54,7 +80,8 @@
                 },
                 y: {
                     ticks: {
-                        color: '#000'   // ← 項目名（文字）を黒に
+                        color: '#000',   // ← 項目名（文字）を黒に
+                        autoSkip: false
                     },
                     grid: {
                         display: false  // ← 横棒グラフなら消すと見やすい

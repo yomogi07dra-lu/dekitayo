@@ -12,7 +12,8 @@
 {% block content %}
 
 {% if not child %}
-  <p>お子さまを登録するとカレンダーが表示されます</p>
+  <p>お子さまを登録してください</p>
+    <span class="period-title">{{ month }} 月のできた！</span>
 {% else %}
 <p class="child-name">{{ child.user.username }}</p>
 <div class="period-header">
@@ -26,17 +27,25 @@
     <tr>
       <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
     </tr>
-    {% for week in month_days %}{# １週間ずつ取り出し1行に #}
+    {% for week in calendar_days %}{# １週間ずつ取り出し1行に #}
     <tr>
-      {% for day in week %}{# １日ずつ見る #}
-        {% if day == 0 %}{# 先月・来月のはみ出した日は空白 #}
+      {% for cell in week %}{# １日ずつ見る #}
+        {% if cell.day == 0 %}{# 先月・来月のはみ出した日は空白 #}
           <td class="empty"></td>{# １マス #}
         {% else %}
-          <td>
-            {{ day }}          
-            {% if day in learned_days %}
-              <br>
-              <a href="{% url 'parent_daily_detail' year month day %}" class="star-link">⭐</a>
+          <td class="day-cell {% if not cell.can_edit %}is-disabled{% endif %}">
+            {% if cell.can_edit %}
+              <a class="day-link" href="{% url 'parent_home_by_date' year month cell.day %}">
+                <span class="day-number">{{ cell.day }}</span>
+                {% if cell.has_log %}
+                  <span class="star">⭐</span>
+                {% endif %}
+              </a>
+            {% else %}
+              <span class="day-number">{{ cell.day }}</span>
+              {% if cell.has_log %}
+                <span class="star">⭐</span>
+              {% endif %}
             {% endif %}
           </td>
         {% endif %}

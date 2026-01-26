@@ -21,52 +21,67 @@
 <p class="child-name">{{ child.user.username }}</p>
 <h2>今日のできた！</h2>
 <div class="content-box">
-    {% if daily_log %}
-      <div class="items">
-    {% for row in rows %}
-      {% if row.item and row.item.id in checked_item_ids %}
-        <div class="item-row">
-          <span class="color-box {{ row.class }}"></span>
-          <span class="item-name">{{ row.item.item_name }}</span>
-        </div>
-      {% endif %}
-    {% endfor %}
-      </div>
-{% else %}
-<p>（まだ登録されていません）</p>
-{% endif %}
+  {% if daily_log %}
+    <div class="items">
+      {% for row in rows %}
+        {% if row.item and row.item.id in checked_item_ids %}
+          <div class="item-row">
+            <span class="color-box {{ row.class }}"></span>
+            <span class="item-name">{{ row.item.item_name }}</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
 
-  <div class="child-comment">
-    {% if request.user.icon %}
+    {# daily_log がある時だけ コメント表示 #}
+    <div class="child-comment">
+      {% if child.user.icon %}
+          <img
+            class="comment-icon"
+            src="{% static child.user.icon.image_url %}"
+            alt="commenticon">
+      {% endif %}
+      <span class="child-comment-text">
+        {{ daily_log.child_comment|default:"（コメントなし）" }}
+      </span>
+    </div>
+
+  {% else %}
+    <p>（まだ登録されていません）</p>
+
+    {# daily_logが無い日は安全な表示だけ #}
+    <div class="child-comment">
+      {% if child.user.icon %}
         <img
           class="comment-icon"
           src="{% static child.user.icon.image_url %}"
           alt="commenticon">
-    {% endif %}
-    
-    <span class="child-comment-text">
-      {{ daily_log.child_comment|default:"（コメントなし）" }}
-    </span>
-  </div>
+      {% endif %}
+      <span class="child-comment-text">（コメントなし）</span>
+    </div>
+  {% endif %}
 </div>
+
 {# 写真 #}
-<div class="photo-grid">
-  {% if daily_log.photo1_url %}
-    <div class="photo-box">
-      <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
-    </div>  
-  {% endif %}
+{% if daily_log %}
+  <div class="photo-grid">
+    {% if daily_log.photo1_url %}
+      <div class="photo-box">
+        <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+      </div>  
+    {% endif %}
 
-  {% if daily_log.photo2_url %}
-    <div class="photo-box">
-      <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
-    </div>    
-  {% endif %}
+    {% if daily_log.photo2_url %}
+      <div class="photo-box">
+        <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+      </div>    
+    {% endif %}
 
-  {% if not daily_log.photo1_url and not daily_log.photo2_url %}
-      <p>（写真なし）</p>
-  {% endif %}
-</div> 
+    {% if not daily_log.photo1_url and not daily_log.photo2_url %}
+        <p>（写真なし）</p> 
+    {% endif %} 
+  </div>
+{% endif %}
 
 <form method="post">
     {% csrf_token %}

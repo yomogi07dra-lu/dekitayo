@@ -49,9 +49,17 @@ table.calendar td.empty{
   background: #fafafa;
 }
 
-/* ⭐リンク：右上に固定して見やすく */
-table.calendar a.star-link{
+/* ⭐右上に固定して見やすく */
+table.calendar a.star{
   position: static;     /* ← absoluteを無効化 */
+  text-decoration: none;
+}
+/* ⭐数字の下 */
+.day-number{
+  display: block;
+}
+
+.day-link{
   text-decoration: none;
 }
 

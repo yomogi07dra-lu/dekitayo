@@ -11,6 +11,12 @@
 <p class="child-name">{{ child.user.username }}</p>
 <h2>できた！項目</h2>
 
+
+{% if not child %}
+    <p>お子さまのアカウント情報が必要です<br>
+       先にお子さまのアカウントを登録してください</p>
+{% endif %}
+
 <form method="post" class="item-form">
     {% csrf_token %}
     <input type="hidden" name="action" value="create">
@@ -48,7 +54,7 @@
 
         {# 表示テキストだけ切り替える #}
             {% if row.item %}
-                <span class="name">{{ row.item.item_name }}</span>
+                <span class="item-name">{{ row.item.item_name }}</span>
             {% else %}
                 <span class="name muted">未登録</span>
             {% endif %}
@@ -58,4 +64,5 @@
 </div>
     <button type="submit" class=" btn btn-danger ">削除</button>
 </form>
+
 {% endblock %}

@@ -41,6 +41,7 @@ h1 .title{
   overflow: hidden;
   display: block;
   box-shadow: 0 6px 14px rgba(0,0,0,0.15);  /* 影 */
+  aspect-ratio: 9 / 15.9;
 }
 
 /* スクリーンショット内側　収まり方 */
@@ -48,6 +49,7 @@ h1 .title{
   width: 100%;
   height: auto;
   display: block;
+  object-fit: cover;
 }
 
 /* 説明文 */

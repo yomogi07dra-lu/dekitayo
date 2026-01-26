@@ -14,7 +14,19 @@ class BaseMeta(models.Model):
 
 
 class User(AbstractUser):
+    username = models.CharField(
+        max_length=50,
+        blank=False,
+        null=False,
+        unique=False,  # 重複OK
+    )
+
+    USERNAME_FIELD = 'email'          
+    REQUIRED_FIELDS = ['username']    
+
     email = models.EmailField(unique=True)
+
+
     family_member = models.ForeignKey(
         'Family_member',
         on_delete=models.CASCADE,
