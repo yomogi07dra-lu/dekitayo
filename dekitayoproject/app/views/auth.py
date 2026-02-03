@@ -68,7 +68,7 @@ def signup(request):
                 if role == 1:
                     default_path = "icons/cat_1.png"
                 else:
-                    default_path = "icons/pengin_6.png"
+                    default_path = "icons/parent_default.png"
 
                 # Iconレコードを探す（無ければNone）FOREIGN KEY constraint failedを防ぐ
                 default_icon = Icon.objects.filter(image_url=default_path).first()

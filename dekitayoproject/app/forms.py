@@ -199,20 +199,12 @@ class PasswordChangeForm(PasswordChangeForm):
 User = get_user_model()
 
 class EmailChangeForm(forms.Form):
-    current_email = forms.EmailField(label="現在のメールアドレス")
     new_email = forms.EmailField(label="新しいメールアドレス")
 
     # ログイン中ユーザーを受け取る
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-
-    # 現在メールが本人のものかチェック
-    def clean_current_email(self):
-        current = self.cleaned_data["current_email"]
-        if not self.user or current != self.user.email:
-            raise forms.ValidationError("現在のメールアドレスが正しくありません")
-        return current
 
     # 新メールが他人と重複していないかチェック
     def clean_new_email(self):

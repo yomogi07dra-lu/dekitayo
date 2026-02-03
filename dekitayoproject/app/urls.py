@@ -36,8 +36,6 @@ urlpatterns = [
     path('parent/home/', parent.parent_home, name='parent_home'),
     path('parent/home/<int:year>/<int:month>/<int:day>/', parent.parent_home, name="parent_home_by_date"),
 
-    path('parent/daily_detail/<int:year>/<int:month>/<int:day>/', parent.parent_daily_detail, name="parent_daily_detail"),
-
     path('parent/mypage/', parent.parent_mypage, name='parent_mypage'),
     path('parent/invitation/', parent.invitation, name='invitation'),
 

@@ -114,3 +114,9 @@
 .top-row{
   min-height: 24px;   /* ホーム画面に合わせる */
 }
+
+/* 登録済みメッセージ */
+.edit-note {
+  margin: 4px 0 8px; 
+  font-size: 14px;
+}

@@ -1,0 +1,21 @@
+/* 現在のメールアドレス（表示用 inputに合わせる） */
+.readonly-box {
+  width: 80%;              
+  margin: 0 auto 28px;     
+  padding: 10px;           
+
+  border: 2px solid #333;     /* input と同じ枠 */
+  border-radius: 2px;         /* 角丸（inputに合わせる） */
+
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* 共通：フォーム内のラベル */
+form label {
+    display: block;        /* 横幅を持たせる */
+    width: 80%;            /* input と同じ */
+    margin: 0 auto 4px;    /* 中央寄せ + 下余白 */
+    margin-top: 16px;
+    text-align: left;      /* 左揃え */
+}

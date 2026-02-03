@@ -10,16 +10,45 @@
 
     <title>signup</title>
 
-    <link rel="stylesheet" href="{% static 'css/auth/signup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth/signup.css' %}?v=10">
 </head>
 
 <body>
     <div class="app">
     <h1 class="app-title">できたよ！</h1>
         <form method="POST">
-        {% csrf_token %}
-        {{ signup.as_p }}
+            {% csrf_token %}
+            {# メールアドレス #}
+            <p>
+                {{ signup.email.label_tag }}
+                {{ signup.email }}
+                {{ signup.email.errors }}
+            </p>
+            {# ユーザーネーム #}
+            <p>
+                {{ signup.username.label_tag }}
+                {{ signup.username }}
+                {{ signup.username.errors }}
+            </p>
+            {# パスワード #}
+            <p>
+                {{ signup.password.label_tag }}
+                {{ signup.password }}
+                {{ signup.password.errors }}
+            </p>
+            {# 招待コード #}
+            <p>
+                {{ signup.invitation_code.label_tag }}
+                {{ signup.invitation_code }}
 
+                {# 招待コードのエラー #}
+                {% if signup.invitation_code.errors %}
+                    <span class="error">
+                        {{ signup.invitation_code.errors.0 }}
+                    </span>
+                {% endif %}
+            </p>
+            {# ロール #}
             <div class="role">
                 {% for choice in role.role %}
                     <label class="role-item">

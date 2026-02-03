@@ -215,89 +215,6 @@ def parent_item_manage(request):
         },
     )
 
-# 保護者用　過去記録
-@login_required
-def parent_daily_detail(request, year=None, month=None, day=None):
-
-    #保護者かどうか
-    if request.user.family_member.role != Family_member.PARENT:
-        messages.error(request, "保護者のみアクセスできます")
-        return redirect("child_home")
-    
-    # 基準の日付
-    if year and month and day:
-        today = date(year, month, day)                    
-    else:
-        today = timezone.localdate() #　指定なければ今日
-        
-    # 表示する子どもの選択（共通）
-    child = get_target_child(request)
-    
-    if child is None:
-        # 子どもが未登録なら何も表示していない学習項目登録画面を表示　テンプレートにて子ども登録のコメント
-        return render(request, "app/parent/daily_detail.html", {
-            "child": None,
-        })
-    
-    # 今日の学習記録
-    family = request.user.family_member.family
-    daily_log = Daily_log.objects.filter(
-        child=child,
-        date=today,
-    ).first() # 最新取得
-
-    # 今日の学習項目　取得
-    items = list(
-        Item.objects
-        .filter(family=family, child=child)
-        .order_by("color_index")
-    )
-
-    # 空の箱　今日の記録がなかった場合エラーにならないように
-    checked_item_ids = []
-
-    # 今日のチェックされた学習項目　取得
-    if daily_log is not None:
-        checked_item_ids = list(
-            DailyLogItem.objects
-            .filter(daily_log=daily_log)
-            .values_list("item_id", flat=True) # idリストとして取得
-        )
-    
-    # 表示 #
-    rows = []
-
-    for slot in COLOR_SLOTS:
-        index = slot["index"]
-        css_class = slot["class"]
-        item = None
-
-    # 登録されている学習項目を1つずつ確認する
-        for one_item in items:
-
-    # 学習項目の表示位置が、このスロット番号と同じか？
-            if one_item.color_index == index:
-                item = one_item
-                break
-
-        rows.append({
-            "class": css_class,
-            "item": item,
-        })
-
-
-    return render(request, "app/parent/daily_detail.html", {
-        "today": today,
-        "daily_log": daily_log,
-        "child": child,
-        "rows": rows,
-        "checked_item_ids": checked_item_ids,
-        "is_past": today != timezone.localdate(),  #過去学習記録用のテンプレートで使用
-    })
-
-    # 子ども・保護者のコメントは表示なのでテンプレート
-
-
     
 # 保護者用月間学習記録カレンダー
 @login_required
@@ -715,10 +632,14 @@ def parent_password_change(request):
             messages.success(request, "パスワードを変更しました")
         
         else:
-        # 失敗メッセージ（モーダルで表示する）
-            messages.error(request, "パスワードを変更できませんでした")
-        
-    
+        # 失敗メッセージ・フォームのエラー文だけフィールド名は表示しない（モーダルで表示する）
+            error_messages = "\n".join(
+                error_message
+                for error_list in parent_password_change_form.errors.values()
+                for error_message in error_list
+            )
+            messages.error(request, error_messages)
+
     return render (request, 'app/parent/password_change.html', context={
         'parent_password_change_form': parent_password_change_form,})
 
@@ -735,10 +656,12 @@ def parent_email_change(request):
 
     if request.method == "POST" and form.is_valid():
         form.save()
+        messages.success(request, "メールアドレスを変更しました")
         return redirect("parent_mypage")
 
     return render(request, "app/parent/email_change.html", {
-        "email_change_form": form
+        "email_change_form": form,
+        "current_email": request.user.email,  # 現在のメールアドレス表示用
     })
 
 # 保護者用 アイコン変更

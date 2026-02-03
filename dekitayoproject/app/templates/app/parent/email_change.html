@@ -4,20 +4,23 @@
 
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/parent/email_change.css' %}">
+{% endblock %}
+
 {% block content %}
 <h2>メールアドレス変更</h2>
 
 <form method="post">
     {% csrf_token %}
-    <div>
-    {{ email_change_form.current_email.label_tag }}
-    {{ email_change_form.current_email }}
-         {{ email_change_form.current_email.errors }}
+    <div class="current-email">
+        <label>現在のメールアドレス:</label>
+        <div class="readonly-box">{{ current_email }}</div>
     </div>
 
     <div>
-    {{ email_change_form.new_email.label_tag }}
-    {{ email_change_form.new_email }}
+        {{ email_change_form.new_email.label_tag }}
+        {{ email_change_form.new_email }}
         {{ email_change_form.new_email.errors }}
     </div>
 

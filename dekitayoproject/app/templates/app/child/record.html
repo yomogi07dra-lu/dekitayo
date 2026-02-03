@@ -18,6 +18,10 @@
   <h2>今日のできたこと！</h2>
 {% endif %}
 
+    {% if daily_log %}
+        <p class="edit-note">登録済みの内容を変更できます</p>
+    {% endif %}
+
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
@@ -54,31 +58,49 @@
             {{ form.child_comment }}
         </div>        
     </div>    
-
+{# photo1 #}
 <div class="upload-grid">
     <div class="upload-item">
         <input id="photo1" type="file" name="photo1_url" accept="image/*" class="upload-input">
         <label for="photo1" class="upload-plus">
             <span class="plus">＋</span>
-            <span class="note">（写真は最大2枚）</span>
+            <span class="note">（写真は1枠につき1枚）</span>
         </label>
-        <div id="upload_preview1" class="upload-preview"></div>
+
+        <div id="upload_preview1" class="upload-preview">
+            {% if daily_log and daily_log.photo1_url %}
+                <img src="{{ daily_log.photo1_url.url }}" style="max-width:100%; border-radius:8px;">
+            {% endif %}
+        </div>
     </div>
 
+{# photo2 #}
     <div class="upload-item">
         <input id="photo2" type="file" name="photo2_url" accept="image/*" class="upload-input">
         <label for="photo2" class="upload-plus">
             <span class="plus">＋</span>
-            <span class="note">（写真は最大2枚）</span>
+            <span class="note">（写真は1枠につき1枚）</span>
         </label>
-        <div id="upload_preview2" class="upload-preview"></div>
+
+        <div id="upload_preview2" class="upload-preview">
+            {% if daily_log and daily_log.photo2_url %}
+                <img src="{{ daily_log.photo2_url.url }}" style="max-width:100%; border-radius:8px;">
+            {% endif %}
+        </div>
     </div>
 </div>
 
 <div id="upload_meta2" class="upload-meta"></div>
 
 
-    <button type="submit" class="btn">登録</button>
+    <button type="submit" class="btn">
+        {% if daily_log %}
+            更新
+        {% else %}
+            登録
+        {% endif %}
+    </button>
+    
 </div>
 </form>
 
@@ -91,6 +113,16 @@
         const input = document.getElementById(inputId);
         const previewBox = document.getElementById(previewId);
         const plusLabel = input.nextElementSibling; // ＋ラベル
+
+         // 　初期表示：既存画像があれば「＋」を隠してプレビューを表示
+        const hasInitialImage = previewBox.querySelector("img");
+        if (hasInitialImage) {
+            previewBox.style.display = "block";
+            plusLabel.style.display = "none";
+            } else {
+                previewBox.style.display = "none";
+                plusLabel.style.display = "flex";
+            }
 
         input.addEventListener("change", () => {
             const file = input.files[0];

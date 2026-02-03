@@ -91,6 +91,12 @@ h2 {
     width: calc(100% - 32px); /* 左右16pxを維持 */
     box-sizing: border-box;
 }
+/* フォームの枠 */
+input,
+textarea,
+select {
+  border: 1px solid #555;
+}
 
 /* アイコン */
 .mypage-icon{
@@ -141,13 +147,23 @@ h2 {
   justify-content: center;  /* 中央寄せ */
 }
 /* アイコン一覧　現在のアイコン */
-.current-icon img{
+.current-icon{
     width: 160px;                 /* 好きなサイズに調整 */
     height: 160px;
     border-radius: 50%;           /* 丸くする */
     border: 2px solid #595959;/* 円で囲う（共通色） */
-    display: block;
+    overflow: hidden;          /* ←中身を切り抜く */
     margin: 0 auto 44px;          /* 中央寄せ＋下余白 */
+}
+/* アイコン一覧　現在のアイコン 中の画像*/
+.current-icon img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+    /* 中心微調整 */
+    transform: translateX(2px);
 }
 
 /* アイコン変更一覧　ラジオボタンなくす */
@@ -160,21 +176,25 @@ h2 {
 /* アイコン変更一覧　画像選択 */
 .icon-choice{
     display: inline-block;
-    cursor: pointer;
+    overflow: hidden;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    border: 2px solid #b4b4b4;
 }
 /* アイコン変更一覧のアイコン */
 .icon-img{
-    width: 56px;
-    height: 56px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #b4b4b4;
     margin: 0 ;
     flex-shrink: 0;
+    transform: translate(2px, 0) scale(1.06);
 }
 /* アイコンが選択されたとき （.icon-choice の中でラジオボタンが選ばれていたら　その隣にある画像に）*/
-.icon-choice input[type="radio"]:checked + .icon-img{
-    border: 4px solid var(--btn-bg);
+.icon-choice:has(input[type="radio"]:checked){
+  box-shadow: 0 0 0 3px var(--btn-bg);
 }
 /* アイコン変更　並び */
 .icon-grid{

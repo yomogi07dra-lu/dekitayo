@@ -105,7 +105,7 @@ def child_home(request, year=None, month=None, day=None):
     # 子ども・保護者のコメントは表示なのでテンプレート
 
 
-# 子ども用　学習記録　項目登録 
+# 子ども用　学習記録　登録 
 @login_required
 def child_record(request, year=None, month=None, day=None):
 
@@ -213,6 +213,7 @@ def child_record(request, year=None, month=None, day=None):
         "checked_item_ids": checked_item_ids,
         "is_past": target_date != timezone.localdate(),
         "item_rows": item_rows,
+        "daily_log": daily_log,
     })
 
 
@@ -474,10 +475,17 @@ def child_password_change(request):
             update_session_auth_hash(request, request.user)
         # 成功メッセージ（モーダルで表示する）
             messages.success(request, "パスワードを変更しました")
+            return redirect("child_password_change")
         
         else:
-        # 失敗メッセージ（モーダルで表示する）
-            messages.error(request, "パスワードを変更できませんでした")
+        # 失敗メッセージ・フォームのエラー文だけフィールド名は表示しない（モーダルで表示する）
+            error_messages = "\n".join(
+                error_message
+                for error_list in child_password_change_form.errors.values()
+                for error_message in error_list
+            )
+
+            messages.error(request, error_messages)
         
     
     return render (request, 'app/child/password_change.html', context={
@@ -495,10 +503,12 @@ def child_email_change(request):
         
     if request.method == "POST" and form.is_valid():
         form.save()
+        messages.success(request, "メールアドレスを変更しました")
         return redirect("child_mypage")
 
     return render(request, "app/child/email_change.html", {
-        "email_change_form": form
+        "email_change_form": form,
+        "current_email": request.user.email,  # 現在のメールアドレス表示用
     })
 
 

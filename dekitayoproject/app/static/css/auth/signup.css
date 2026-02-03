@@ -59,8 +59,26 @@ input[type="submit"]{
     font-size: 36px;
     color: #59b421;
     letter-spacing: 0.02em;
+    font-weight: 900;
+    text-shadow:
+    0.5px 0 #59b421,
+   -0.5px 0 #59b421,
+    0 0.5px #59b421,
+    0 -0.5px #59b421;
 }
 /* プレスホルダーの文字 */
 input::placeholder {
     font-size: 0.8rem;   /* 小さくする */
+}
+/* エラー文 */
+.error {
+  color: #ff0000;
+  display:block;
+  min-height: 1.2em;
+}
+/* フォームの枠 */
+input,
+textarea,
+select {
+  border: 1px solid #555;
 }
