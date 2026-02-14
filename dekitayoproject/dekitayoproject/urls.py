@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from app.views.portfolio import portfolio
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("", portfolio, name="dekitayo_entry"),
     path('app/', include('app.urls')),
 ]
 

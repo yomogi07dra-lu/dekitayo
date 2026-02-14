@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from .. models import User,Child,Family_member,Item,Invitation,DailyLogItem,Daily_log, Icon
+from .. models import ParentComment, User,Child,Family_member,Item,Invitation,DailyLogItem,Daily_log, Icon
 from django.contrib.auth import update_session_auth_hash
 from datetime import date, timedelta
 from .. forms import ItemForm, ParentCommentForm, EmailChangeForm, PasswordChangeForm
@@ -55,11 +55,11 @@ def parent_home(request, year=None, month=None, day=None):
         date=target_date,
     ).first() #最新取得
 
-    # 今日の学習項目　取得
+    # 今日の学習項目　取得（表示対象（active）のみ）
     family = request.user.family_member.family    
     items = list(
         Item.objects
-        .filter(family=family, child=child)
+        .filter(family=family, child=child, is_active=True)
         .order_by("color_index")
     )
     # 空の箱　今日の記録がなかった場合エラーにならないように
@@ -97,28 +97,43 @@ def parent_home(request, year=None, month=None, day=None):
     
     # 子どものコメントは表示なのでテンプレートで
 
-    # 保護者コメント
+    # 保護者コメント（POST/GETで共通化してシンプルに）
+    form = ParentCommentForm()
     if request.method == "POST":
+        form = ParentCommentForm(request.POST)
+
         if daily_log is None:
-            messages.error(request, "この日のお子様の学習記録がないため\nコメントは送信できません")
+            # POSTデータを保持せず戻す（入力は消える）
             return redirect(
                 "parent_home_by_date",
                 year=target_date.year, month=target_date.month, day=target_date.day
             )
-        form = ParentCommentForm(request.POST)
-        if form.is_valid():
+
+        elif form.is_valid():
             parent_comment = form.save(commit=False)
             parent_comment.user = request.user
             parent_comment.daily_log = daily_log
             parent_comment.save()
             
             messages.success(request, "送信しました")
-        return redirect(
-            "parent_home_by_date",
-            year=target_date.year, month=target_date.month, day=target_date.day
+
+            return redirect(
+                "parent_home_by_date",
+                year=target_date.year, month=target_date.month, day=target_date.day
+            )
+
+        else:
+            # モーダル用メッセージに渡す
+            messages.error(request, "コメントは改行含め、100文字以内で入力してください")
+
+    # 保護者コメント一覧
+    parent_comments = []
+    if daily_log is not None:
+        parent_comments = (
+            ParentComment.objects
+            .filter(daily_log=daily_log)
+            .order_by("-created_at")  # 最新が上
         )
-    else:
-        form = ParentCommentForm()    
 
     return render(request, "app/parent/home.html", {
         "today": target_date,
@@ -127,6 +142,7 @@ def parent_home(request, year=None, month=None, day=None):
         "rows": rows,
         "checked_item_ids": checked_item_ids,
         "comment_form": form,
+        "parent_comments": parent_comments,
     })
 
 #保護者用学習項目登録
@@ -148,11 +164,12 @@ def parent_item_manage(request):
         })
 
 
-    #学習項目取得
+    #学習項目取得 （表示対象（active）のみ）
     family = request.user.family_member.family
     items = Item.objects.filter(
             family=family,
-            child=child
+            child=child,
+            is_active=True
         )
 
     # {0: Item, 1: Item, ...} の辞書に変換
@@ -192,7 +209,9 @@ def parent_item_manage(request):
                 id__in=ids,
                 family=family,
                 child=child,
-            ).delete()
+            ).update(is_active=False, # ソフトデリート
+                    deleted_at=timezone.now() # 削除日時を記録
+            ) 
 
             return redirect("parent_item_manage")
 

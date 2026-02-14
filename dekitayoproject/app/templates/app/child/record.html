@@ -24,17 +24,10 @@
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-
-    {% if form.errors %}
-        <div>
-            {{ form.errors }}
-        </div>
-    {% endif %}
 {#項目#}
-<div class="items">
-
-    {% if item_rows %}
-        <div class="content-box">
+<div class="content-box">
+    <div class="items">
+        {% if item_rows %}
             {% for row in item_rows %}
                 <div class="item-row">
                     <span class="color-box {{ row.class }}"></span>
@@ -50,14 +43,16 @@
                     </label>
                 </div>   
             {% endfor %}
-        </div>
-    {% endif %} 
-
-    <div class="content-box">
-        <div class="form-center">
-            {{ form.child_comment }}
-        </div>        
-    </div>    
+        {% else %}
+            <span class="empty-message">
+            まだ学習項目が登録されていません<br>
+            おうちの人に登録してもらおう！
+            </span>
+        {% endif %}
+    </div>
+</div>
+ 
+   
 {# photo1 #}
 <div class="upload-grid">
     <div class="upload-item">
@@ -72,6 +67,13 @@
                 <img src="{{ daily_log.photo1_url.url }}" style="max-width:100%; border-radius:8px;">
             {% endif %}
         </div>
+
+        {# 　写真の削除（ソフト削除） #}
+        {% if daily_log and daily_log.photo1_url %}
+        <label class="delete-check">
+            <input type="checkbox" name="delete_photo1" value="1">
+        </label>
+        {% endif %}
     </div>
 
 {# photo2 #}
@@ -87,21 +89,43 @@
                 <img src="{{ daily_log.photo2_url.url }}" style="max-width:100%; border-radius:8px;">
             {% endif %}
         </div>
+        {# 写真の削除（ソフト削除） #}
+        {% if daily_log and daily_log.photo2_url %}
+        <label class="delete-check">
+            <input type="checkbox" name="delete_photo2" value="1">
+        </label>
+        {% endif %}
     </div>
 </div>
+    {% if daily_log.photo1_url or daily_log.photo2_url  %}
+        <p class="delete-help">
+            登録した写真はチェックして［変更］で削除されます
+        </p>
+    {% else %}
+        <p class="delete-help">
+            写真は登録・変更したあとに消せます
+        </p>
+    {% endif %}
 
-<div id="upload_meta2" class="upload-meta"></div>
 
-
+<div class="content-box">
+    <div class="form-center">
+        {{ form.child_comment }}
+    </div>        
+</div>
+    {% if form.child_comment.errors %}
+        <div class="field-error">
+            {{ form.child_comment.errors.0|linebreaksbr }}
+        </div>
+    {% endif %}
+    
     <button type="submit" class="btn">
         {% if daily_log %}
-            更新
+            変更
         {% else %}
             登録
         {% endif %}
     </button>
-    
-</div>
 </form>
 
 

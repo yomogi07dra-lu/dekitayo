@@ -14,83 +14,91 @@
 {% block content %}
 
 <div class="top-row">
-  <p class="today">{{ today|date:"n月j日(D)" }}</p>
-  <a href="{% url 'child_record_by_date' today.year today.month today.day %}" class="add-button">＋</a>
+    <p class="today">{{ today|date:"n月j日(D)" }}</p>
+    <a href="{% url 'child_record_by_date' today.year today.month today.day %}" class="add-button">＋</a>
 </div>
 {% if is_past %}
-  <h2>この日のできた！</h2>
+    <h2>この日のできた！</h2>
 {% else %}
-  <h2>今日のできた！</h2>
+    <h2>今日のできた！</h2>
 {% endif %}
 <div class="content-box">
     {% if daily_log %}
-      <div class="items">
-        {% for row in rows %}
-          {% if row.item and row.item.id in checked_item_ids %}
-            <div class="item-row">
-              <span class="color-box {{ row.class }}"></span>
-              <span class="item-name">{{ row.item.item_name }}</span>
+        {% if checked_item_ids %}
+            <div class="items">
+                {% for row in rows %}
+                    {% if row.item and row.item.id in checked_item_ids %}
+                        <div class="item-row">
+                            <span class="color-box {{ row.class }}"></span>
+                            <span class="item-name">{{ row.item.item_name }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% else %}
-    <p>（まだ登録されていません）</p>
-    {% endif %}
-
-    <div class="child-comment">
-      {% if request.user.icon %}
-          <img
-            class="comment-icon"
-            src="{% static request.user.icon.image_url %}"
-            alt="commenticon">
-      {% endif %}
-      
-      <span class="child-comment-text">
-        {{ daily_log.child_comment|default:"（コメントなし）" }}
-      </span>
-    </div>
-</div>
-{% if daily_log %}
-  <div class="photo-grid">
-    {% if daily_log.photo1_url %}
-      <div class="photo-box">
-        <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
-      </div>  
-    {% endif %}
-
-    {% if daily_log.photo2_url %}
-      <div class="photo-box">
-        <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
-      </div>    
-    {% endif %}
-
-    {% if not daily_log.photo1_url and not daily_log.photo2_url %}
-        <p>（写真なし）</p>
-    {% endif %}
-  </div> 
-{% else %}
-  <p>（まだ記録がありません）</p>
-{% endif %}
-
-<div class="content-box">
-  {% if parent_comments %}
-    {% for comment in parent_comments %}
-      <div class="parent-comment">
-        {% if comment.user.icon %}
-          <img class="comment-icon"
-               src="{% static comment.user.icon.image_url %}"
-               alt="parent icon">
+        {% else %}
+            <p>（できたことを登録してみよう）</p>
         {% endif %}
 
-        <div class="comment-bubble parent-comment-text">{{ comment.text }}</div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>（保護者コメントなし）</p>
-  {% endif %}
+        <div class="photo-grid">
+            {% if daily_log.photo1_url %}
+                <div class="photo-box">
+                    <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+                </div>  
+            {% endif %}
+
+            {% if daily_log.photo2_url %}
+                <div class="photo-box">
+                    <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+                </div>    
+            {% endif %}
+
+            {% if not daily_log.photo1_url and not daily_log.photo2_url %}
+                <p class="no-photo">（写真をのせてみよう）</p>
+            {% endif %}
+        </div> 
+
+        <div class="child-comment">
+            {% if request.user.icon %}
+                <img
+                    class="comment-icon"
+                    src="{% static request.user.icon.image_url %}"
+                    alt="commenticon"
+                >
+            {% endif %}
+        
+            <span class="child-comment-text">
+                {{ daily_log.child_comment|default:"（がんばったことを書いてみよう）" }}
+            </span>
+        </div>
+    {% else %}
+        <p>（できた！を登録してみよう）</p>
+    {% endif %}
 </div>
 
+<div class="content-box">
+    {% if parent_comments %}
+        {% for comment in parent_comments %}
+            <div class="parent-comment">
+                {% if comment.user.icon %}
+                    <img 
+                        class="comment-icon"
+                        src="{% static comment.user.icon.image_url %}"
+                        alt="parent icon"
+                    >
+                {% endif %}
 
+                <div class="parent-comment-right"> 
+                    <div class="comment-username"> 
+                        {{ comment.user.username }}
+                    </div>
+
+                    <div class="comment-bubble parent-comment-text">{{ comment.text }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>（おうちの人からのコメントはこれからだよ）</p>
+    {% endif %}
+</div>
 
 {% endblock %}

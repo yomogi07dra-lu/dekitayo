@@ -209,7 +209,7 @@ select {
 .child-comment{
     display: flex;
     align-items: center;
-    gap: 10px;           /* アイコンと文字の間隔 */
+    gap: 5px;           /* アイコンと文字の間隔 */
 
     text-align: left; /* 親の中央寄せを打ち消す */
     word-break: break-word;
@@ -223,7 +223,8 @@ select {
     line-height: 1.3;          /* 高さを自然に */
     text-align: left;
 
-    max-width: 240px;          /* 画面幅に合わせて調整 */
+    max-width: 100%;          /* 画面幅に合わせて調整 */
+    overflow-wrap: anywhere;  /* 長い連続文字も折り返す */
     word-break: break-word;
     font-size: 16px;
 }
@@ -238,6 +239,8 @@ select {
     white-space: pre-line; /* 改行は残す／スペースは潰す */
     text-align: left; 
     font-size: 16px;
+    overflow-wrap: anywhere;   /* 長い連続文字も折り返す */
+    word-break: break-word;    /* 保険 */
 }
 
 .parent-comment-row:last-child{
@@ -250,9 +253,14 @@ select {
     border-radius: 12px;
     background: #eeeeeeff;
     border: 1px solid #1c4587;
-    max-width: 75%;
+
+    width: fit-content;
+    max-width: min(260px, 80vw);
+    box-sizing: border-box;    /* 枠込みで幅計算 */
     line-height: 1.4;
     position: relative;
+
+    word-break: break-word; /* 文章の折返し */
 }
 /* 保護者コメントの吹き出し しっぽ部分*/
 .comment-bubble::before{
@@ -267,6 +275,35 @@ select {
     border-bottom: 1px solid #1c4587;
     transform: rotate(45deg);
 }
+
+
+/* 保護者コメント アイコン左＋右側（名前→吹き出し） */
+.parent-comment{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+/* 右側を縦並び */
+.parent-comment-right{
+    display: flex;
+    flex-direction: column;
+    flex: 1;          /* 残り幅を使う */
+    min-width: 0;     /* 長文でもレイアウト崩れを防ぐ定番 */
+}
+
+/* 吹き出しの上のユーザー名 */
+.comment-username{
+    font-size: 12px;     
+    color: #666;         
+    margin: 0 0 4px -4px;     /* 吹き出しとの間 */
+    line-height: 1.2;
+
+    text-align: left;       /* 固定 */
+    align-self: flex-start; /* 左基準 */
+}
+
+
 
 /* ボタン */
 .btn {
@@ -307,7 +344,7 @@ select {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -460,7 +497,7 @@ select {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    justify-items: center;
+    justify-content: center;
 }
 
 .photo-box{
@@ -472,7 +509,7 @@ select {
     overflow: hidden;
     box-sizing: border-box;
     max-width: 160px;
-    margin: 8px;      
+    margin: 0;      
 }
 
 .photo-img{
@@ -510,4 +547,20 @@ label[for^="id_new_password"]{
     margin: 0 auto 2px;
     line-height: 1.2;     /*  行間を詰める */
 }
-
+/* 保護者コメント一覧　枠 */
+.parent-comments-box {
+    height: 130px;  
+    overflow-y: auto;
+    flex: 0 0 auto;
+    margin: 4px auto 2px;
+}
+/* 保護者コメント入力ボタン */
+.comment-open-btn {
+    margin: 4px auto 2px;  
+}
+/* 写真無い場合の文章*/
+.no-photo{
+    grid-column: 1 / -1;   /* 2列ぶち抜き */
+    text-align: center;    /* 文字を中央 */
+    margin: 16px 0; 
+}

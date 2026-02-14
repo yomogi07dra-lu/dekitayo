@@ -130,3 +130,14 @@ AUTH_USER_MODEL = 'app.User'
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@example.com"
+
+# 未ログイン時にリダイレクトされるログインURL
+# デフォルトは /accounts/login/ だが、このプロジェクトには存在しないため明示的に指定
+LOGIN_URL = "login"
+
+# ログイン後の遷移は auth.user_login 内で role により分岐しているため、ここでは設定しない
+# （固定URLにすると、親/子で意図しない画面に飛ぶ可能性がある）
+# LOGIN_REDIRECT_URL = "..."  # 使わない
+
+# ログアウト後の遷移先
+LOGOUT_REDIRECT_URL = "login"

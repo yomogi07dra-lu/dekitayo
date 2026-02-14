@@ -30,6 +30,12 @@
     resize: none;
     font-size: 16px;
 }
+/* 子どものコメントエラー */
+.field-error {
+    color: #e53935;      /* 柔らかい赤 */
+    font-size: 0.85rem;  
+    margin-top: 4px;
+}
 
 /*  写真・「＋」の枠 */
 
@@ -64,6 +70,7 @@
 .upload-plus .plus {
     font-size: 24px; 
     line-height: 1;
+    color: #666;
 }
 /* 写真は最大2枚　の説明文 */
 .upload-plus .note {
@@ -112,11 +119,50 @@
 }
 
 .top-row{
-  min-height: 24px;   /* ホーム画面に合わせる */
+    min-height: 24px;   /* ホーム画面に合わせる */
 }
 
-/* 登録済みメッセージ */
+/* 記録登録済みの際のメッセージ  */
 .edit-note {
-  margin: 4px 0 8px; 
-  font-size: 14px;
+    margin: 4px 0 8px; 
+    font-size: 14px;
+}
+/* 学習項目未登録時のメッセージ  */
+.empty-message {
+    color: #555;
+    line-height: 1.5;       
+}
+
+/* record.css：削除チェックの見た目（小さめグレーで“後から見ても分かる”） */
+.delete-check{
+    position: absolute;
+    align-items: center;
+    gap: 2px;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #444;      /* 濃いめグレー */
+    justify-content: center;
+    top: 8px;
+    left: 8px;
+    z-index: 10; 
+}
+.delete-check input{
+    transform: scale(1.5) translateY(-2px);
+    margin-left: 6px;
+    margin: 0; 
+}
+.delete-wrap{
+    position: relative;
+    margin-top: 6px;
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+}
+
+/* 写真削除の説明文 */
+.delete-help{
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
 }

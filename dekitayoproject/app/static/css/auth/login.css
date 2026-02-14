@@ -57,3 +57,16 @@ textarea,
 select {
   border: 1px solid #555;
 }
+/* エラー文 */
+.errorlist,
+.errorlist li,
+.error 
+.nonfield{
+    color: red;
+    display: block;
+    list-style: none;   /* ●を消す */
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}

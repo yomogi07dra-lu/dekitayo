@@ -67,3 +67,9 @@
   padding-left: 0;    /* 左の余白を消す */
   margin: 8px 0;      
 }
+/* 学習項目 削除説明文　*/
+.note {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 16px;
+}

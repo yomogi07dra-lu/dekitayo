@@ -1,26 +1,27 @@
 body{
     margin: 0;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100dvh;
+    overflow: auto;
     display: flex;
     justify-content: center;
-    align-items: stretch;
+    align-items: flex-start;
     background: #eee;
     font-size: 16px;
-}
-body {
-  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN",
                "Yu Gothic", "Meiryo", sans-serif;
 }
 .app{
     width: 100%;
     max-width: 390px;
-    height: 100vh;
+    min-height: 100dvh; 
+    height: auto;
     display: flex;
     flex-direction: column;
     background: white;
-    justify-content: center;
+    justify-content: flex-start; 
     align-items: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 input:not([type="radio"]){
     width: 100%;
@@ -28,6 +29,12 @@ input:not([type="radio"]){
     margin-bottom: 12px;
     font-size: 1rem;
     box-sizing: border-box;
+}
+.form-box{
+    width: 85%;
+}
+.form-box p{
+    white-space: nowrap;
 }
 .role{
     display: flex;
@@ -47,14 +54,14 @@ input:not([type="radio"]){
 input[type="submit"]{
     width: 100px;
     padding: 6px 12px;
-    margin: 8px auto;
+    margin: 0 auto 4px;
     display: block;
     font-size: 14px;
     background-color: #98ee98ff;
     color: #000;
 }
 .app-title{
-    margin:8px 0 18px;
+    margin: 40px 0 30px;
     text-align: center;
     font-size: 36px;
     color: #59b421;
@@ -71,10 +78,17 @@ input::placeholder {
     font-size: 0.8rem;   /* 小さくする */
 }
 /* エラー文 */
+
+.errorlist,
+.errorlist li,
 .error {
-  color: #ff0000;
-  display:block;
-  min-height: 1.2em;
+    color: red;
+    display: block;
+    list-style: none;   /* ●を消す */
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
 }
 /* フォームの枠 */
 input,

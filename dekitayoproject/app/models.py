@@ -6,14 +6,14 @@ import uuid
 
 
 class BaseMeta(models.Model): 
-    create_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
 
 
-class User(AbstractUser):
+class User(AbstractUser, BaseMeta):
     username = models.CharField(
         max_length=50,
         blank=False,
@@ -44,7 +44,7 @@ class User(AbstractUser):
         db_table = 'users'
 
 
-class Family(models.Model):
+class Family(BaseMeta):
     
     class Meta:
         db_table ='families'
@@ -70,7 +70,7 @@ class Family_member(models.Model):
         db_table = 'family_members'
 
 
-class Child(models.Model):
+class Child(BaseMeta):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
@@ -85,14 +85,14 @@ class Child(models.Model):
         db_table = 'children'
 
 
-class Icon(models.Model):
+class Icon(BaseMeta):
      image_url = models.CharField(max_length=100) 
 
      class Meta:
          db_table = 'icons'
 
 
-class Invitation(models.Model):
+class Invitation(BaseMeta):
     family = models.OneToOneField(
         'Family', 
         on_delete=models.CASCADE,
@@ -104,7 +104,7 @@ class Invitation(models.Model):
         db_table = 'invitations'
 
 
-class PasswordResetToken(models.Model):
+class PasswordResetToken(BaseMeta):
     user_PasswordReset = models.OneToOneField(
         'User',
         on_delete=models.CASCADE,
@@ -114,7 +114,7 @@ class PasswordResetToken(models.Model):
     used = models.BooleanField(default=False)
 
 
-class Daily_log(models.Model):
+class Daily_log(BaseMeta):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
@@ -124,7 +124,7 @@ class Daily_log(models.Model):
         on_delete=models.CASCADE,
     )  
     date = models.DateField(default=timezone.localdate)
-    child_comment = models.CharField(max_length=100, blank=True)
+    child_comment = models.TextField(max_length=100, blank=True)
     photo1_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True,max_length=255)
     photo2_url = models.ImageField(upload_to="daily_logs/",blank=True,null=True,max_length=255)
 
@@ -136,7 +136,7 @@ class Daily_log(models.Model):
         ]
 
 
-class Item(models.Model):
+class Item(BaseMeta):
     family = models.ForeignKey(
         'Family',
         on_delete=models.CASCADE,
@@ -147,12 +147,14 @@ class Item(models.Model):
     )    
     item_name = models.CharField(max_length=50)
     color_index = models.PositiveSmallIntegerField() #表示位置
+    is_active = models.BooleanField(default=True)  # ソフトデリート用
+    deleted_at = models.DateTimeField(null=True, blank=True) # 削除日時（削除した項目を自動で消すため）
 
     class Meta:
          db_table = 'items'
 
 
-class DailyLogItem(models.Model):
+class DailyLogItem(BaseMeta):
     daily_log = models.ForeignKey(
         'Daily_log',
         on_delete=models.CASCADE,
@@ -164,7 +166,7 @@ class DailyLogItem(models.Model):
     class Meta:
          db_table = 'daily_log_items'
 
-class ParentComment(models.Model):
+class ParentComment(BaseMeta):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
@@ -174,7 +176,7 @@ class ParentComment(models.Model):
         on_delete=models.CASCADE,
         related_name='parent_comments',
     )
-    text = models.CharField(max_length=100)
+    text = models.TextField(max_length=100)
     
     class Meta:
         db_table = 'parent_comments'

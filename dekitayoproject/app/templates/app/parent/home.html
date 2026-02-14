@@ -13,84 +13,259 @@
 <p class="today">{{ today|date:"n月j日(D)" }}</p>
 
 {% if not child %}
-<p>
-  マイページから招待コードを使用し<br>
-  お子様のアカウント登録をおこなってください
-</p>
+    <h3 class="guide-title">⭐はじめに設定を行いましょう</h3>
+
+    <div class="guide-box">
+        <div class="guide-step">
+            <div class="step-number">【STEP1】</div>
+            <div class="step-main">お子さまのアカウントを登録</div>
+            <div class="step-sub">マイページから招待コードを使用してください</div>
+        </div>
+
+        <div class="guide-step">
+            <div class="step-number">【STEP2】</div>
+            <div class="step-main">学習項目を登録</div>
+            <div class="step-sub">登録すると記録やグラフが利用できます</div>
+        </div>
+    </div>
+
 {% else %}    
-<p class="child-name">{{ child.user.username }}</p>
-<h2>今日のできた！</h2>
-<div class="content-box">
-  {% if daily_log %}
-    <div class="items">
-      {% for row in rows %}
-        {% if row.item and row.item.id in checked_item_ids %}
-          <div class="item-row">
-            <span class="color-box {{ row.class }}"></span>
-            <span class="item-name">{{ row.item.item_name }}</span>
-          </div>
+    <p class="child-name">{{ child.user.username }}</p>
+    <h2>今日のできた！</h2>
+    <div class="content-box">
+        {% if daily_log %}{#  写真と子どもコメントは daily_log に紐づいている #}
+            {# 学習項目で分岐 コメントだけの場合も表示#}
+            {% if checked_item_ids %}
+                <div class="items">
+                    {% for row in rows %}
+                        {% if row.item and row.item.id in checked_item_ids %}
+                            <div class="item-row">
+                                <span class="color-box {{ row.class }}"></span>
+                                <span class="item-name">{{ row.item.item_name }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>（学習項目の記録はありません）</p>
+            {% endif %}
+
+            {# 写真 #}
+            <div class="photo-grid">
+                {% if daily_log.photo1_url %}
+                    <div class="photo-box">
+                        <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+                    </div>  
+                {% endif %}
+
+                {% if daily_log.photo2_url %}
+                    <div class="photo-box">
+                        <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+                    </div>    
+                {% endif %}
+
+                {% if not daily_log.photo1_url and not daily_log.photo2_url %}
+                    <p class="no-photo">（写真の登録はありません）</p>
+                {% endif %}
+            </div>
+
+            {# 子どものコメント #}
+            <div class="child-comment">
+                {% if child.user.icon %}
+                    <img
+                        class="comment-icon"
+                        src="{% static child.user.icon.image_url %}"
+                        alt="commenticon">
+                {% endif %}
+                <span class="child-comment-text">
+                    {{ daily_log.child_comment|default:"（お子さまのコメントはありません）" }}
+                </span>
+            </div>
+
+        {% else %}
+            <p>（学習記録はありません）</p>
         {% endif %}
-      {% endfor %}
     </div>
 
-    {# daily_log がある時だけ コメント表示 #}
-    <div class="child-comment">
-      {% if child.user.icon %}
-          <img
-            class="comment-icon"
-            src="{% static child.user.icon.image_url %}"
-            alt="commenticon">
-      {% endif %}
-      <span class="child-comment-text">
-        {{ daily_log.child_comment|default:"（コメントなし）" }}
-      </span>
+    {# 保護者コメント一覧 #}
+    <div class="content-box parent-comments-box">
+        {% if parent_comments %}
+            {% for comment in parent_comments %}
+                <div class="parent-comment">
+                    {% if comment.user.icon %}
+                        <img
+                            class="comment-icon"
+                            src="{% static comment.user.icon.image_url %}"
+                            alt="parent icon"
+                        >
+                    {% endif %}
+
+                    <div class="parent-comment-right"> 
+                        <div class="comment-username"> 
+                            {{ comment.user.username }}
+                        </div>
+
+                        <div class="comment-bubble parent-comment-text">{{ comment.text }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>（保護者コメントはありません）</p>
+        {% endif %}
     </div>
 
-  {% else %}
-    <p>（まだ登録されていません）</p>
+    <!-- コメント入力ボタン
+    daily_log がある日: data-can-comment="1" → 入力モーダルを開く
+    daily_log がない日: data-can-comment="0" → 「送れません」モーダルを開く
+    BASEのメッセージ用モーダルはDjango messages用（viewで追加された通知のみ表示）
+    ボタン押下などの即時表示は各ページ側でJSモーダルを使う
+    -->
+    <button
+    type="button"
+    class="btn comment-open-btn"
+    id="open-comment"
+    data-can-comment="{% if daily_log %}1{% else %}0{% endif %}"
+    >
+    コメント入力
+    </button>
 
-    {# daily_logが無い日は安全な表示だけ #}
-    <div class="child-comment">
-      {% if child.user.icon %}
-        <img
-          class="comment-icon"
-          src="{% static child.user.icon.image_url %}"
-          alt="commenticon">
-      {% endif %}
-      <span class="child-comment-text">（コメントなし）</span>
+<!-- 学習記録がない場合　メッセージモーダル-->
+<div id="no-log-modal" class="comment-modal hidden">
+    <div class="comment-modal__overlay" id="no-log-overlay"></div>
+
+    <div
+        class="comment-modal__box"
+        role="dialog"
+        aria-modal="true"
+        aria-label="コメント送信不可"
+    >
+        <!-- 右上の× -->
+        <button
+            type="button"
+            class="comment-modal__close"
+            id="close-no-log"
+        >
+            ×
+        </button>
+
+        <p class="comment-modal__warning">
+            この日のお子様の学習記録がないため<br>
+            コメントは送信できません
+        </p>
+
     </div>
-  {% endif %}
 </div>
 
-{# 写真 #}
-{% if daily_log %}
-  <div class="photo-grid">
-    {% if daily_log.photo1_url %}
-      <div class="photo-box">
-        <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
-      </div>  
-    {% endif %}
+<!-- 学習記録がある場合　コメント入力モーダル本体 -->
+<div id="comment-modal" class="comment-modal hidden">
+    <div class="comment-modal__overlay" id="comment-overlay"></div>
 
-    {% if daily_log.photo2_url %}
-      <div class="photo-box">
-        <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
-      </div>    
-    {% endif %}
+    <div
+        class="comment-modal__box" 
+        role="dialog"
+        aria-modal="true"
+        aria-label="コメント入力"
+    >
+    
+        <!-- 右上の× -->
+        <button
+            type="button"
+            class="comment-modal__close"
+            id="close-comment"
+        >
+            ×
+        </button>
+    
+        <h3 class="comment-modal__title">保護者コメント</h3>
+        <p class="comment-modal__note">
+            ※送信後は削除できません
+        </p>
+        
 
-    {% if not daily_log.photo1_url and not daily_log.photo2_url %}
-        <p>（写真なし）</p> 
-    {% endif %} 
-  </div>
+        <!-- 元のフォームをモーダル内へ -->
+        <form method="post" id="comment-form">
+            {% csrf_token %}
+
+            <div class="comment-modal__body">
+                {{ comment_form.text }}
+            </div>
+
+            <button type="submit" class="btn" id="comment-submit">送信</button>
+        </form>
+    </div>
+</div>
 {% endif %}
+{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
-      <div class="content-box">
-        <div class="form-center">
-          {{ comment_form.text }}
-        </div>
-      </div>
-  <button type="submit" class="btn">送信</button>
-</form>
-{% endif %}
+
+{% block extra_js %}
+{# コメント入力ボタン押下で分岐する #}
+<script>
+(() => {
+    // --- コメント入力モーダル ---
+    const commentModal = document.getElementById("comment-modal");
+    const closeCommentBtn = document.getElementById("close-comment");
+    const commentOverlay = document.getElementById("comment-overlay");
+
+    // --- コメント不可モーダル ---
+    const noLogModal = document.getElementById("no-log-modal");
+    const closeNoLogBtn = document.getElementById("close-no-log");
+    const noLogOverlay = document.getElementById("no-log-overlay");
+    const noLogOkBtn = document.getElementById("no-log-ok");
+
+    // --- 共通：開くボタン---
+    const openBtn = document.getElementById("open-comment");
+    if (!openBtn) return;
+
+    // モーダルを開く/閉じる共通関数
+    const open = (el) => { if (el) el.classList.remove("hidden"); };
+    const close = (el) => { if (el) el.classList.add("hidden"); };
+
+    // コメント入力ボタンを押したとき：data-can-comment を見て分岐
+    // 1 → 入力モーダル
+    // 0 → 送れませんモーダル
+    openBtn.addEventListener("click", () => {
+        const canComment = openBtn.dataset.canComment === "1";
+        if (canComment) {
+            open(commentModal);
+        } else {
+            open(noLogModal);
+        }
+    });
+
+    // --- コメント入力モーダルを閉じる ---
+    if (closeCommentBtn) closeCommentBtn.addEventListener("click", () => close(commentModal));
+    if (commentOverlay) commentOverlay.addEventListener("click", () => close(commentModal));
+
+    // --- コメント不可モーダルを閉じる ---
+    if (closeNoLogBtn) closeNoLogBtn.addEventListener("click", () => close(noLogModal));
+    if (noLogOverlay) noLogOverlay.addEventListener("click", () => close(noLogModal));
+    if (noLogOkBtn) noLogOkBtn.addEventListener("click", () => close(noLogModal));
+})();
+</script>
+
+{#　二重送信対策　送信ボタン連打による二重POSTを防ぐ　#}
+<script>
+(() => {
+    const forms = document.querySelectorAll("form");
+    forms.forEach((form) => {
+        form.addEventListener(
+            "submit",
+            () => {
+                // 同じform内の送信ボタンだけを対象にする
+                const submitButtons = form.querySelectorAll(
+                    'button[type="submit"], input[type="submit"]'
+                );
+
+                submitButtons.forEach((btn) => {
+                    if (btn.disabled) return; // すでに無効化されていたら何もしない（連打対策）
+                    btn.disabled = true; // 送信中は押せないようにする
+                    btn.textContent = "送信中…";
+                });
+            },
+            { once: true }
+        );
+    });
+})();
+</script>
 {% endblock %}

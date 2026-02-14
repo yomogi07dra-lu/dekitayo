@@ -1,14 +1,17 @@
 from django.urls import path
-from .views import child, parent, auth , portfolio
+from .views import child, parent, auth
+from .views import portfolio as portfolio_views 
 
 urlpatterns = [
-    path("", auth.signup, name="dekitayo_entry"),
+    path("", portfolio_views.portfolio, name="dekitayo_entry"),
 
     path('signup/', auth.signup, name='signup'),
     path('login/', auth.user_login, name='login'),
     path('logout/', auth.user_logout, name='logout'),
 
     path('request_password_reset/', auth.request_password_reset, name='request_password_reset'),
+    path("request_password_reset_done/", auth.request_password_reset_done, name="request_password_reset_done"),
+
     path('password_reset_confirm/<uuid:token>/', auth.password_reset_confirm, name='password_reset_confirm'),
 # 子ども用
     path('child/home/', child.child_home, name='child_home'), 

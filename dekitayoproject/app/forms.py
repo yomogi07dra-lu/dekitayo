@@ -12,10 +12,18 @@ class UsersModelForm(forms.ModelForm):
         max_length=6,
         required=False
     )
+    # 追加：確認用パスワード（DBには保存しない）
+    confirm_password_input = forms.CharField(
+        label='パスワード（確認）',
+        required=True,
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'もう一度同じパスワードを入力してください'
+        })
+    )
 
     class Meta:
         model = User
-        fields = ["email", "password","username"]
+        fields = ["email", "password", "username"]
         labels = {
             'email': 'メールアドレス',
             'password': 'パスワード',
@@ -29,7 +37,7 @@ class UsersModelForm(forms.ModelForm):
                 'placeholder': '8文字以上、英字と数字、記号が使用できます'
             }),
             'username': forms.TextInput(attrs={
-                'placeholder': 'はなこ'
+                'placeholder': 'ママ'
             }),
         }
 
@@ -38,14 +46,20 @@ class UsersModelForm(forms.ModelForm):
         }
 
     def clean(self):
-        clean_data =super().clean()
-        password = clean_data.get('password')
+        cleaned_data =super().clean()
+        password = cleaned_data.get('password')
+        confirm = cleaned_data.get('confirm_password_input')
+
+        # 一致チェック
+        if password and confirm and password != confirm:
+            self.add_error('confirm_password_input', 'パスワードが一致しません')
+
         if password:
             try:
                 validate_password(password, self.instance)
             except ValidationError as e:
                 self.add_error('password', e)
-        return clean_data
+        return cleaned_data
         
     def clean_invitation_code(self):
         code = self.cleaned_data.get('invitation_code')
@@ -86,7 +100,10 @@ class Family_membersModelForm(forms.ModelForm):
 #ログイン
 class LoginForm(forms.Form):
     email = forms.EmailField(label="メールアドレス")
-    password = forms.CharField(label="パスワード")
+    password = forms.CharField(
+        label="パスワード",
+        widget=forms.PasswordInput()
+    )
 
 #パスワード再設定　メールアドレス入力
 class RequestPasswordResetForm(forms.Form):
@@ -97,8 +114,6 @@ class RequestPasswordResetForm(forms.Form):
 
     def clean_email(self):
         email =self.cleaned_data['email']
-        if not User.objects.filter(email=email).exists():
-            raise ValidationError('このメールアドレスのユーザーは存在しません')
         return email
     
 #パスワード再設定　新しいパスワード
@@ -143,6 +158,15 @@ class ItemForm(forms.ModelForm):
 
 # 子ども用　学習記録　項目登録 #
 class DailyLogForm(forms.ModelForm):
+    child_comment = forms.CharField(
+    required=False,
+    widget=forms.Textarea(attrs={
+        "placeholder": "コメント：学習時間や感想、絵文字OK（最大100文字）",
+        "maxlength": 100,  # フロント側補助
+        "rows": 3,
+    }),
+    label="",
+    )
     
     class Meta:
         model = Daily_log
@@ -150,30 +174,38 @@ class DailyLogForm(forms.ModelForm):
         labels = {
             'photo1_url': '',
             'photo2_url': '',
-            'child_comment': '',
         }
-        widgets = {
-            "child_comment": forms.Textarea(attrs={
-            "placeholder": "コメント：学習時間や感想、絵文字OK（最大100文字）",
-            "maxlength": 100,
-            "rows": 3,
-            }),
-        }
+    
+     # 改行コードを統一して「見た目」と同じ数え方にする
+    def clean_child_comment(self):
+        comment = self.cleaned_data.get("child_comment", "")
+        # Windowsの \r\n を \n に統一（改行を1文字扱いに）
+        comment = comment.replace("\r\n", "\n").replace("\r", "\n")
+        if len(comment) > 100:
+            raise forms.ValidationError(
+                "改行もふくめて100文字までです\n少しだけみじかくしてみよう!" #　もしもの時用
+            )
+        return comment
+
 #保護者用コメント
 class ParentCommentForm(forms.ModelForm):
+    text = forms.CharField(
+        required=True,
+        max_length=100,  # サーバ側で必ず制限
+        error_messages={
+            "max_length": "コメントは改行を含め100文字以内で入力してください",
+        },
+        widget=forms.Textarea(attrs={
+            "rows": 3,
+            "maxlength": 100,  # フロント側補助
+            "placeholder": "最大100字",
+        }),
+        label="",
+    )
+
     class Meta:
         model = ParentComment        
         fields = ["text"]
-        labels = {
-            'text': '',
-        }        
-        widgets = {
-            "text": forms.Textarea(attrs={
-            "rows": 3,
-            "maxlength": 100,
-            "placeholder": "コメント：最大100字",
-            })
-        }
 
 # パスワード変更
 class PasswordChangeForm(PasswordChangeForm):

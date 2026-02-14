@@ -22,3 +22,10 @@
     height: 1em; /* 高さだけ確保 */
 }
 
+.invite-note{
+    font-size: 14px;
+    color: #555555;
+    line-height: 1.6;
+    text-align: left;
+    padding-left: 16px;
+}

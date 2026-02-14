@@ -16,28 +16,34 @@
 <body>
     <div class="app">
     <h1 class="app-title">できたよ！</h1>
-        <form method="POST">
+        <form method="POST" class="form-box">
             {% csrf_token %}
             {# メールアドレス #}
-            <p>
+            <div>
                 {{ signup.email.label_tag }}
                 {{ signup.email }}
                 {{ signup.email.errors }}
-            </p>
+            </div>
             {# ユーザーネーム #}
-            <p>
+            <div>
                 {{ signup.username.label_tag }}
                 {{ signup.username }}
                 {{ signup.username.errors }}
-            </p>
+            </div>
             {# パスワード #}
-            <p>
+            <div>
                 {{ signup.password.label_tag }}
                 {{ signup.password }}
                 {{ signup.password.errors }}
-            </p>
+            </div>
+            {# パスワード（確認） #}
+            <div>
+                {{ signup.confirm_password_input.label_tag }}
+                {{ signup.confirm_password_input }}
+                {{ signup.confirm_password_input.errors }}
+            </div>
             {# 招待コード #}
-            <p>
+            <div>
                 {{ signup.invitation_code.label_tag }}
                 {{ signup.invitation_code }}
 
@@ -47,7 +53,7 @@
                         {{ signup.invitation_code.errors.0 }}
                     </span>
                 {% endif %}
-            </p>
+            </div>
             {# ロール #}
             <div class="role">
                 {% for choice in role.role %}
@@ -71,6 +77,5 @@
         </div>
     
     </div>
-
 </body>
 </html>
