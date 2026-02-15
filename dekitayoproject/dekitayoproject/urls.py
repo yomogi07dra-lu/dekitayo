@@ -23,7 +23,7 @@ from app.views.portfolio import portfolio
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", portfolio, name="dekitayo_entry"),
-    path('app/', include('app.urls')),
+    path('dekitayo/', include('app.urls')),
 ]
 
 if settings.DEBUG:
