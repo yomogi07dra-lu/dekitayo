@@ -127,7 +127,7 @@ class SetNewPasswordForm(forms.Form):
         ),
     )
     password2 = forms.CharField(
-        label='新しいパスワード再入力',
+        label='新しいパスワード（確認用）',
         widget=forms.PasswordInput(),
     )
     
@@ -138,7 +138,7 @@ class SetNewPasswordForm(forms.Form):
 
         if password1 and password2:
             if password1 != password2:
-                raise ValidationError('パスワードを再設定できませんでした')
+                raise ValidationError('確認用パスワードが一致しません')
             
         return cleaned_data
 
@@ -223,7 +223,7 @@ class PasswordChangeForm(PasswordChangeForm):
         ),
     )
     new_password2 = forms.CharField(
-        label="新しいパスワード（再入力）",
+        label="新しいパスワード（確認用）",
         widget=forms.PasswordInput()
     )
 
@@ -242,7 +242,7 @@ class EmailChangeForm(forms.Form):
     def clean_new_email(self):
         new = self.cleaned_data["new_email"]
         if User.objects.filter(email=new).exclude(id=self.user.id).exists():
-            raise forms.ValidationError("このメールアドレスは既に使用されています")
+            raise forms.ValidationError("このメールアドレスはすでに使用されています")
         return new
 
     # 保存

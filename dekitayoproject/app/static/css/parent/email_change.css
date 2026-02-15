@@ -19,3 +19,10 @@ form label {
     margin-top: 16px;
     text-align: left;      /* 左揃え */
 }
+
+.errorlist {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0;
+  color:  red  
+}
