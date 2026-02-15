@@ -3,8 +3,6 @@ from .views import child, parent, auth
 from .views import portfolio as portfolio_views 
 
 urlpatterns = [
-    path("", portfolio_views.portfolio, name="dekitayo_entry"),
-
     path('signup/', auth.signup, name='signup'),
     path('login/', auth.user_login, name='login'),
     path('logout/', auth.user_logout, name='logout'),
