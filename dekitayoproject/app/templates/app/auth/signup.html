@@ -25,11 +25,15 @@
                 {{ signup.email.errors }}
             </div>
             {# ユーザーネーム #}
-            <div>
+            <div class="username-group">
                 {{ signup.username.label_tag }}
                 {{ signup.username }}
                 {{ signup.username.errors }}
             </div>
+            {# ユーザーネーム 注意書き#}
+            <p class="form-note">
+                ※ユーザー名は登録後に変更できません
+            </p>
             {# パスワード #}
             <div>
                 {{ signup.password.label_tag }}

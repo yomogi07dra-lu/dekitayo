@@ -96,3 +96,13 @@ textarea,
 select {
   border: 1px solid #555;
 }
+/* ユーザー名　注意書き */
+.form-note {
+    font-size: 12px;
+    color: #555;
+    margin-top: 0px;
+}
+/* ユーザー名　フォーム */
+.username-group input {
+    margin-bottom: 4px;
+}
