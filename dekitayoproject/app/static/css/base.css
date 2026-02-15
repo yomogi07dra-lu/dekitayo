@@ -79,7 +79,7 @@ h2 {
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-top: 4px;
+    padding-top: 4px; 
 }
 
 /* それぞれの囲い */
@@ -546,17 +546,6 @@ label[for^="id_new_password"]{
 
     margin: 0 auto 2px;
     line-height: 1.2;     /*  行間を詰める */
-}
-/* 保護者コメント一覧　枠 */
-.parent-comments-box {
-    height: 130px;  
-    overflow-y: auto;
-    flex: 0 0 auto;
-    margin: 4px auto 2px;
-}
-/* 保護者コメント入力ボタン */
-.comment-open-btn {
-    margin: 4px auto 2px;  
 }
 /* 写真無い場合の文章*/
 .no-photo{

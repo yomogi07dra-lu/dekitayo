@@ -20,4 +20,7 @@
         1px -1px #000,
         -1px 1px #000;
 }
-
+/* 保護者コメントないとき */
+.parent-comment-note {
+    font-size: 0.9rem;
+}

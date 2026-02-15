@@ -106,3 +106,15 @@
   color: #555;
 }
 
+
+/* 保護者コメント一覧　枠 */
+.parent-comments-box {
+    height: 145px;  
+    overflow-y: auto;
+    flex: 0 0 auto;
+
+}
+/* 保護者コメント入力ボタン */
+.comment-open-btn {
+    margin: 2px auto 4px;  
+}

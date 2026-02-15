@@ -7,7 +7,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/child/home.css' %}?v=88888">
+    <link rel="stylesheet" href="{% static 'css/child/home.css' %}?v=788">
 {% endblock %}
 
 {# ホーム画面内容 #}
@@ -66,9 +66,9 @@
                 >
             {% endif %}
         
-            <span class="child-comment-text">
+            <p class="child-comment-text">
                 {{ daily_log.child_comment|default:"（がんばったことを書いてみよう）" }}
-            </span>
+            </p>
         </div>
     {% else %}
         <p>（できた！を登録してみよう）</p>
@@ -97,7 +97,9 @@
             </div>
         {% endfor %}
     {% else %}
-        <p>（おうちの人からのコメントはこれからだよ）</p>
+        <p class="parent-comment-note">
+        （おうちの人からのコメントはこれからだよ）
+        </p>
     {% endif %}
 </div>
 

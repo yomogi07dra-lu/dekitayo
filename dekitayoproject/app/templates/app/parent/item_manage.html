@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/parent/item_manage.css' %}">
+    <link rel="stylesheet" href="{% static 'css/parent/item_manage.css' %}?v=13">
 {% endblock %}
 
 {% block content %}
@@ -24,9 +24,6 @@
     <button type="submit" class="btn" >登録</button>
     </div>
 </form>
-
-<hr>
-
 
 <form method="post" class="delete-box">
     {% csrf_token %}

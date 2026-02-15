@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/parent/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/parent/home.css' %}?v=10">
 {% endblock %}
 
 {% block content %}
@@ -87,6 +87,21 @@
         {% endif %}
     </div>
 
+    <!-- コメント入力ボタン
+    daily_log がある日: data-can-comment="1" → 入力モーダルを開く
+    daily_log がない日: data-can-comment="0" → 「送れません」モーダルを開く
+    BASEのメッセージ用モーダルはDjango messages用（viewで追加された通知のみ表示）
+    ボタン押下などの即時表示は各ページ側でJSモーダルを使う
+    -->
+    <button
+    type="button"
+    class="btn comment-open-btn"
+    id="open-comment"
+    data-can-comment="{% if daily_log %}1{% else %}0{% endif %}"
+    >
+    コメント入力
+    </button>
+
     {# 保護者コメント一覧 #}
     <div class="content-box parent-comments-box">
         {% if parent_comments %}
@@ -113,21 +128,6 @@
             <p>（保護者コメントはありません）</p>
         {% endif %}
     </div>
-
-    <!-- コメント入力ボタン
-    daily_log がある日: data-can-comment="1" → 入力モーダルを開く
-    daily_log がない日: data-can-comment="0" → 「送れません」モーダルを開く
-    BASEのメッセージ用モーダルはDjango messages用（viewで追加された通知のみ表示）
-    ボタン押下などの即時表示は各ページ側でJSモーダルを使う
-    -->
-    <button
-    type="button"
-    class="btn comment-open-btn"
-    id="open-comment"
-    data-can-comment="{% if daily_log %}1{% else %}0{% endif %}"
-    >
-    コメント入力
-    </button>
 
 <!-- 学習記録がない場合　メッセージモーダル-->
 <div id="no-log-modal" class="comment-modal hidden">
