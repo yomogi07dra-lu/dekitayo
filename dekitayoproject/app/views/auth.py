@@ -180,7 +180,7 @@ def request_password_reset(request):
             token = password_reset_token.token
             # URL組み立て
             # request.scheme→ http か https, request.get_host()→ 今アクセスしているドメイン ,/app/password_reset_confirm/{token}/→ トークン付きの再設定ページURL
-            reset_url = (f"{request.scheme}://{request.get_host()}/app/password_reset_confirm/{token}/")
+            reset_url = (f"{request.scheme}://{request.get_host()}/dekitayo/password_reset_confirm/{token}/")
 
             send_mail(
                 subject="【パスワード再設定】",
