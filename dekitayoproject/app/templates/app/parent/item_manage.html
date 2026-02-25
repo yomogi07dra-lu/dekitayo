@@ -13,7 +13,7 @@
 <p class="child-name">{{ child.user.username }}</p>
 <h2>できた！項目</h2>
 
-<form method="post" class="item-form">
+<form method="post" class="item-form" onsubmit="return disableSubmit(this);">
     {% csrf_token %}
     <input type="hidden" name="action" value="create">
 
@@ -21,6 +21,9 @@
     
     <div class="form-row">
     {{ item_form.item_name }}
+    <div class="field-error">
+        {{ item_form.item_name.errors }}
+    </div>
     <button type="submit" class="btn" >登録</button>
     </div>
 </form>
@@ -60,9 +63,6 @@
 
     <button type="submit" class=" btn btn-danger " >削除</button>
 
-    <p class="note">
-    ※削除した学習項目は30日後に完全削除されます
-    </p>
 </form>
 
 {% else %}
@@ -73,4 +73,16 @@
 </p>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function disableSubmit(form){
+    const btn = form.querySelector('button[type="submit"]');
+    if(!btn) return true;
+    btn.disabled = true;
+    btn.textContent = "登録中...";
+    return true;
+}
+</script>
 {% endblock %}

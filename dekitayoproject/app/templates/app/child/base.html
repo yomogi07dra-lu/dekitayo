@@ -79,7 +79,27 @@
             </div>      
         </footer>
     </div>
+<div id="photo-modal" class="modal-overlay hidden">
+    <div class="modal">
+        <button class="modal-close" onclick="closePhotoModal()">×</button>
+        <img id="photo-modal-img" alt="photo">
+    </div>
+</div>
+
 {# JavaScript用ブロック #}
+<script>
+function openPhotoModal(src){
+    const modal = document.getElementById("photo-modal");
+    const img = document.getElementById("photo-modal-img");
+    img.src = src;
+    modal.classList.remove("hidden");
+}
+
+function closePhotoModal(){
+    document.getElementById("photo-modal")
+        .classList.add("hidden");
+}
+</script>
     {% block extra_js %}
 
     {% endblock %}

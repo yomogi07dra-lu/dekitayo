@@ -57,55 +57,47 @@
 <div class="upload-grid">
     <div class="upload-item">
         <input id="photo1" type="file" name="photo1_url" accept="image/*" class="upload-input">
-        <label for="photo1" class="upload-plus">
-            <span class="plus">＋</span>
-            <span class="note">（写真は1枠につき1枚）</span>
+
+            <div class="upload-box">
+                <label for="photo1" class="upload-plus">
+                    <span class="plus">＋</span>
+                    <span class="note">（写真は1枠につき1枚）</span>
+                </label>
+
+                <div id="upload_preview1" class="upload-preview">
+                    {% if daily_log and daily_log.photo1_url %}
+                        <img src="{{ daily_log.photo1_url.url }}" style="max-width:100%; border-radius:8px;">
+                    {% endif %}
+                </div>
+            </div>
+        {# 写真があるとき 変更ボタン（ファイル選択を開く） #}
+        <label for="photo1" class="upload-change">
+            写真を変更
         </label>
 
-        <div id="upload_preview1" class="upload-preview">
-            {% if daily_log and daily_log.photo1_url %}
-                <img src="{{ daily_log.photo1_url.url }}" style="max-width:100%; border-radius:8px;">
-            {% endif %}
-        </div>
-
-        {# 　写真の削除（ソフト削除） #}
-        {% if daily_log and daily_log.photo1_url %}
-        <label class="delete-check">
-            <input type="checkbox" name="delete_photo1" value="1">
-        </label>
-        {% endif %}
     </div>
 
 {# photo2 #}
     <div class="upload-item">
         <input id="photo2" type="file" name="photo2_url" accept="image/*" class="upload-input">
-        <label for="photo2" class="upload-plus">
-            <span class="plus">＋</span>
-            <span class="note">（写真は1枠につき1枚）</span>
-        </label>
+            <div class="upload-box">
+                <label for="photo2" class="upload-plus">
+                    <span class="plus">＋</span>
+                    <span class="note">（写真は1枠につき1枚）</span>
+                </label>
 
-        <div id="upload_preview2" class="upload-preview">
-            {% if daily_log and daily_log.photo2_url %}
-                <img src="{{ daily_log.photo2_url.url }}" style="max-width:100%; border-radius:8px;">
-            {% endif %}
-        </div>
-        {# 写真の削除（ソフト削除） #}
-        {% if daily_log and daily_log.photo2_url %}
-        <label class="delete-check">
-            <input type="checkbox" name="delete_photo2" value="1">
+                <div id="upload_preview2" class="upload-preview">
+                    {% if daily_log and daily_log.photo2_url %}
+                        <img src="{{ daily_log.photo2_url.url }}" style="max-width:100%; border-radius:8px;">
+                    {% endif %}
+                </div> 
+            </div>
+        {# 写真があるとき用 変更ボタン（ファイル選択を開く） #}
+        <label for="photo2" class="upload-change">
+            写真を変更
         </label>
-        {% endif %}
     </div>
 </div>
-    {% if daily_log.photo1_url or daily_log.photo2_url  %}
-        <p class="delete-help">
-            登録した写真はチェックして［変更］で削除されます
-        </p>
-    {% else %}
-        <p class="delete-help">
-            写真は登録・変更したあとに消せます
-        </p>
-    {% endif %}
 
 
 <div class="content-box">
@@ -136,16 +128,21 @@
     function setupImagePreview(inputId, previewId) {
         const input = document.getElementById(inputId);
         const previewBox = document.getElementById(previewId);
-        const plusLabel = input.nextElementSibling; // ＋ラベル
+        const wrapper = input.closest(".upload-item");
+        const plusLabel = input.parentElement.querySelector(".upload-plus");     // ＋
+        const changeLabel = input.parentElement.querySelector(".upload-change"); // 変更
 
          // 　初期表示：既存画像があれば「＋」を隠してプレビューを表示
+         // 初期表示：既存画像があれば「＋」を隠して「変更」を出す
         const hasInitialImage = previewBox.querySelector("img");
         if (hasInitialImage) {
             previewBox.style.display = "block";
             plusLabel.style.display = "none";
+            changeLabel.style.display = "inline-flex";
             } else {
                 previewBox.style.display = "none";
                 plusLabel.style.display = "flex";
+                changeLabel.style.display = "none";
             }
 
         input.addEventListener("change", () => {
@@ -156,6 +153,7 @@
                 previewBox.innerHTML = "";
                 previewBox.style.display = "none";   // ←追加
                 plusLabel.style.display = "flex";
+                changeLabel.style.display = "none";
                 return;
             }
 
@@ -177,6 +175,7 @@
 
             previewBox.style.display = "block";  
             plusLabel.style.display = "none";
+            changeLabel.style.display = "inline-flex";
         });
     }
 

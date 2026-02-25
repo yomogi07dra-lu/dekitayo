@@ -15,7 +15,11 @@
 
 <div class="top-row">
     <p class="today">{{ today|date:"n月j日(D)" }}</p>
-    <a href="{% url 'child_record_by_date' today.year today.month today.day %}" class="add-button">＋</a>
+    {# class="固定クラス {% if 条件 %}追加クラス{% endif %}" #}
+    <a href="{% url 'child_record_by_date' today.year today.month today.day %}"
+        class="add-button {% if daily_log %}edit-button{% endif %}">
+        {% if daily_log %}やり直す{% else %}＋{% endif %}
+    </a>
 </div>
 {% if is_past %}
     <h2>この日のできた！</h2>
@@ -42,13 +46,21 @@
         <div class="photo-grid">
             {% if daily_log.photo1_url %}
                 <div class="photo-box">
-                    <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+                    <img
+                        class="photo-img"
+                        src="{{ daily_log.photo1_url.url }}"
+                        onclick="openPhotoModal(this.src)"
+                    >
                 </div>  
             {% endif %}
 
             {% if daily_log.photo2_url %}
                 <div class="photo-box">
-                    <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+                    <img
+                        class="photo-img"
+                        src="{{ daily_log.photo2_url.url }}"
+                        onclick="openPhotoModal(this.src)"
+                    >
                 </div>    
             {% endif %}
 

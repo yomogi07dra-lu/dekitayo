@@ -43,13 +43,6 @@ def child_home(request, year=None, month=None, day=None):
         date=today,
     ).first() # 最新取得
 
-    # 今日の学習項目　取得 （表示対象（active）のみ）
-    items = list(
-        Item.objects
-        .filter(family=family, child=child, is_active=True)
-        .order_by("color_index")
-    )
-
     # 空の箱　今日の記録がなかった場合エラーにならないように　対象：学習項目
     checked_item_ids = []
 
@@ -68,10 +61,16 @@ def child_home(request, year=None, month=None, day=None):
         .select_related("user", "user__icon")   # コメントした保護者のアイコン
         .order_by("-created_at")           # コメント新しい順
         )
-    
+
+    # 登録でチェックされた項目のみ表示
+    items = list(
+        Item.objects
+        .filter(family=family, child=child, id__in=checked_item_ids)
+        .order_by("color_index")
+    )
+
     # 表示 #
     rows = []
-
     for slot in COLOR_SLOTS:
         index = slot["index"]
         css_class = slot["class"]
@@ -114,6 +113,7 @@ def child_record(request, year=None, month=None, day=None):
         target_date = date(int(year), int(month), int(day))
     else:
         target_date = timezone.localdate()
+    
 
     # 子ども所属家族取得
     family = request.user.family_member.family 
@@ -122,25 +122,31 @@ def child_record(request, year=None, month=None, day=None):
     # 共通関数：ログイン中のユーザーに紐づくchild取得
     child = get_current_child(request)
 
-    # 学習項目　取得 （表示対象（active）のみ）
-    items = list(Item.objects.filter(family=family, child=child, is_active=True).order_by("color_index"))
-
     # 指定日の学習記録
     daily_log = Daily_log.objects.filter(
         child=child,
         date=target_date
     ).first() #最新取得
     
-    # 一度登録していた時の学習項目ID一覧
-    checked_item_ids = []
-    
+    # その日にもともとチェック済みID（過去ログ整合のため保持）
+    previous_checked_ids = []
     if daily_log is not None:
-        checked_item_ids_queryset = (
+        previous_checked_ids = list(
             DailyLogItem.objects
             .filter(daily_log=daily_log)
             .values_list("item_id", flat=True)
         )
-        checked_item_ids = list(checked_item_ids_queryset)
+
+    # 表示するitems = 対象月active + その日チェック済み（inactive含む）
+    items = list(
+        Item.objects
+        .filter(family=family, child=child)
+        .filter(
+            Q(is_active=True) | Q(id__in=previous_checked_ids)
+        )
+        .order_by("color_index")
+    )
+    
 
     # 画面表示用の7行データを作成
     rows = []
@@ -168,29 +174,17 @@ def child_record(request, year=None, month=None, day=None):
         form = DailyLogForm(request.POST, request.FILES, instance=daily_log)
 
         if form.is_valid():
-            checked_item_ids = request.POST.getlist("item_ids")#チェックされた項目
+            posted_ids = request.POST.getlist("item_ids") #チェックされた項目
 
-            # 保存してよい学習項目（is_active=True）のID一覧をDBから取得する
-            # inactive の item_id が混ざる可能性が残っているため
-            active_items_queryset = Item.objects.filter(
-                family=family,
-                child=child,
-                is_active=True
+            # 許可 = active + その日に元からチェック済み（inactiveでもOK）
+            active_ids = set(
+                Item.objects
+                .filter(family=family, child=child, is_active=True)
+                .values_list("id", flat=True)
             )
-            active_item_id_list = list(
-                active_items_queryset.values_list("id", flat=True)
-            )
-            # 比較しやすいように、許可IDを set にする（検索が速い）
-            allowed_item_id_set = set(active_item_id_list)
-
-            # 送られてきたIDの中から、許可されているものだけ残す
-            filtered_checked_item_ids = []
-            for item_id in checked_item_ids:
-                if int(item_id) in allowed_item_id_set:
-                    filtered_checked_item_ids.append(item_id)
-
-            # 以降の保存処理では、絞り込んだIDだけを使う
-            checked_item_ids = filtered_checked_item_ids
+            allowed_ids = active_ids | set(previous_checked_ids)
+             # 許可されたものだけ残す
+            checked_item_ids = [int(pid) for pid in posted_ids if int(pid) in allowed_ids]
 
 
             with transaction.atomic():#同じ日なら更新、なければ新規作成
@@ -202,19 +196,11 @@ def child_record(request, year=None, month=None, day=None):
 
                 # コメント・写真を保存
                 daily_log.child_comment = form.cleaned_data["child_comment"]
-
-                # 　写真：削除チェックがあれば None を優先（ソフト削除）
-                delete_photo1 = request.POST.get("delete_photo1") == "1"
-                delete_photo2 = request.POST.get("delete_photo2") == "1"
-
-                if delete_photo1:
-                    daily_log.photo1_url = None
-                elif form.cleaned_data.get("photo1_url"):
+                
+                # 写真：新しく選ばれた時だけ上書き（未選択なら既存を維持）
+                if form.cleaned_data.get("photo1_url"):
                     daily_log.photo1_url = form.cleaned_data["photo1_url"]
-
-                if delete_photo2:
-                    daily_log.photo2_url = None
-                elif form.cleaned_data.get("photo2_url"):
+                if form.cleaned_data.get("photo2_url"):
                     daily_log.photo2_url = form.cleaned_data["photo2_url"]
 
                 daily_log.save()
@@ -242,7 +228,7 @@ def child_record(request, year=None, month=None, day=None):
         "today": target_date,        
         "form": form,
         "rows": rows,
-        "checked_item_ids": checked_item_ids,
+        "checked_item_ids": previous_checked_ids,
         "is_past": target_date != timezone.localdate(),
         "item_rows": item_rows,
         "daily_log": daily_log,
@@ -358,7 +344,8 @@ def child_monthly_graph(request, year=None, month=None):
                 dailylogitem__daily_log__date__range=(start_date, end_date)
             ),
         )
-    )        
+    )
+    .filter(total__gt=0) # その月にできたがない項目は非表示        
     .order_by("color_index") # 並び順
 )
     

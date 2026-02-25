@@ -54,13 +54,23 @@
             <div class="photo-grid">
                 {% if daily_log.photo1_url %}
                     <div class="photo-box">
-                        <img class="photo-img" src="{{ daily_log.photo1_url.url }}" alt="photo1">
+                        <img 
+                            class="photo-img"
+                            src="{{ daily_log.photo1_url.url }}"
+                            alt="photo1"
+                            onclick="openPhotoModal(this.src)"
+                        >
                     </div>  
                 {% endif %}
 
                 {% if daily_log.photo2_url %}
                     <div class="photo-box">
-                        <img class="photo-img" src="{{ daily_log.photo2_url.url }}" alt="photo2">
+                        <img 
+                            class="photo-img"
+                            src="{{ daily_log.photo2_url.url }}"
+                            alt="photo2"
+                            onclick="openPhotoModal(this.src)"
+                        >
                     </div>    
                 {% endif %}
 

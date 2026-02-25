@@ -66,12 +66,14 @@
     cursor: pointer;
     user-select: none;
 }
+
 /* ＋　大きく */
 .upload-plus .plus {
     font-size: 24px; 
     line-height: 1;
     color: #666;
 }
+
 /* 写真は最大2枚　の説明文 */
 .upload-plus .note {
     font-size: 12px;
@@ -79,16 +81,16 @@
     margin-top: 4px;
 }
 
-.upload-item {
-    width: 160px;
-    height: 100px; 
-    justify-self: center;
-    position: relative; 
+.upload-item{
+  width: 160px;
+  justify-self: center;
+  position: relative;   
 }
-.upload-meta {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #333;
+    /* 写真枠の高さはここで固定 */
+.upload-box{
+  width: 100%;
+  height: 100px;
+  position: relative;
 }
 
 /* プレビュー */
@@ -121,6 +123,16 @@
 .top-row{
     min-height: 24px;   /* ホーム画面に合わせる */
 }
+/* 写真変更ボタン  */
+.upload-change{
+  display: none;              /* 最初は表示しない　JSで表示 */
+  margin-top: 8px;
+  padding: 8px 12px;
+
+  border-radius: 10px;
+  border: 2px solid #38761d;
+  background: #98ee98ff;
+}
 
 /* 記録登録済みの際のメッセージ  */
 .edit-note {
@@ -133,36 +145,11 @@
     line-height: 1.5;       
 }
 
-/* record.css：削除チェックの見た目（小さめグレーで“後から見ても分かる”） */
-.delete-check{
-    position: absolute;
-    align-items: center;
-    gap: 2px;
-    margin-top: 2px;
-    font-size: 12px;
-    color: #444;      /* 濃いめグレー */
-    justify-content: center;
-    top: 8px;
-    left: 8px;
-    z-index: 10; 
-}
-.delete-check input{
-    transform: scale(1.5) translateY(-2px);
-    margin-left: 6px;
-    margin: 0; 
-}
-.delete-wrap{
-    position: relative;
-    margin-top: 6px;
-    display: grid;
-    gap: 4px;
-    justify-items: center;
-}
 
-/* 写真削除の説明文 */
-.delete-help{
-  margin-top: 6px;
-  font-size: 12px;
-  color: #666;
-  text-align: center;
-}
+ 
+
+
+
+
+
+

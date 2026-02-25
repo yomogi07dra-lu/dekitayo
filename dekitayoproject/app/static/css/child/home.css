@@ -24,3 +24,26 @@
 .parent-comment-note {
     font-size: 0.9rem;
 }
+/* 変更ボタン */
+.add-button.edit-button{
+    display: inline-flex;      /* inline要素のままflexにする */
+    align-items: center;       /* 縦中央 */
+    justify-content: center;   /* 横中央 */
+
+    width: 66px;
+    height: 40px;
+    border-radius: 9999px;
+
+    padding: 0;                
+    line-height: 1;       
+    white-space: nowrap;       
+    text-shadow: none;       
+
+    font-size: 16px;
+    font-weight: 700;
+
+    background: #fff;             
+    border: 2px solid var(--btn-bg);   
+    color: var(--btn-border);              
+    border-radius: 12px;          
+    }

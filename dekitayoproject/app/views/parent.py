@@ -57,22 +57,21 @@ def parent_home(request, year=None, month=None, day=None):
 
     # 今日の学習項目　取得（表示対象（active）のみ）
     family = request.user.family_member.family    
-    items = list(
-        Item.objects
-        .filter(family=family, child=child, is_active=True)
-        .order_by("color_index")
-    )
-    # 空の箱　今日の記録がなかった場合エラーにならないように
-    checked_item_ids = []
 
-    # 今日のチェックされた学習項目　取得
+    checked_item_ids = []
     if daily_log is not None:
         checked_item_ids = list(
             DailyLogItem.objects
             .filter(daily_log=daily_log)
-            .values_list("item_id", flat=True) # idリストとして取得
+            .values_list("item_id", flat=True)
         )
-    
+
+    items = list(
+        Item.objects
+        .filter(family=family, child=child, id__in=checked_item_ids)
+        .order_by("color_index")
+    )
+
     # 表示 #
     rows = []
 
@@ -193,14 +192,24 @@ def parent_item_manage(request):
                     form.add_error(None, "学習項目は最大7つまでです")
 
                 else: #スロットにItemがない（一番上から）
-                    Item.objects.create(
+                    # 二重登録防止
+                    already_exists = Item.objects.filter(
                         family=family,
                         child=child,
                         item_name=item_name,
-                        color_index=empty[0],
-                        )
+                        is_active=True,
+                    ).exists()
 
-                    return redirect("parent_item_manage")
+                    if already_exists:
+                        form.add_error("item_name", "同じ学習項目がすでに登録されています")
+                    else:
+                        Item.objects.create(
+                            family=family,
+                            child=child,
+                            item_name=item_name,
+                            color_index=empty[0],
+                        )
+                        return redirect("parent_item_manage")
 
         # 削除
         elif action == "delete":
@@ -210,7 +219,7 @@ def parent_item_manage(request):
                 family=family,
                 child=child,
             ).update(is_active=False, # ソフトデリート
-                    deleted_at=timezone.now() # 削除日時を記録
+                     deleted_at=timezone.now(), 
             ) 
 
             return redirect("parent_item_manage")
@@ -356,7 +365,7 @@ def parent_monthly_graph(request, year=None, month=None):
     child = get_target_child(request)
     
     #日付
-    today = date.today()
+    today = timezone.localdate()
     year = year or today.year
     month = month or today.month
 
@@ -405,7 +414,8 @@ def parent_monthly_graph(request, year=None, month=None):
                 dailylogitem__daily_log__date__range=(start_date, end_date)
             ),
         )
-    )        
+    )
+    .filter(total__gt=0)        
     .order_by("color_index") # 並び順
 )
     
@@ -709,7 +719,7 @@ def parent_icon_change(request):
         # 選択していない（事故防止）
             return render(
                 request,
-                "app/child/icon_change.html",
+                "app/parent/icon_change.html",
                 {"icons": icons, "current_icon": current_icon, "error": "アイコンを選択してください"}
             )
 

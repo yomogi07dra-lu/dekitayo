@@ -418,6 +418,36 @@ select {
     color: #333;
 }
 
+/*　写真モーダル　画像本体 */
+#photo-modal #photo-modal-img{
+    display: block;
+    /* 横は親要素いっぱいまで */
+    max-width: 100%;
+    /* 高さは画面の90%以内　90vh － 上の余白(44px) － 下余白(16px) */
+    max-height: calc(90vh - 44px - 16px);
+    /* 縦横比を維持 */
+    width: auto;
+    height: auto;
+    /* 見切れず全体表示*/
+    object-fit: contain;
+}
+/* 　写真モーダル　画面サイズ対応　×の余白 */
+#photo-modal .modal{
+    /* 中央配置 */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* ×ボタン用の余白　*/
+    padding: 44px 16px 16px;  
+    /* 画面幅に応じて伸縮（最大520px） */
+    width: min(92vw, 520px);  
+    /* 画面高さを超えない */
+    max-height: 90vh;
+    /* 万が一のはみ出し防止 */
+    overflow: hidden;         
+}
+
 /* 日付などの上段 */
 .top-row{
     position: relative;

@@ -62,7 +62,7 @@ class Family_member(models.Model):
         (PARENT,"保護者"),
         (CHILD,"子ども"),
     )
-    role = models.IntegerField(choices=ROLE_CHOICES, default=PARENT)
+    role = models.IntegerField(choices=ROLE_CHOICES, default=PARENT) # IntegerField通常　blank=False・null=False
 
     is_admin = models.BooleanField(default=False)
     
@@ -159,10 +159,14 @@ class DailyLogItem(BaseMeta):
         'Daily_log',
         on_delete=models.CASCADE,
     )
+    #  変更：物理削除されても過去ログを残す
     item = models.ForeignKey(
         'Item',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
+    
     class Meta:
          db_table = 'daily_log_items'
 
