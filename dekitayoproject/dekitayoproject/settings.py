@@ -24,10 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-jh2nx=#fxw033@2p1aa-*xuwo38sax-!y0%4$5vot0@xmbl%+@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["sachi0420.pythonanywhere.com"]
-
 
 
 # Application definition
@@ -132,14 +131,15 @@ AUTH_USER_MODEL = 'app.User'
 
 # メールアドレス
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "noreply.dekitayo@gmail.com"
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_TIMEOUT = 20
 
+EMAIL_HOST_USER = "noreply.dekitayo@gmail.com"
+EMAIL_HOST_PASSWORD = ""
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # 未ログイン時にリダイレクトされるログインURL
 # デフォルトは /accounts/login/ だが、このプロジェクトには存在しないため明示的に指定
 LOGIN_URL = "login"
@@ -151,13 +151,3 @@ LOGIN_URL = "login"
 # ログアウト後の遷移先
 LOGOUT_REDIRECT_URL = "login"
 
-# 本番と同じ「実メール送信」用（SMTP）
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
-EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "0") == "1"
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@example.com")
-EMAIL_TIMEOUT = 20

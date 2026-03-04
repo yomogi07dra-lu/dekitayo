@@ -128,7 +128,7 @@ def user_login(request):
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
             return render(request,"app/auth/login.html", {"login_form": login_form})
         # authenticate:Django の認証機能 ユーザーの存在　パスワードの一致　有効アカウントをチェック
-        user = authenticate(request,email=email, password=password)
+        user = authenticate(request, username=email, password=password)
 
         if user is None:
             login_form.add_error(None, "メールアドレスまたはパスワードが違います")
@@ -210,12 +210,14 @@ def request_password_reset_done(request):
 
 #パスワード再設定変更
 def password_reset_confirm(request, token):
-    # トークンが一致、使用っされていないものを取得　見つからなければエラー（正しいリンクは有効、使い終わったリンクは無効）
-    password_reset_token = get_object_or_404(
-        PasswordResetToken,
+    # トークンが一致、使用っされていないものを取得　見つからなければ画面遷移（正しいリンクは有効、使い終わったリンクは無効）
+    password_reset_token = PasswordResetToken.objects.filter(
         token=token,
         used=False,
-    )
+    ).first()
+
+    if not password_reset_token:
+        return render(request, "app/auth/password_reset_invalid.html")
 
     form = SetNewPasswordForm(request.POST or None)
     if form.is_valid():
