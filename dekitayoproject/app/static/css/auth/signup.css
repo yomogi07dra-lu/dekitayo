@@ -106,3 +106,8 @@ select {
 .username-group input {
     margin-bottom: 4px;
 }
+/* ログインリンク */
+.login-link {
+    margin-top: 16px;
+    text-align: center;
+}

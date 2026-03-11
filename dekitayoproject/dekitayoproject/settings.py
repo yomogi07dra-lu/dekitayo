@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-jh2nx=#fxw033@2p1aa-*xuwo38sax-!y0%4$5vot0@xmbl%+@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["sachi0420.pythonanywhere.com"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -138,6 +138,7 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = "noreply.dekitayo@gmail.com"
 EMAIL_HOST_PASSWORD = ""
+
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # 未ログイン時にリダイレクトされるログインURL

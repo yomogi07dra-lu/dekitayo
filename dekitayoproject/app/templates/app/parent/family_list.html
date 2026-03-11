@@ -33,10 +33,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return document.querySelector('input[name="user_id"]:checked');
     }
 
-    // 選択されていればモーダル表示
+    // 選択されていればモーダル表示　されていなければエラー表示
     function openDeleteModal() {
         const selected = getSelectedRadio();
-        if (!selected) return;
+        if (!selected) {
+            deleteForm.submit();
+            return;
+        }
 
     // ★自分のID（HTMLのdata-meから取得）
         const myId = deleteForm.dataset.me;

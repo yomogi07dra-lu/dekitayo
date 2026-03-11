@@ -612,7 +612,7 @@ def parent_family_list(request):
     if request.method == "POST":
         user_id = request.POST.get("user_id")
         if not user_id:
-            messages.error(request, "削除対象が選択されていません")
+            messages.error(request, "削除するアカウントを選択してください")
             return redirect("parent_family_list")
         
         target_user = get_object_or_404(
